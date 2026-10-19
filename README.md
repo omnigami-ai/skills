@@ -31,7 +31,7 @@ In Claude Code, add this catalogue once, then install skills by name:
 
 ```
 /plugin marketplace add omnigami-ai/skills
-/plugin install product-film@omnigami
+/plugin install omnigami-product-film@omnigami
 ```
 
 With the skills CLI, for Claude Code and other agents, install a skill from its repository:
