@@ -1,0 +1,190 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fennick · Illustrated ad</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #F1EBE0; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="kit.js"></script>
+<script>
+// Illustrated ad: a physical product's ad in the hand of its own packaging's illustrations. On warm
+// paper, each flavour's botanicals draw themselves in engraved ink (outlines first, from the stem out,
+// then the hatching), its name rises, and the real product (a photorealistic render) rises in front of
+// them; the page pushes on to the next. Then every product together, a fizz of engraved bubbles drawing
+// itself upward, the line and the call to action. Filled with Fennick, a fictional sparkling-tea company
+// made for omnigami's examples (cast/fennick): its three cans and engravings in the cans' own style
+// (cast/fennick/engravings). Tall (9:16).
+(() => {
+  const { clamp, lerp, spring, rng, loadFont, loadImage, measure, easeOutExpo, easeInOutCubic } = window.kit;
+  const FPS = 60, DURATION = 16, W = 1080, H = 1920;
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+  const helper = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d', { willReadFrequently: true })]; };
+
+  // ---------- Fennick: colour and type (cast/fennick/brand.md) ----------
+  const PAPER = '#F1EBE0', INK = '#1D1A16', MUTED = '#6E665C';
+  const BR = (s, w = 800) => `semi-condensed ${w} ${s}px Bricolage`, DM = (s, w = 500) => `${w} ${s}px "DM Sans"`;
+
+  // ---------- the words: named fields ----------
+  const DEFAULTS = { flavour1: 'Yuzu & Fennel', flavour2: 'Hibiscus & Blackcurrant', flavour3: 'Pear & Ginger', line: 'Tea, but it fizzes.', cta: 'Build your box', url: 'fennick.example' };
+  const FIELDS = [
+    { id: 'flavour1', type: 'text', label: 'Product 1', maxLength: 26 }, { id: 'flavour2', type: 'text', label: 'Product 2', maxLength: 26 }, { id: 'flavour3', type: 'text', label: 'Product 3', maxLength: 26 },
+    { id: 'line', type: 'text', label: 'The line', maxLength: 26 }, { id: 'cta', type: 'text', label: 'Call to action', maxLength: 20 }, { id: 'url', type: 'text', label: 'Address', maxLength: 24 },
+  ];
+  let V = DEFAULTS;
+  // each product: its render, its two botanicals, its colour (a quiet wash behind it)
+  const PRODUCTS = [
+    { can: 'can-yuzu', a: 'yuzu', b: 'fennel', field: 'flavour1', wash: 'rgba(247,204,51,0.16)' },
+    { can: 'can-hibiscus', a: 'hibiscus', b: 'blackcurrant', field: 'flavour2', wash: 'rgba(219,56,99,0.12)' },
+    { can: 'can-pear', a: 'pear', b: 'ginger', field: 'flavour3', wash: 'rgba(140,194,97,0.15)' },
+  ];
+
+  // ---------- the beats ----------
+  const STEP = 4.0, S0 = 0.3; // each product: its botanicals draw, its name rises, its can rises, it holds, the page pushes on
+  const P = { a: [0, 1.7], b: [0.45, 2.15], name: 1.0, can: 2.35, push: [3.75, 4.35] };
+  const T = { trio: [12.05, 12.85], bubbles: [12.55, 13.8], line: 12.95, cta: 13.6 };
+
+  // ---------- the engravings: each drawn in its own order ----------
+  // order map, 0 … 1 per pixel: mostly distance from where the drawing starts (the stem), the dark
+  // outlines a little before the light hatching, and a soft noise so it reads as strokes, not a wipe
+  const ENG = {}, START = { yuzu: [0.85, 0.05], fennel: [0.5, 1], hibiscus: [0.05, 0.95], blackcurrant: [0.55, 0.05], pear: [0.6, 0.02], ginger: [0.05, 0.5], tea: [0.5, 1], bubbles: [0.5, 1] };
+  function prepareEngraving(name, img) {
+    const [c, X] = helper(img.width, img.height); X.drawImage(img, 0, 0);
+    const d = X.getImageData(0, 0, c.width, c.height), w = c.width, h = c.height, a = new Uint8ClampedArray(w * h), o = new Float32Array(w * h);
+    const [sx, sy] = START[name], r = rng(name.length * 31 + 7), N = 24, grid = Array.from({ length: (N + 1) * (N + 1) }, () => r());
+    const noise = (x, y) => { const gx = (x / w) * N, gy = (y / h) * N, i = gx | 0, j = gy | 0, fx = gx - i, fy = gy - j, q = (ii, jj) => grid[Math.min(N, jj) * (N + 1) + Math.min(N, ii)]; return lerp(lerp(q(i, j), q(i + 1, j), fx), lerp(q(i, j + 1), q(i + 1, j + 1), fx), fy); };
+    const far = Math.hypot(Math.max(sx, 1 - sx) * w, Math.max(sy, 1 - sy) * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const k = y * w + x, al = d.data[k * 4 + 3]; a[k] = al;
+      o[k] = 0.62 * Math.hypot(x - sx * w, y - sy * h) / far + 0.18 * (1 - al / 255) + 0.2 * noise(x, y);
+    }
+    const [out, Y] = helper(w, h);
+    ENG[name] = { img: c, w, h, a, o, out, Y, im: Y.createImageData(w, h), last: -1 };
+  }
+  // the engraving at progress p (0 none, 1 all): pixels whose order is under the pen, with a soft edge
+  function engraving(name, p) {
+    const E = ENG[name]; if (p >= 1) return E.img;
+    const q = Math.round(p * 400) / 400; if (q === E.last) return E.out;
+    const px = E.im.data, edge = 0.05, at = q * (1 + edge * 2) - edge;
+    for (let k = 0, n = E.a.length; k < n; k++) {
+      const v = (at - E.o[k]) / edge, f = v <= 0 ? 0 : v >= 1 ? 1 : v;
+      px[k * 4] = 29; px[k * 4 + 1] = 26; px[k * 4 + 2] = 22; px[k * 4 + 3] = E.a[k] * f;
+    }
+    E.Y.putImageData(E.im, 0, 0); E.last = q; return E.out;
+  }
+  function drawEng(name, p, cx, cy, hgt) { // centred at cx, cy, hgt tall
+    if (p <= 0) return; const E = ENG[name], s = Math.min(hgt / E.h, 500 / E.w), w = E.w * s, h = E.h * s; // never wider than 500, so a wide one stays in frame
+    g.drawImage(engraving(name, p), cx - w / 2, cy - h / 2, w, h);
+  }
+
+  // ---------- type ----------
+  function text(c, s, x, y, font, colour, align = 'left', base = 'middle') {
+    c.font = font; c.fillStyle = colour; c.textAlign = align;
+    if (base === 'middle') window.kit.centreText(c, s, x, y); else { c.textBaseline = base; c.fillText(s, x, y); }
+  }
+  function rise(c, draw, baseline, size, p, top = baseline - size * 1.05) {
+    if (p <= 0 || p >= 2) return;
+    const off = p < 1 ? (1 - easeOutExpo(p)) * size * 1.45 : -easeInOutCubic(p - 1) * size * 1.45;
+    c.save(); c.beginPath(); c.rect(0, top, W, baseline + size * 0.35 - top); c.clip(); c.translate(0, off); draw(); c.restore();
+  }
+  const riseP = (t, tin, tout, dur = 0.34) => (t < tout ? clamp((t - tin) / dur) : 1 + clamp((t - tout) / 0.24));
+  const fit = (s, font, size, max) => Math.min(size, (size * max) / Math.max(1, measure(g, font(size), s)));
+
+  // ---------- one product's page ----------
+  const IMG = {};
+  // a can standing on base; rise (0 → 1) brings it up out of a line at its base, so it never crosses the words below
+  function can(name, cx, base, hgt, rise = 1) {
+    const im = IMG[name], w = im.width * hgt / im.height, dy = (1 - rise) * hgt * 1.05;
+    g.save(); g.beginPath(); g.rect(0, 0, W, base + 30); g.clip(); g.shadowColor = 'rgba(60,40,20,0.22)'; g.shadowBlur = 40; g.shadowOffsetY = 18; g.drawImage(im, cx - w / 2, base - hgt + dy, w, hgt); g.restore();
+  }
+  function productPage(i, t, dx, withCan = true) {
+    const Pr = PRODUCTS[i], s = S0 + i * STEP, u = t - s, cx = W / 2 + dx;
+    if (u < 0) return;
+    // the can rises in front; the botanicals open out a little to frame it
+    const up = spring(u - P.can, 170, 22), open = 1 - (1 - clamp((u - P.can) / 0.55)) ** 3; // the drawings move off at once and settle softly into place
+    if (up > 0.01) { const r = 380 * Math.min(1.04, up); g.fillStyle = Pr.wash; g.beginPath(); g.arc(cx, 1040, r, 0, Math.PI * 2); g.fill(); } // the flavour's wash grows from the middle
+    drawEng(Pr.a, clamp((u - P.a[0]) / (P.a[1] - P.a[0])), cx - lerp(160, 290, open), lerp(910, 870, open), lerp(600, 520, open));
+    drawEng(Pr.b, clamp((u - P.b[0]) / (P.b[1] - P.b[0])), cx + lerp(160, 290, open), lerp(970, 1010, open), lerp(600, 520, open));
+    if (up > 0.001 && withCan) can(Pr.can, cx, 1410, 760, Math.min(1, up));
+    const name = V[Pr.field], size = fit(name, BR, 96, 940), leave = i < 2 ? s + P.push[0] - 0.36 : T.trio[0] - 0.36; // the words leave before the page moves
+    rise(g, () => text(g, name, cx, 1640, BR(size), INK, 'center', 'alphabetic'), 1640, size, riseP(t, s + P.name, leave, 0.36));
+    rise(g, () => text(g, 'Sparkling botanical tea', cx, 1720, DM(36, 500), MUTED, 'center', 'alphabetic'), 1720, 36, riseP(t, s + P.name + 0.15, leave + 0.04, 0.34));
+  }
+
+  // ---------- the frame ----------
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    g.reset();
+    t = clamp(t, 0, DURATION - 1e-6);
+    g.drawImage(IMG.paper, 0, 0);
+    // the pages: each pushes on to the next (fast out, soft settle); the last pushes on to the end card
+    const push = (i) => { const s = S0 + i * STEP; const q = clamp((t - s - P.push[0]) / (P.push[1] - P.push[0])); return 1 - (1 - q) ** 3.2; };
+    // page i slides in from the right as page i − 1 pushes out to the left; the last page's botanicals and
+    // name push out for the end card, while its can stays and steps into the row
+    const trio = easeInOutCubic(clamp((t - T.trio[0]) / (T.trio[1] - T.trio[0])));
+    for (let i = 0; i < 3; i++) {
+      const out = i < 2 ? push(i) : trio, inn = i ? 1 - push(i - 1) : 0;
+      if (out >= 1) continue;
+      productPage(i, t, (inn - out) * W, !(i === 2 && t >= T.trio[0]));
+    }
+    // the end: the three cans together, a fizz drawing itself up behind them, the line, the call to action
+    if (t >= T.trio[0]) {
+      const q = easeInOutCubic(clamp((t - T.trio[0]) / (T.trio[1] - T.trio[0]))), base = 1240, hgt = lerp(760, 560, q);
+      // the third can, already there, steps right as the other two come back in from the left
+      const xs = [lerp(-500, W / 2 - 300, q), lerp(-200, W / 2, q), lerp(W / 2, W / 2 + 300, q)];
+      drawEng('bubbles', clamp((t - T.bubbles[0]) / (T.bubbles[1] - T.bubbles[0])), W / 2, 820, 820);
+      [0, 1, 2].forEach((i) => can(PRODUCTS[i].can, xs[i], lerp(1410, base, q), hgt));
+      const size = fit(V.line, BR, 104, 960);
+      rise(g, () => text(g, V.line, W / 2, 380, BR(size), INK, 'center', 'alphabetic'), 380, size, riseP(t, T.line, 99, 0.4));
+      // the call to action: a pill in ink, the address under it
+      const cp = spring(t - T.cta, 300, 20);
+      if (cp > 0.01) {
+        g.save(); g.translate(W / 2, 1440); g.scale(cp, cp); g.font = DM(42, 600); const w = g.measureText(V.cta).width + 96;
+        g.beginPath(); g.roundRect(-w / 2, -44, w, 88, 44); g.fillStyle = INK; g.fill(); text(g, V.cta, 0, 0, DM(42, 600), PAPER, 'center'); g.restore();
+      }
+      rise(g, () => text(g, V.url, W / 2, 1560, DM(38, 500), MUTED, 'center', 'alphabetic'), 1560, 38, riseP(t, T.cta + 0.2, 99, 0.34));
+      const wm = IMG.wordmark, ww = 330, wh = ww * wm.height / wm.width;
+      rise(g, () => g.drawImage(wm, W / 2 - ww / 2, 1760 - wh, ww, wh), 1760, wh, riseP(t, T.cta + 0.35, 99, 0.36));
+    }
+    return canvas;
+  }
+
+  async function prepare() {
+    const names = ['yuzu', 'fennel', 'hibiscus', 'blackcurrant', 'pear', 'ginger', 'bubbles'];
+    await Promise.all([
+      loadFont('Bricolage', 'assets/fonts/bricolage-grotesque-variable.ttf', { weight: '200 800', stretch: '75% 100%' }),
+      loadFont('DM Sans', 'assets/fonts/dm-sans-variable.ttf', { weight: '100 1000' }),
+      ...[...names, 'can-yuzu', 'can-hibiscus', 'can-pear', 'wordmark'].map(async (n) => { if (!IMG[n]) IMG[n] = await loadImage(`assets/art/${n}.${n === 'wordmark' ? 'svg' : 'png'}`); }),
+    ]);
+    await document.fonts.ready;
+    for (const n of names) if (!ENG[n]) prepareEngraving(n, IMG[n]);
+    if (!IMG.paper) { // warm paper, a fine grain, a little lighter in the middle
+      const [c, X] = helper(W, H); X.fillStyle = PAPER; X.fillRect(0, 0, W, H);
+      const gl = X.createRadialGradient(W / 2, H * 0.45, 0, W / 2, H * 0.45, H * 0.75); gl.addColorStop(0, 'rgba(255,253,247,0.6)'); gl.addColorStop(1, 'rgba(255,253,247,0)'); X.fillStyle = gl; X.fillRect(0, 0, W, H);
+      const r = rng(5); for (let i = 0; i < 60000; i++) { X.fillStyle = r() > 0.5 ? 'rgba(255,255,255,0.35)' : 'rgba(90,72,50,0.06)'; X.fillRect(r() * W, r() * H, 1 + r() * 1.5, 1 + r() * 1.5); }
+      IMG.paper = c;
+    }
+  }
+  function cues() {
+    const out = [], pop = (t, gain = 0.4) => out.push({ t, type: 'pop', gain }), swish = (t, kind, travel, gain = 0.28) => out.push({ t, type: 'swish', gain, motion: { kind, travel } });
+    for (let i = 0; i < 3; i++) {
+      const s = S0 + i * STEP;
+      for (let k = 0; k < 6; k++) out.push({ t: s + 0.1 + k * 0.33, type: 'tick', gain: 0.14 }); // the pen
+      pop(s + P.name, 0.36); swish(s + P.can, 'container', 0.6, 0.3); pop(s + P.can + 0.35, 0.42);
+      if (i < 2) swish(s + P.push[0], 'camera', 0.8, 0.3);
+    }
+    swish(T.trio[0], 'container', 0.7, 0.3); pop(T.line, 0.42); pop(T.cta, 0.45); pop(T.cta + 0.35, 0.36);
+    return out.sort((a, b) => a.t - b.t);
+  }
+  const music = { bpm: 120, duration: DURATION, root: 50, chords: [[0, 4, 7], [9, 12, 16], [5, 9, 12], [7, 11, 14]],
+    sections: [{ from: 0, to: 1, pad: 0.7, hats: 0.3 }, { from: 1, to: 6, kick: 0.6, hats: 0.5, bass: 0.55, pad: 0.55 }, { from: 6, to: 8, pad: 0.7, hats: 0.35, bass: 0.4 }] };
+  const STATES = [[0, PRODUCTS[0].a], [S0 + STEP, PRODUCTS[1].a], [S0 + 2 * STEP, PRODUCTS[2].a], [T.trio[0], 'Together'], [T.cta, 'Call to action']];
+  window.template = { fps: FPS, duration: DURATION, sizes: { '9:16': [1080, 1920] }, width: W, height: H, defaults: () => ({ size: '9:16', ...DEFAULTS }), fields: FIELDS, states: STATES, prepare, seek: (t, values) => seek(t, values), cues, music,
+    keyTimes: [0.8, 1.6, 2.4, 3.2, 4.1, 5.0, 6.5, 7.6, 8.1, 9.2, 10.8, 11.8, 12.5, 13.2, 14.0, 15.5] };
+  const q = new URLSearchParams(location.search);
+  if (window.parent === window && !q.has('render')) prepare().then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, {}); requestAnimationFrame(loop); }; loop(); });
+})();
+</script>

@@ -1,0 +1,752 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fennick · Unfold</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #f1ebe0; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<canvas id="c" width="1440" height="1440"></canvas>
+<script src="kit.js"></script>
+<script>
+// Unfold: a frame-locked remake of the grammar of @twoclipping's keynote-style
+// launch film (see ../spec.md), filled with Fennick, a fictional sparkling-tea
+// company made for omnigami's examples (cast/fennick). One continuous take: every
+// scene is made out of the previous one. Nothing fades, blurs or cuts; shapes
+// change instead. A screen-studio camera frames each moment; a cursor drives it.
+// The screens are Fennick's real shop, captured by plans/; the tiles are its can
+// renders and photographs. Square, wide and tall: one design, laid out for each frame.
+(() => {
+  const { clamp, lerp, spring, track, loadFont, loadImage, measure, roundRect, drawCover, easeOutExpo, easeInOutCubic, rng } = window.kit;
+  const W = 1440, H = 1440, CX = 720, CY = 720, FPS = 60, DURATION = 27;
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+  const helper = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d', { willReadFrequently: true })]; };
+  const [paperC, PL] = helper(W, H);      // the ribbon wallpaper behind the phone and window
+
+  // ---------- type ----------
+  const BR = (s, w = 800) => `semi-condensed ${w} ${s}px Bricolage`; // Fennick's display face: heavy, a little condensed
+  const DM = (s, w = 500) => `${w} ${s}px DM Sans`;
+  const INK = '#1D1A16', CANVAS = '#F1EBE0', PAPER = '#FBF6EE', MUTED = '#6E665C';
+  // Fennick's palette (cast/fennick/brand.md): a colour for each flavour, and fizz
+  const FL = { yuzu: '#F7CC33', hibiscus: '#DB3863', pear: '#8CC261', fizz: '#FF6A3D' };
+
+  // ---------- the words: named fields ----------
+  const DEFAULTS = { wordmark: 'Fennick', tagline: 'Tea, but it fizzes.', cta: 'Build your box', verb: 'fill' };
+  const FIELDS = [
+    { id: 'wordmark', type: 'text', label: 'Wordmark', maxLength: 9, help: 'The brand name. The film adds the period it squeezes into.' },
+    { id: 'tagline', type: 'text', label: 'Tagline', maxLength: 40 },
+    { id: 'cta', type: 'text', label: 'Pill label', maxLength: 16, help: 'The first click: the main call to action.' },
+    { id: 'verb', type: 'text', label: 'Glass word', maxLength: 7, help: 'One verb, popped in glass over the product. The film adds the period.' },
+  ];
+  let V = DEFAULTS;
+  let S; // the current shape's layout (see SHAPES), set from seek's arguments on every frame
+
+  // ---------- small helpers ----------
+  const ease = (t, a, b, f = easeInOutCubic) => f(clamp((t - a) / (b - a)));
+  const inCubic = (p) => p * p * p;
+  const sp = (t, t0, k = 170, d = 26) => spring(t - t0, k, d);
+  function text(c, s, x, y, font, col, align = 'left', base = 'middle') { c.font = font; c.fillStyle = col; c.textAlign = align; if (base === 'middle') window.kit.centreText(c, s, x, y); else { c.textBaseline = base; c.fillText(s, x, y); } } // 'middle': centred on the capitals
+  // glass: a smoky ink tint, a white veil, a top highlight and a bright rim
+  function glass(c, path, alpha = 1, tint = 0.5) {
+    c.save(); c.globalAlpha = alpha;
+    path(); c.fillStyle = `rgba(29,26,22,${tint})`; c.fill();
+    path(); c.fillStyle = 'rgba(255,255,255,0.11)'; c.fill();
+    c.lineWidth = 2.5; c.strokeStyle = 'rgba(255,255,255,0.62)'; c.stroke();
+    c.restore();
+  }
+  // a round aperture: black outside a circle of radius open × R; open = 1 shows everything
+  function iris(c, cx, cy, R, open) {
+    if (open >= 0.999) return;
+    c.save(); c.beginPath(); c.rect(cx - R * 2, cy - R * 2, R * 4, R * 4); c.arc(cx, cy, Math.max(0, open) * R, 0, Math.PI * 2);
+    c.fillStyle = INK; c.fill('evenodd'); c.restore();
+  }
+  // a press: 0 → 1 over the 0.07 s before a click lands at tc, back to 0 over the 0.22 s after
+  const press = (t, tc) => (t < tc - 0.07 ? 0 : t < tc ? easeOutExpo((t - tc + 0.07) / 0.07) : 1 - easeInOutCubic(clamp((t - tc) / 0.22)));
+  // around (x, y), scale by k: a pressed thing sinks a little
+  const sink = (c, x, y, k) => { c.translate(x, y); c.scale(k, k); c.translate(-x, -y); };
+
+  // ---------- the wordmark, and the period it squeezes into ----------
+  let WM = null;
+  function wordmark(c) {
+    const word = V.wordmark + '.', B = S.wm;
+    if (WM && WM.word === word && WM.shape === S.name) return WM;
+    let size = B.max; c.font = BR(100); const w100 = c.measureText(word).width; size = Math.min(B.max, (B.fit * 100) / w100);
+    c.font = BR(size); const total = c.measureText(word).width, x0 = S.cx - total / 2, base = B.base;
+    const chars = []; let acc = 0;
+    for (const ch of word) { const w = c.measureText(ch).width; chars.push({ ch, x: x0 + acc, w }); acc = c.measureText(word.slice(0, chars.length)).width; }
+    const dot = chars[chars.length - 1], m = c.measureText('.');
+    const dl = dot.x - m.actualBoundingBoxLeft, dr = dot.x + m.actualBoundingBoxRight, dd = dr - dl;
+    WM = { word, shape: S.name, size, base, chars, dotX: dot.x, dotCx: (dl + dr) / 2, dotCy: base - m.actualBoundingBoxAscent / 2 + m.actualBoundingBoxDescent / 2, dotD: dd };
+    return WM;
+  }
+  // the letters drop out of sight through a mask line just under the wordmark, left to right, leaving
+  // the period (0.5–0.85), and rise back through it at the close (25.35). drop(i) → 0 at rest, 1 gone.
+  function drawWord(c, drop) {
+    const L = wordmark(c), n = L.chars.length - 1, fall = L.size * 1.1;
+    c.font = BR(L.size); c.fillStyle = INK; c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+    c.save(); c.beginPath(); c.rect(-2000, -4000, 8000, 4000 + L.base + L.size * 0.24); c.clip(); // room for descenders
+    L.chars.slice(0, -1).forEach((ch, i) => { const d = drop(i, n); if (d < 0.999) c.fillText(ch.ch, ch.x, L.base + d * fall); });
+    c.restore();
+    c.beginPath(); c.arc(L.dotCx, L.dotCy, L.dotD / 2, 0, Math.PI * 2); c.fill();
+  }
+  const wordOut = (t) => (i) => inCubic(clamp((t - 0.5 - i * 0.03) / 0.2));
+  const wordIn = (t) => (i, n) => 1 - easeOutExpo(clamp((t - 25.35 - (n - 1 - i) * 0.035) / 0.45));
+  // the tagline: drops out of its mask line, later rises back into it
+  function drawTagline(c, t) {
+    const B = S.wm, y = B.tagY, font = DM(B.tag, 400); c.font = font;
+    const s = V.tagline, total = measure(c, font, s); let x = S.cx - total / 2;
+    c.save(); c.beginPath(); c.rect(0, 0, S.dw, y + 24); c.clip();
+    c.fillStyle = MUTED; c.textBaseline = 'alphabetic'; c.textAlign = 'left'; const yb = window.kit.capMiddle(c, y) - y;
+    [...s].forEach((ch, i) => {
+      const drop = t < 13 ? inCubic(clamp((t - 0.42 - i * 0.004) / 0.1)) : 1 - easeOutExpo(clamp((t - 25.9 - i * 0.006) / 0.3));
+      if (drop < 0.999) c.fillText(ch, x, yb + y + drop * B.drop);
+      x += measure(c, font, ch);
+    });
+    c.restore();
+  }
+
+  // ---------- the art and the shop's screens (loaded in prepare) ----------
+  // ART: Fennick's can renders and photographs (cast/fennick/app/art). SCR: its real shop, captured by
+  // plans/desktop.json (1440 × 1000 CSS px at 3×) and plans/mobile.json (390 × 844 at 4×): the home page,
+  // the home page without its hero picture, and the box page with 0 … 12 cans. The rects (CSS px) are
+  // copied from each folder's screens.json: the hero picture and its button, the box, and the full
+  // box's checkout button. `order`: the order shape's [t, w, h] keys (CSS px); `u`: its text size.
+  const ART = {};
+  // the phone (a photograph of an unbranded phone, its screen cut out: PHONE_SCREEN is the screen's
+  // rect in its pixels), the owner's lock-screen wallpaper, and the box arrived, for the last shot
+  const ART_EXTRA = { phone: 'phone.png', wallpaper: 'wallpaper.jpg', arrival: 'arrival-tall.jpg', arrivalWide: 'arrival-wide.jpg' };
+  const PHONE_SCREEN = [25, 26, 490, 1118];
+  const SCR = {
+    d: { dir: 'assets/screens', scale: 3, w: 1440, img: {}, heroPic: [706.38, 120, 669.63, 780], heroBtn: [64, 653.72, 233.22, 64], stage: [64, 152, 732.66, 725.53], go: [100, 789.53, 660.66, 56],
+      order: [[19.7, 660.66, 56], [20.02, 300, 52], [20.47, 300, 52], [20.95, 300, 70], [21.36, 52, 52]], u: 18 },
+    m: { dir: 'assets/screens-mobile', scale: 4, w: 390, img: {}, heroPic: [24, 509.66, 342, 348.97], heroBtn: [24, 412.66, 342, 64], stage: [24, 287.86, 342, 203.44], go: [167.91, 499.3, 198.09, 40],
+      order: [[19.7, 198.09, 40], [20.02, 200, 44], [20.47, 200, 44], [20.95, 200, 60], [21.36, 44, 44]], u: 14, // no wider than the button: the page's margin is close
+      paper: 'rgb(252,246,239)', extra: ['checkout', 'order'],
+      // the full box's summary row (box-11's old row leaves the band; "Box ready" and the button arrive)
+      row: { band: [494, 543], old: [0, 500, 390, 32], shift: 0, ready: [0, 497, 166, 46], btn: [167.91, 499.3, 198.09, 40] },
+      // the checkout page (1891 tall): its "Start my box" button; the order page (844 tall)
+      checkout: { h: 1891, place: [24, 1510.81, 342, 64] } },
+  };
+  const SHOTS = ['home', 'home-bare', ...Array.from({ length: 13 }, (_, i) => `box-${String(i).padStart(2, '0')}`)];
+  // a region of a capture (CSS px), drawn into a box
+  function shot(c, D, name, [sx, sy, sw, sh], x, y, w, h) { const k = D.scale; c.drawImage(D.img[name], sx * k, sy * k, sw * k, sh * k, x, y, w, h); }
+
+  // ---------- tiles: Fennick's cans and photographs where the original has photos (1000-unit squares) ----------
+  const TILE = {};
+  // a can standing on its flavour's colour
+  const canTile = (bg, art) => (c) => {
+    c.fillStyle = bg; c.fillRect(0, 0, 1000, 1000);
+    const gl = c.createRadialGradient(500, 330, 0, 500, 330, 700); gl.addColorStop(0, 'rgba(255,255,255,0.3)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(0, 0, 1000, 1000);
+    c.save(); c.translate(500, 928); c.scale(1, 0.14); const sh = c.createRadialGradient(0, 0, 0, 0, 0, 230); sh.addColorStop(0, 'rgba(29,26,22,0.3)'); sh.addColorStop(1, 'rgba(29,26,22,0)'); c.fillStyle = sh; c.fillRect(-300, -300, 600, 600); c.restore();
+    const img = ART[art], h = 880, w = h * img.width / img.height; c.drawImage(img, 500 - w / 2, 930 - h * 0.972, w, h);
+  };
+  TILE.yuzu = canTile(FL.yuzu, 'can-yuzu'); // the first thing the iris opens onto
+  TILE.hibiscus = canTile(FL.hibiscus, 'can-hibiscus');
+  TILE.pear = canTile(FL.pear, 'can-pear');
+  TILE.serving = (c) => drawCover(c, ART.serving, 0, 0, 1000, 1000, [0.45, 0.5]);
+  TILE.brewing = (c) => drawCover(c, ART.brewing, 0, 0, 1000, 1000, [0.42, 0.45]);
+  TILE.trio = (c) => drawCover(c, ART.condensation, 0, 0, 1000, 1000, [0.5, 0.55]);
+  TILE.box = (c) => { c.fillStyle = '#EFE6D6'; c.fillRect(0, 0, 1000, 1000); const img = ART.box, s = 880 / img.width; c.drawImage(img, 60, 70, img.width * s, img.height * s); };
+  TILE.kcal = (c) => {
+    c.fillStyle = FL.fizz; c.fillRect(0, 0, 1000, 1000);
+    text(c, '25', 500, 410, BR(480), INK, 'center');
+    text(c, 'calories a can', 500, 730, DM(84, 600), INK, 'center');
+    text(c, 'No sugar added', 500, 836, DM(66, 500), 'rgba(29,26,22,0.72)', 'center');
+  };
+  TILE.feed = (c, t) => { c.save(); c.scale(1000 / 1440, 1000 / 1440); feedScreen(c, t); c.restore(); };
+  // the 3 × 3 grid: [tile, col, row]; the middle one is the yuzu can, the middle right the box builder
+  const GRID = [['hibiscus', 0, 0], ['serving', 1, 0], ['kcal', 2, 0], ['pear', 0, 1], ['yuzu', 1, 1], ['feed', 2, 1], ['brewing', 0, 2], ['trio', 1, 2], ['box', 2, 2]];
+  // square's bento: 4 × 3 cells of 224 on a 241 step; the box builder takes 2 × 2 at the top right
+  const BENTO = { hibiscus: [0, 0], pear: [0, 1], brewing: [0, 2], serving: [1, 0], kcal: [1, 1], yuzu: [1, 2], trio: [2, 2], box: [3, 2] };
+  function drawTile(c, name, x, y, s, r, t) {
+    c.save(); roundRect(c, x - s / 2, y - s / 2, s, s, r); c.clip();
+    c.translate(x - s / 2, y - s / 2); c.scale(s / 1000, s / 1000); TILE[name](c, t); c.restore();
+  }
+  // wide and tall: the feed's tile is a w × h screen in the frame's own shape, covered from its top left
+  function feedTile(c, x, y, w, h, r, t) {
+    c.save(); roundRect(c, x - w / 2, y - h / 2, w, h, r); c.clip();
+    const q = Math.max(w / S.dw, h / S.dh); c.translate(x - w / 2, y - h / 2); c.scale(q, q); feedScreen(c, t); c.restore();
+  }
+
+  // ---------- the box builder: Fennick's real page, filling as the slider moves ----------
+  // the slider's position, 0 … 1 (8.65–9.75); the box holds 12 × that many cans
+  const knobAt = (t) => (t < 8.65 ? 0 : t < 9.75 ? lerp(easeInOutCubic(clamp((t - 8.65) / 1.1)), clamp((t - 8.65) / 1.1), 0.3) : 1);
+  const cansAt = (t) => Math.round(12 * knobAt(t));
+  let FULL = 9.75; for (let f = 8.65; f < 9.76; f += 1 / 240) if (cansAt(f) === 12) { FULL = f; break; } // the twelfth can lands
+  // the page fills the frame (S.dw × S.dh): S.feed.crop is the part of the capture (CSS px) it shows
+  function feedScreen(c, t) {
+    const F = S.feed, D = SCR[F.set], s = S.dw / F.crop[2], img = D.img[`box-${String(cansAt(t)).padStart(2, '0')}`];
+    c.fillStyle = PAPER; c.fillRect(-400, -400, S.dw + 800, S.dh + 800);
+    c.save(); c.translate(-F.crop[0] * s, -F.crop[1] * s); c.scale(s / D.scale, s / D.scale); c.drawImage(img, 0, 0); c.restore();
+    if (D.row && t >= FULL && t < FULL + 0.8) { c.save(); c.translate(-F.crop[0] * s, -F.crop[1] * s); c.scale(s, s); boxReady(c, t - FULL, D); c.restore(); }
+    if (D.row && press(t, C.click) > 0) { c.save(); c.translate(-F.crop[0] * s, -F.crop[1] * s); c.scale(s, s); pressedButton(c, D, 'box-12', D.row.btn, press(t, C.click)); c.restore(); }
+  }
+  // a captured button, pressed: the paper painted over it, the button redrawn a little smaller and
+  // lit a touch (CSS px of its capture)
+  function pressedButton(c, D, name, [bx, by, bw, bh], pr) {
+    const k = D.scale, cx = bx + bw / 2, cy = by + bh / 2;
+    c.fillStyle = D.paper; c.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+    c.save(); sink(c, cx, cy, 1 - 0.05 * pr); roundRect(c, bx, by, bw, bh, bh / 2); c.clip();
+    c.drawImage(D.img[name], bx * k, by * k, bw * k, bh * k, bx, by, bw, bh);
+    c.fillStyle = `rgba(255,255,255,${0.14 * pr})`; c.fillRect(bx, by, bw, bh); c.restore();
+  }
+  // the box fills: the summary row's "11/12 · 1 to go" leaves upward, "Box ready" rises in and the
+  // Checkout button opens leftward from its right end (CSS px of the full box's capture)
+  function boxReady(c, u, D) {
+    const R = D.row, k = D.scale, part = (name, [sx, sy, sw, sh], dx, dy) => c.drawImage(D.img[name], sx * k, sy * k, sw * k, sh * k, sx + dx, sy + dy, sw, sh);
+    c.save(); c.beginPath(); c.rect(0, R.band[0], D.w, R.band[1] - R.band[0]); c.clip();
+    c.fillStyle = D.paper; c.fillRect(0, R.band[0], D.w, R.band[1] - R.band[0]);
+    const out = inCubic(clamp(u / 0.16)); if (out < 1) part('box-11', R.old, 0, R.shift - out * 36);
+    const rise = easeOutExpo(clamp((u - 0.08) / 0.4)); part('box-12', R.ready, 0, (1 - rise) * 40);
+    const [bx, by, bw, bh] = R.btn, o = spring(u - 0.18, 230, 24), w = lerp(bh, bw, clamp(o, 0, 1.04));
+    if (u > 0.18) { c.save(); roundRect(c, bx + bw - w, by, w, bh, bh / 2); c.clip(); part('box-12', R.btn, 0, 0); c.restore(); }
+    c.restore();
+  }
+
+  // ---------- C: the order on the phone's own pages, then the phone itself (11.5–22.1) ----------
+  // The box page pushes off for the checkout (11.5), which scrolls to "Start my box" (12.75) and is
+  // clicked (14.25); the order page pushes in (14.6) and holds. The screen pulls back into the phone
+  // (15.95), and its lock screen slides down over the page (17.0): Thursday's "shipped" (17.65), the
+  // clock rolls on to Saturday (18.8), "delivered" (19.3). A tap (20.85) turns that
+  // notification into the delivered dot (20.9), which floods the frame (21.72).
+  const C = { click: 11.45, push1: 11.5, scroll: [12.75, 13.75], place: 14.25, push2: 14.6, pull: 15.95, lock: 17.0, n1: 17.65, roll: 18.8, n2: 19.3, tap: 20.85, dot: 20.9, tick: 21.25, ripple: 21.45 };
+  const pushAt = (t, t0) => ease(t, t0, t0 + 0.36, (q) => 1 - (1 - q) ** 3);
+  // the screen: the whole frame until the pull-back (tall), then the phone's screen (S.ph)
+  function screenRect(t) {
+    const P = S.ph, p = S.fullScreen ? sp(t, C.pull, 120, 21) : 1;
+    return { x: lerp(0, P.x, p), y: lerp(0, P.y, p), w: lerp(S.dw, P.w, p), h: lerp(S.dh, P.h, p), r: lerp(0, P.r, p), p };
+  }
+  // a captured phone page in the screen, `top` CSS px scrolled, `dx` design units across
+  const BAR = 44; // the phone's status bar, CSS px: the page sits under it once the screen is in the phone
+  function page(c, R, name, top, dx = 0) { const D = SCR.m, img = D.img[name], u = R.w / D.w, sb = BAR * clamp(R.p); c.drawImage(img, R.x + dx, R.y + (sb - top) * u, img.width * u / D.scale, img.height * u / D.scale); }
+  function statusBar(c, R, time) {
+    const u = R.w / 390, h = BAR * clamp(R.p) * u; if (h < 1) return;
+    c.fillStyle = INK; c.fillRect(R.x, R.y, R.w, h);
+    c.save(); c.beginPath(); c.rect(R.x, R.y, R.w, h); c.clip(); c.translate(0, h - BAR * u);
+    text(c, time, R.x + 34 * u, R.y + 24 * u, DM(15 * u, 600), '#fff');
+    for (let i = 0; i < 4; i++) { const bh = (4 + i * 2.4) * u; roundRect(c, R.x + (300 + i * 5.5) * u, R.y + 29 * u - bh, 3.4 * u, bh, 1 * u); c.fillStyle = '#fff'; c.fill(); }
+    roundRect(c, R.x + 330 * u, R.y + 18 * u, 25 * u, 12 * u, 3.5 * u); c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 1.2 * u; c.stroke();
+    roundRect(c, R.x + 332 * u, R.y + 20 * u, 18 * u, 8 * u, 2 * u); c.fillStyle = '#fff'; c.fill();
+    c.restore();
+  }
+  function screenContent(c, t, R) {
+    const lock = pushAt(t, C.lock);
+    if (lock >= 1) { lockScreen(c, t, R, 0); return; }
+    const a = pushAt(t, C.push1), b = pushAt(t, C.push2), top = lerp(0, S.placeTop, ease(t, C.scroll[0], C.scroll[1]));
+    if (a < 1) { page(c, R, 'box-12', 100, -R.w * a); const pr = press(t, C.click); if (pr > 0) { const u = R.w / 390; c.save(); c.translate(R.x - R.w * a, R.y + (BAR * clamp(R.p) - 100) * u); c.scale(u, u); pressedButton(c, SCR.m, 'box-12', SCR.m.row.btn, pr); c.restore(); } }
+    if (a > 0 && b < 1) { const dx = R.w * (1 - a) - R.w * b; page(c, R, 'checkout', top, dx); placeButton(c, t, R, top, dx); }
+    if (b > 0) page(c, R, 'order', 100 * (1 - clamp(R.p)), R.w * (1 - b)); // the pull-back shows the page from its top
+    statusBar(c, R, '8:12');
+    if (lock > 0) lockScreen(c, t, R, -(1 - lock) * R.h); // the lock screen comes down over the page
+  }
+  // "Start my box": its label leaves upward and a spinner rises in, until the order page arrives
+  function placeButton(c, t, R, top, dx) {
+    if (t < C.place - 0.07) return;
+    const D = SCR.m, [bx, by, bw, bh] = D.checkout.place, u = R.w / D.w, k = D.scale, x = R.x + dx + bx * u, y = R.y + (by - top) * u, w = bw * u, h = bh * u, pr = press(t, C.place);
+    const out = inCubic(clamp((t - C.place) / 0.12)), inn = easeOutExpo(clamp((t - C.place - 0.08) / 0.3));
+    c.fillStyle = D.paper; c.fillRect(x - 1, y - 1, w + 2, h + 2);
+    c.save(); sink(c, x + w / 2, y + h / 2, 1 - 0.05 * pr); roundRect(c, x, y, w, h, h / 2); c.clip(); c.fillStyle = D.ink; c.fillRect(x, y, w, h);
+    c.drawImage(D.img.checkout, (bx + bh / 2) * k, by * k, (bw - bh) * k, bh * k, x + h / 2, y - out * h, w - h, h);
+    if (t >= C.place) { const a0 = t * 9, cy = y + h / 2 + (1 - inn) * h; c.strokeStyle = '#fff'; c.lineWidth = h * 0.07; c.lineCap = 'round'; c.beginPath(); c.arc(x + w / 2, cy, h * 0.2, a0, a0 + 4.2); c.stroke(); }
+    c.fillStyle = `rgba(255,255,255,${0.14 * pr})`; c.fillRect(x, y, w, h);
+    c.restore();
+  }
+  // the lock screen, in the phone's CSS px (u design units each): the owner's wallpaper, the date and
+  // time, and Fennick's notifications, newest on top
+  const NOTE_Y = 492, NOTE_H = 92, NOTE_GAP = 10;
+  const NOTES = [
+    { at: C.n1, title: 'Your box shipped', body: 'Arrives Saturday 17 Oct, by 8pm.' },
+    { at: C.n2, title: 'Your box was delivered', body: 'Left at your front door on SE Marlow Ave.' },
+  ];
+  function lockScreen(c, t, R, dy) {
+    const u = R.w / 390, X = (x) => R.x + x * u, Y = (y) => R.y + y * u;
+    c.save(); roundRect(c, R.x, R.y, R.w, R.h, R.r); c.clip(); c.translate(0, dy);
+    drawCover(c, ART.wallpaper, R.x, R.y, R.w, R.h, [0.5, 0.5]);
+    const sh = c.createLinearGradient(0, R.y, 0, R.y + R.h * 0.45); sh.addColorStop(0, 'rgba(10,14,24,0.3)'); sh.addColorStop(1, 'rgba(10,14,24,0)'); c.fillStyle = sh; c.fillRect(R.x, R.y, R.w, R.h * 0.45);
+    // the date and the time roll on from Thursday morning to Saturday afternoon
+    const r = (d = 0) => easeInOutCubic(clamp((t - C.roll - d) / 0.42));
+    const rollText = (a, b, x, y, font, size, d) => {
+      const p = r(d); c.save(); c.beginPath(); c.rect(R.x, y - size * 0.5, R.w, size); c.clip();
+      if (p < 1) text(c, a, x, y - p * size, font, '#fff', 'center'); if (p > 0) text(c, b, x, y + (1 - p) * size, font, '#fff', 'center'); c.restore();
+    };
+    rollText('Thursday, October 15', 'Saturday, October 17', X(195), Y(112), DM(19 * u, 600), 19 * u, 0);
+    const tA = '9:05', tB = '2:48', ts = 96 * u, tf = DM(ts, 600); c.font = tf; let x = X(195) - c.measureText(tA).width / 2;
+    [...tA].forEach((ch, i) => { const w = c.measureText(ch).width; if (ch === tB[i]) text(c, ch, x + w / 2, Y(184), tf, '#fff', 'center'); else rollText(ch, tB[i], x + w / 2, Y(184), tf, ts, 0.05 * i); c.font = tf; x += w; });
+    // notifications: each grows out of a short bar into its card, then its words rise in
+    const shown = NOTES.filter((n) => t >= n.at - 0.02);
+    shown.forEach((n, i) => {
+      const above = shown.length - 1 - i, down = above ? sp(t, shown[i + 1].at, 220, 24) : 0, y0 = NOTE_Y + down * (NOTE_H + NOTE_GAP);
+      const g1 = sp(t, n.at, 260, 22), w = lerp(120, 370, g1), h = lerp(8, NOTE_H, g1), x0 = 195 - w / 2;
+      noteCard(c, t, n, X(x0), Y(y0 + NOTE_H / 2 - h / 2), w * u, h * u, Math.min(22, h / 2) * u, u, above, R);
+    });
+    c.restore();
+  }
+  function noteCard(c, t, n, x, y, w, h, r, u, above, R) {
+    const pr = n === NOTES[NOTES.length - 1] ? press(t, C.tap) : 0;
+    c.save(); sink(c, x + w / 2, y + h / 2, 1 - 0.03 * pr); noteCardBody(c, t, n, x, y, w, h, r, u, above, R, pr); c.restore();
+  }
+  function noteCardBody(c, t, n, x, y, w, h, r, u, above, R, pr) {
+    const last = n === NOTES[NOTES.length - 1], m = last ? sp(t, C.dot, 260, 24) : 0; // the delivered card becomes the dot
+    const d = 76 * u, cx = x + w / 2, cy = y + h / 2;
+    const W = lerp(w, d, m), H = lerp(h, d, m), RR = lerp(r, d / 2, m), x1 = cx - W / 2, y1 = cy - H / 2;
+    c.save(); roundRect(c, x1, y1, W, H, RR); c.clip();
+    drawCover(c, ART.wallBlur, R.x, R.y, R.w, R.h, [0.5, 0.5]); c.fillStyle = 'rgba(250,248,244,0.66)'; c.fillRect(x1, y1, W, H);
+    if (pr > 0) { c.fillStyle = `rgba(29,26,22,${0.1 * pr})`; c.fillRect(x1, y1, W, H); }
+    if (m > 0) { c.fillStyle = INK; c.globalAlpha = clamp(m * 3); c.fillRect(x1, y1, W, H); c.globalAlpha = 1; }
+    const rise = easeOutExpo(clamp((t - n.at - 0.18) / 0.35)), fall = last ? inCubic(clamp((t - C.dot) / 0.14)) : 0, dy = ((1 - rise) * 30 + fall * 60) * u;
+    if (rise > 0 && fall < 1) {
+      const ix = x + 14 * u, iy = y + h / 2 - 21 * u + dy, is = 42 * u;
+      c.save(); roundRect(c, ix, iy, is, is, 10 * u); c.clip(); c.drawImage(ART.seed, ix, iy, is, is); c.restore();
+      const tx = x + 68 * u;
+      text(c, 'Fennick', tx, y + 22 * u + dy, DM(14 * u, 600), 'rgba(29,26,22,0.6)');
+      text(c, t < C.roll + 0.2 || last ? 'now' : 'Thu', x + w - 16 * u, y + 22 * u + dy, DM(13 * u, 500), 'rgba(29,26,22,0.5)', 'right');
+      text(c, n.title, tx, y + 46 * u + dy, DM(17 * u, 700), INK);
+      text(c, n.body, tx, y + 69 * u + dy, DM(15 * u, 400), 'rgba(29,26,22,0.76)');
+    }
+    c.restore();
+    if (above) { c.save(); roundRect(c, x, y, w, h, r); c.fillStyle = `rgba(250,248,244,${0.12 * above})`; c.fill(); c.restore(); }
+    if (last && t >= C.tick) {
+      // the check draws on, then shrinks away just before the dot floods the frame (21.72)
+      const p = clamp((t - C.tick) / 0.26), gone = inCubic(clamp((t - 21.6) / 0.12));
+      if (gone < 1) { c.save(); sink(c, cx, cy, 1 - gone); checkOn(c, cx, cy, 22 * u, '#fff', easeOutExpo(p)); c.restore(); }
+      // one ring leaves the dot's edge, thinning as it grows
+      const q = clamp((t - C.ripple) / 0.45), e = easeOutExpo(q);
+      if (q > 0 && q < 1) { c.beginPath(); c.arc(cx, cy, d / 2 + 4 * u + e * 44 * u, 0, Math.PI * 2); c.strokeStyle = `rgba(255,255,255,${0.7 * (1 - q) ** 1.5})`; c.lineWidth = lerp(4, 0.8, e) * u; c.stroke(); }
+    }
+  }
+  // a check that draws itself on, p 0 → 1
+  function checkOn(c, x, y, s, col, p) {
+    const pts = [[x - s * 0.8, y], [x - s * 0.25, y + s * 0.55], [x + s * 0.85, y - s * 0.6]], l1 = Math.hypot(s * 0.55, s * 0.55), l2 = Math.hypot(s * 1.1, s * 1.15), L = (l1 + l2) * p;
+    c.strokeStyle = col; c.lineWidth = s * 0.34; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(...pts[0]);
+    if (L <= l1) c.lineTo(lerp(pts[0][0], pts[1][0], L / l1), lerp(pts[0][1], pts[1][1], L / l1));
+    else { c.lineTo(...pts[1]); const q = (L - l1) / l2; c.lineTo(lerp(pts[1][0], pts[2][0], q), lerp(pts[1][1], pts[2][1], q)); }
+    c.stroke();
+  }
+  // the phone around the screen, scaled with it: drawn once behind the screen with its shadow, and
+  // again on top, where its bezel and rounded corners frame the screen's content
+  function phoneBody(c, R, front) {
+    const [sx, sy, sw] = PHONE_SCREEN, k = R.w / sw, img = ART.phone, x = R.x - sx * k, y = R.y - sy * k;
+    c.save(); if (!front) { c.shadowColor = `rgba(40,30,20,${0.3 * clamp(R.p)})`; c.shadowBlur = 80; c.shadowOffsetY = 40; }
+    c.drawImage(img, x, y, img.width * k, img.height * k); c.restore();
+  }
+  function sceneStage(c, t) {
+    const R = screenRect(t);
+    if (R.p > 0.001) { c.drawImage(S.tex.paper, 0, 0); phoneBody(c, R, false); }
+    c.save(); roundRect(c, R.x, R.y, R.w, R.h, R.r); c.clip(); c.fillStyle = '#000'; c.fillRect(R.x, R.y, R.w, R.h);
+    screenContent(c, t, R);
+    c.restore();
+    if (R.p > 0.001) phoneBody(c, R, true);
+  }
+
+  // ---------- D: the box, arrived (22.1–24.45): an iris opens on it, holds, closes ----------
+  function arrival(c, t) {
+    c.fillStyle = INK; c.fillRect(0, 0, S.dw, S.dh);
+    if (t < 22.45) return;
+    const p = ease(t, 22.45, 24.25, (q) => q), z = 1 + 0.05 * p, w = S.dw * z, h = S.dh * z;
+    drawCover(c, S.dw > S.dh ? ART.arrivalWide : ART.arrival, S.cx - w / 2, S.cy - h / 2, w, h, [0.5, 0.6]);
+    const open = t < 23.9 ? easeOutExpo(clamp((t - 22.45) / 0.3)) : 1 - inCubic(clamp((t - 23.95) / 0.3));
+    iris(c, S.cx, S.cy, Math.hypot(S.dw, S.dh) / 2 + 4, open);
+  }
+
+  // ---------- the camera: [zoom, x, y] of the world point at the frame's centre ----------
+  // epochs: A the canvas and grid, B the box builder, C checkout → order → phone, D the box arrived, E the close
+  const epoch = (t) => (t < 5.95 ? 'A' : t < C.push1 ? 'B' : t < 22.1 ? 'C' : t < 24.45 ? 'D' : 'E');
+  const CAMB = [[5.95, 1, 720, 720], [7.3, 1.3, 720, 880], [8.4, 1.15, 720, 813], [10.22, 1, 720, 720]]; // 813: the slider's frame stops at the feed's bottom edge (1440)
+  const camTrack = (t, keys) => { const k = (i) => keys.map((r) => [r[0], i === 1 ? Math.log(r[1]) : r[i]]); return [Math.exp(track(t, k(1), 150, 25)), track(t, k(2), 150, 25), track(t, k(3), 150, 25)]; };
+  function cam(t) {
+    const e = epoch(t);
+    if (e === 'A') {
+      const p = ease(t, 5.72, 5.95, (q) => (q < 0.5 ? 4 * q * q * q : 1 - (-2 * q + 2) ** 3 / 2)), B = S.big;
+      return [Math.exp(lerp(0, Math.log(S.dw / B.w), p)), lerp(S.cx, B.x, easeOutExpo(p)), lerp(S.cy, B.y, easeOutExpo(p))];
+    }
+    if (e === 'B') return camTrack(t, S.camB);
+    return [1, S.cx, S.cy]; // C, D and E: the camera holds still; the scenes move
+  }
+
+  // ---------- the cursor: [t, x, y] in the world of that moment's epoch (S.cur) ----------
+  // square's keys up to the slider; the rest are worked out from each shape's boxes (cursorTail, below)
+  const CUR = [
+    [0, 1180, 1150], [1.55, 1180, 1150], [2.1, 752, 745], [2.95, 752, 745], [3.35, 1000, 1010], [3.9, 1000, 1010], [4.45, 1052, 740], [5.0, 1052, 740], [5.3, 972, 612], [5.9499, 972, 612],
+    [5.95, 754, 755], [7.35, 754, 755], [7.82, 652, 1262], [8.05, 652, 1262], [8.22, 952, 1262], [8.34, 952, 1262], [8.6, 270, 1306], [8.65, 270, 1306],
+  ];
+  const CLICKS = [2.3, 5.55, 7.95, 8.3, C.click, C.place, C.tap];
+  const HOLDS = [[8.65, 10.0]]; // the slider's drag
+  const pressed = (t) => CLICKS.some((c) => t >= c - 0.04 && t < c + 0.08) || HOLDS.some(([a, b]) => t >= a && t < b);
+  function cursorWorld(t) {
+    const CUR = S.cur;
+    let i = 1; while (i < CUR.length - 1 && CUR[i][0] < t) i++;
+    const [ta, xa, ya] = CUR[i - 1], [tb, xb, yb] = CUR[i];
+    if (t <= ta) return [xa, ya];
+    const p = clamp((t - ta) / (tb - ta)), e = 1 - (1 - p) ** 3.2;
+    return [lerp(xa, xb, e), lerp(ya, yb, e)];
+  }
+  // world → the frame, in design units (seek scales by S.k into pixels)
+  const toScreen = ([x, y], [z, cx, cy]) => [(x - cx) * z + S.cx, (y - cy) * z + S.cy];
+  // the knob (screen space, 8.65–10.0): the cursor holds it while it drags
+  function knobScreen(t) { const T = S.track; return toScreen([lerp(T.x0, T.x1, knobAt(t)), T.y], cam(t)); }
+  function cursorScreen(t) {
+    if (t >= 8.65 && t < 10.0) { const [x, y] = knobScreen(t); return [x + 6, y + 10]; }
+    return toScreen(cursorWorld(t), cam(t));
+  }
+  const cursorShown = (t) => !(t >= 21.72 && t < 25.2);
+
+  // ---------- the scenes ----------
+  const squareS = (t) => lerp(lerp(465, 1066, sp(t, 3.0, 220, 18)), 444, sp(t, 3.3, 240, 24));
+  const squareR = (t) => lerp(lerp(232.5, 90, sp(t, 3.0, 220, 18)), 40, sp(t, 3.3, 240, 24));
+  // A: the canvas: wordmark → dot → pill → iris → the yuzu can → grid → bento → zoom into the box builder
+  function sceneOpen(c, t) {
+    c.fillStyle = CANVAS; c.fillRect(-2000, -2000, 6000, 6000);
+    const bg = c.createRadialGradient(S.cx, S.cy - 160, 0, S.cx, S.cy - 160, 700); bg.addColorStop(0, 'rgba(255,255,255,0.5)'); bg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = bg; c.fillRect(0, 0, S.dw, S.dh);
+    const L = wordmark(c);
+    if (t < 0.85) { drawWord(c, wordOut(t)); drawTagline(c, t); return; }
+    if (t < 1.2) { c.beginPath(); c.arc(L.dotCx, L.dotCy, L.dotD / 2, 0, Math.PI * 2); c.fillStyle = INK; c.fill(); return; }
+    if (t < 3.62) {
+      // the black shape: dot → pill → circle → square
+      let left = lerp(L.dotCx - L.dotD / 2, S.cx - 300, sp(t, 1.2, 420, 27)), right = lerp(L.dotCx + L.dotD / 2, S.cx + 300, sp(t, 1.22, 300, 25));
+      let hh = lerp(L.dotD, 192, sp(t, 1.22, 260, 22)), cy = lerp(L.dotCy, S.cy, sp(t, 1.2, 260, 24));
+      let w = right - left, cx = (left + right) / 2, r = hh / 2;
+      const q = sp(t, 2.32, 320, 22); w = lerp(w, 465, q); hh = lerp(hh, 465, q); r = hh / 2;
+      if (t >= 3.0) { w = squareS(t); hh = w; r = squareR(t); }
+      c.save(); sink(c, cx, cy, 1 - 0.05 * press(t, 2.3));
+      c.save(); c.shadowColor = 'rgba(0,0,0,0.16)'; c.shadowBlur = 50; c.shadowOffsetY = 20;
+      roundRect(c, cx - w / 2, cy - hh / 2, w, hh, r); c.fillStyle = INK; c.fill(); c.restore();
+      c.save(); roundRect(c, cx - w / 2, cy - hh / 2, w, hh, r); c.clip();
+      if (t < 2.47) { // the label rises out of the pill's lower edge, and leaves upward once it's clicked
+        const p = easeOutExpo(clamp((t - 1.85) / 0.3)), out = inCubic(clamp((t - 2.32) / 0.1));
+        if (p > 0 && out < 1) text(c, V.cta, cx, cy + 3 + (1 - p) * 90 - out * 90, DM(60, 600), '#fff', 'center');
+      } else { drawTile(c, 'yuzu', cx, cy, Math.max(w, hh), 0, t); iris(c, cx, cy, Math.max(w, hh) * 0.72, easeOutExpo(clamp((t - 2.47) / 0.28))); } // the can opens from the centre
+      c.restore(); c.restore();
+      return;
+    }
+    // the grid unfolds from behind the centre tile, then reflows into a bento
+    for (const i of t < 5.0 ? S.order[0] : S.order[1]) {
+      const [name, col, row] = GRID[i], gx = S.cx + (col - 1) * 321, gy = S.cy + (row - 1) * 321;
+      const corner = col !== 1 && row !== 1;
+      const u = name === 'yuzu' ? 1 : sp(t, corner ? 3.78 : 3.62, 240, 22);
+      const um = sp(t, 3.62, 240, 22);
+      let x = lerp(S.cx, gx, u), y = lerp(S.cy, gy, u), s = name === 'yuzu' ? lerp(squareS(t), 304, um) : lerp(250, 304, u);
+      const v = sp(t, 5.0 + (name === 'feed' ? S.feedDelay : 0.03 + 0.012 * i), 220, 21);
+      const B = name === 'feed' ? S.big : null, [bx, by] = B ? [B.x, B.y] : S.bento[name];
+      x = lerp(x, bx, v); y = lerp(y, by, v);
+      const pk = name === 'feed' ? 1 - 0.035 * press(t, 5.55) : 1, sw = lerp(s, B ? B.w : 224, v) * pk, sh = lerp(s, B ? B.h : 224, v) * pk;
+      let r = name === 'yuzu' ? lerp(squareR(t), sw * 0.085, um) : Math.min(sw, sh) * 0.085;
+      if (name === 'feed') r *= 1 - ease(t, 5.72, 5.95);
+      c.save(); c.shadowColor = 'rgba(0,0,0,0.14)'; c.shadowBlur = 24; c.shadowOffsetY = 10; roundRect(c, x - sw / 2, y - sh / 2, sw, sh, r); c.fillStyle = INK; c.fill(); c.restore();
+      if (name === 'feed' && S.name !== '1:1') feedTile(c, x, y, sw, sh, r, t); else drawTile(c, name, x, y, sw, r, t);
+    }
+  }
+  // B: the box builder, the glass word, the toolbar and the slider that fills the box
+  function sceneFeed(c, t) {
+    feedScreen(c, t);
+    // the glass word pops in letter by letter, then melts into a droplet
+    const word = V.verb + '.', size = Math.min(S.word[1], (S.word[0] * 100) / Math.max(1, measure(c, BR(100), word)));
+    const drop = S.bar, T = S.track;
+    if (t < 7.45) {
+      c.font = BR(size); const tw = c.measureText(word).width; let x = S.cx - tw / 2;
+      [...word].forEach((ch, i) => {
+        c.font = BR(size); const w = c.measureText(ch).width, p = sp(t, 6.25 + i * 0.07, 320, 17), m = inCubic(clamp((t - 7.1 - i * 0.02) / 0.28));
+        const lx = lerp(x + w / 2, drop[0], m), ly = lerp(S.wordY, drop[1], m), s = p * (1 - m * 0.9);
+        if (s > 0.02) {
+          c.save(); c.translate(lx, ly); c.scale(s, s); c.font = BR(size); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.translate(0, window.kit.capMiddle(c, 0));
+          const gr = c.createLinearGradient(0, -size / 2, 0, size / 2); gr.addColorStop(0, 'rgba(29,26,22,0.7)'); gr.addColorStop(1, 'rgba(29,26,22,0.42)');
+          c.fillStyle = 'rgba(29,26,22,0.16)'; c.fillText(ch, 0, 9); c.fillStyle = gr; c.fillText(ch, 0, 0);
+          c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,0.95)'; c.strokeText(ch, 0, 0); c.restore();
+        }
+        x += w;
+      });
+    }
+    // droplet → toolbar → slider panel → collapses into the knob
+    if (t >= 7.28 && t < 10.5) {
+      const d = sp(t, 7.28, 300, 20), st = sp(t, 7.42, 230, 19), pn = sp(t, 8.4, 240, 21), gone = sp(t, 10.22, 260, 24);
+      let w = lerp(lerp(0, 90, d), 683, st), h = lerp(lerp(0, 90, d), 141, st);
+      w = lerp(w, 1081, pn); h = lerp(h, 237, pn);
+      // on the way out the panel shrinks toward the knob at the right end
+      const wx = lerp(w, 72, gone), hx = lerp(h, 72, gone), cx = lerp(drop[0], T.x1, gone), cy = lerp(drop[1], T.y, gone);
+      if (gone < 0.97) {
+        const rr = Math.min(hx / 2, lerp(70, 76, pn));
+        glass(c, () => roundRect(c, cx - wx / 2, cy - hx / 2, wx, hx, rr), 1, 0.8); // dark enough that the page under it stays quiet
+        c.save(); roundRect(c, cx - wx / 2, cy - hx / 2, wx, hx, rr); c.clip();
+        const tb = clamp((st - 0.55) / 0.45) * (1 - clamp(pn * 3));
+        if (tb > 0.01) { // toolbar icons
+          c.globalAlpha = tb;
+          ['open', 'bookmark', 'info', 'filter'].forEach((k, i) => {
+            const ix = drop[0] + (i - 1.5) * 150, pr = k === 'bookmark' ? press(t, 7.95) : k === 'filter' ? press(t, 8.3) : 0;
+            if (pr > 0) { c.beginPath(); c.arc(ix, drop[1], 52, 0, Math.PI * 2); c.fillStyle = `rgba(255,255,255,${0.2 * pr})`; c.fill(); }
+            c.save(); sink(c, ix, drop[1], 1 - 0.1 * pr); icon(c, k, ix, drop[1], 46, '#fff', k === 'bookmark' && t >= 7.95); c.restore();
+          });
+          c.globalAlpha = 1;
+        }
+        const sl = clamp((pn - 0.5) / 0.5) * (1 - clamp(gone * 4));
+        if (sl > 0.01) { // the slider
+          c.globalAlpha = sl;
+          boxIcon(c, drop[0] - 438, drop[1] - 54, 36, '#fff');
+          text(c, 'Fill with an even mix', drop[0] - 402, drop[1] - 52, DM(37, 500), '#fff');
+          text(c, `${cansAt(t)} of 12`, drop[0] + 456, drop[1] - 52, DM(37, 600), '#fff', 'right');
+          const p = knobAt(t), kx = lerp(T.x0, T.x1, p);
+          roundRect(c, T.x0, T.y - 4, T.x1 - T.x0, 8, 4); c.fillStyle = 'rgba(255,255,255,0.28)'; c.fill();
+          roundRect(c, T.x0, T.y - 4, Math.max(8, kx - T.x0), 8, 4); c.fillStyle = '#fff'; c.fill();
+          const held = easeOutExpo(clamp((t - 8.58) / 0.1)) * (1 - easeInOutCubic(clamp((t - 9.98) / 0.2))), kr = 36 * (1 + 0.18 * held); // the knob swells while it's held
+          if (t < 10.2) { glass(c, () => { c.beginPath(); c.arc(kx, T.y, kr, 0, Math.PI * 2); }); c.beginPath(); c.arc(kx, T.y, 12, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill(); }
+          c.globalAlpha = 1;
+        }
+        c.restore();
+      }
+    }
+  }
+  function icon(c, kind, x, y, s, col, filled) {
+    c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = s * 0.09; c.lineCap = 'round'; c.lineJoin = 'round'; const k = s / 2;
+    c.beginPath();
+    if (kind === 'open') { c.moveTo(x + k * 0.1, y - k); c.lineTo(x - k, y - k); c.lineTo(x - k, y + k); c.lineTo(x + k, y + k); c.lineTo(x + k, y - k * 0.1); c.moveTo(x - k * 0.1, y + k * 0.1); c.lineTo(x + k, y - k); c.moveTo(x + k * 0.35, y - k); c.lineTo(x + k, y - k); c.lineTo(x + k, y - k * 0.35); c.stroke(); }
+    if (kind === 'bookmark') { c.moveTo(x - k * 0.7, y - k); c.lineTo(x + k * 0.7, y - k); c.lineTo(x + k * 0.7, y + k); c.lineTo(x, y + k * 0.5); c.lineTo(x - k * 0.7, y + k); c.closePath(); if (filled) c.fill(); c.stroke(); }
+    if (kind === 'info') { c.arc(x, y, k, 0, Math.PI * 2); c.stroke(); c.beginPath(); c.moveTo(x, y - k * 0.05); c.lineTo(x, y + k * 0.5); c.stroke(); c.beginPath(); c.arc(x, y - k * 0.45, s * 0.06, 0, Math.PI * 2); c.fill(); }
+    if (kind === 'filter') { for (const [yy, kx] of [[-0.55, 0.35], [0, -0.35], [0.55, 0.15]]) { c.beginPath(); c.moveTo(x - k, y + yy * k); c.lineTo(x + k, y + yy * k); c.stroke(); c.beginPath(); c.arc(x + kx * k, y + yy * k, s * 0.12, 0, Math.PI * 2); c.fillStyle = '#3a352e'; c.fill(); c.stroke(); } }
+    c.restore();
+  }
+  // an open box, the slider's label icon
+  function boxIcon(c, x, y, s, col) {
+    const k = s / 2; c.save(); c.strokeStyle = col; c.lineWidth = s * 0.1; c.lineJoin = 'round'; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x - k, y - k * 0.3); c.lineTo(x - k, y + k * 0.85); c.lineTo(x + k, y + k * 0.85); c.lineTo(x + k, y - k * 0.3); c.closePath(); c.stroke();
+    c.beginPath(); c.moveTo(x - k, y - k * 0.3); c.lineTo(x - k * 1.25, y - k * 0.85); c.moveTo(x + k, y - k * 0.3); c.lineTo(x + k * 1.25, y - k * 0.85); c.moveTo(x - k * 0.3, y - k * 0.3); c.lineTo(x - k * 0.3, y + k * 0.2); c.stroke(); c.restore();
+  }
+  // ---------- the shapes: one design, laid out for each frame ----------
+  // Every number above is in design units: the square film's pixels. A shape fits 1440 units
+  // into the frame's short side (k) and gives the long side the room that's left (2560 units),
+  // and lays each composition out for it: the wordmark, the bento (the box builder's tile has the
+  // frame's own shape, so the zoom lands on its edges), the box builder and its slider, and the
+  // phone. The cursor's keys are worked out from those boxes, so it follows them.
+  const SHAPES = { '1:1': [1440, 1440], '16:9': [1920, 1080], '9:16': [1080, 1920] };
+  const LAYOUTS = {};
+  function layoutFor(size) {
+    const name = SHAPES[size] ? size : '1:1';
+    return LAYOUTS[name] || (LAYOUTS[name] = name === '1:1' ? squareLayout() : shapeLayout(name));
+  }
+  // the square film, as it was measured and approved
+  function squareLayout() {
+    const L = {
+      name: '1:1', fw: W, fh: H, k: 1, dw: W, dh: H, cx: CX, cy: CY, feedDelay: 0,
+      wm: { fit: 1126, max: 232, base: 755, tagY: 872, tag: 34, drop: 58 },
+      order: [[0, 2, 6, 8, 1, 3, 7, 5, 4], [0, 2, 6, 8, 1, 3, 7, 5, 4]],
+      bento: Object.fromEntries(Object.entries(BENTO).map(([n, b]) => [n, [720 + (b[0] - 1.5) * 241, 720 + (b[1] - 1) * 241]])),
+      big: { x: 961, y: 599.5, w: 465, h: 465 },
+      feed: { set: 'd', crop: [30.3, 114.8, 800, 800] }, // the box and its count, square
+      word: [700, 170], wordY: 390, bar: [720, 1250], track: { x0: 264, x1: 1176, y: 1298 },
+      camB: CAMB, tex: { paper: paperC },
+    };
+    stage(L);
+    L.cur = [...CUR, ...L.curC];
+    return L;
+  }
+  // wide (16:9) and tall (9:16). k turns design units into pixels: tall fits square's 1440 across
+  // its width (0.75); wide sits closer (0.85), so its words read on a phone held sideways.
+  const SCALE = { '16:9': 0.85, '9:16': 0.75 };
+  function shapeLayout(name) {
+    const [fw, fh] = SHAPES[name], k = SCALE[name], dw = fw / k, dh = fh / k, cx = dw / 2, cy = dh / 2, wide = dw > dh;
+    const L = { name, fw, fh, k, dw, dh, cx, cy, feedDelay: 0.1 };
+    // the wordmark: bigger in wide, where the width allows; centred in tall; the tagline a little bigger in both
+    L.wm = wide ? { fit: 1450, max: 280, base: cy + 40, tagY: cy + 184, tag: 50, drop: 86 } : { fit: 1126, max: 232, base: cy + 35, tagY: cy + 158, tag: 46, drop: 78 };
+    // the bento: the feed's tile has the frame's shape, so the zoom lands on its edges. Wide: a block of
+    // four each side of it; tall: a column of four each side. The feed grows a beat after the others move.
+    let bw, bh;
+    if (wide) {
+      bh = 465; bw = 465 * dw / dh;
+      const near = bw / 2 + 17 + 112, far = near + 241, at = (a, b) => [cx + a, cy + b * 120.5];
+      L.bento = { hibiscus: at(-far, -1), brewing: at(-far, 1), pear: at(-near, -1), yuzu: at(-near, 1), serving: at(near, -1), trio: at(near, 1), kcal: at(far, -1), box: at(far, 1) };
+    } else {
+      bh = 4 * 224 + 3 * 17; bw = bh * dw / dh;
+      const col = bw / 2 + 17 + 112, row = (j) => cy + (j - 1.5) * 241;
+      L.bento = { hibiscus: [cx - col, row(0)], pear: [cx - col, row(1)], yuzu: [cx - col, row(2)], brewing: [cx - col, row(3)], serving: [cx + col, row(0)], kcal: [cx + col, row(1)], trio: [cx + col, row(2)], box: [cx + col, row(3)] };
+    }
+    L.big = { x: cx, y: cy, w: bw, h: bh };
+    L.order = [[0, 2, 6, 8, 1, 3, 7, 5, 4], [0, 2, 6, 8, 1, 3, 7, 4, 5]]; // the box builder comes to the front for the bento
+    // the box builder: wide shows the desktop page under its header; tall, the phone page
+    L.feed = wide ? { set: 'd', crop: [0, 120, 1440, 810] } : { set: 'm', crop: [0, 100, 390, 390 * 16 / 9] };
+    L.word = wide ? [900, 200] : [700, 170];
+    L.wordY = wide ? 350 : 545;
+    L.bar = wide ? [cx, 1150] : [cx, 2260];
+    L.track = { x0: L.bar[0] - 456, x1: L.bar[0] + 456, y: L.bar[1] + 48 };
+    // zoom toward the toolbar, then the slider
+    // (the top of the frame stays above the page's headline; tall's zoom stays inside the page's side margins)
+    L.camB = wide ? [[5.95, 1, cx, cy], [7.3, 1.08, cx, 640], [8.4, 1.03, cx, 660], [10.22, 1, cx, cy]]
+      : [[5.95, 1, cx, cy], [7.3, 1.08, cx, 1300], [8.4, 1.05, cx, 1290], [10.22, 1, cx, cy]];
+    stage(L);
+    // the cursor, from the boxes it works on
+    const rest = [dw - 260, dh - 290], zA = dw / bw, tap = wide ? [0, 97] : [0, 266]; // tap: where it clicks the box builder's tile
+    L.cur = [
+      [0, ...rest], [1.55, ...rest], [2.1, cx + 32, cy + 25], [2.95, cx + 32, cy + 25], [3.35, cx + 280, cy + 290], [3.9, cx + 280, cy + 290], [4.45, cx + 321 + 11, cy + 20], [5.0, cx + 321 + 11, cy + 20], [5.3, cx + tap[0], cy + tap[1]], [5.9499, cx + tap[0], cy + tap[1]],
+      [5.95, cx + tap[0] * zA, cy + tap[1] * zA], [7.35, cx + tap[0] * zA, cy + tap[1] * zA], [7.82, L.bar[0] - 68, L.bar[1] + 12], [8.05, L.bar[0] - 68, L.bar[1] + 12], [8.22, L.bar[0] + 232, L.bar[1] + 12], [8.34, L.bar[0] + 232, L.bar[1] + 12], [8.6, L.track.x0 + 6, L.track.y + 8], [8.65, L.track.x0 + 6, L.track.y + 8],
+      ...L.curC,
+    ];
+    return L;
+  }
+
+  // The phone and the cursor from the slider on. S.ph: the phone's screen (a 390 × 844 CSS px page,
+  // as captured), as big as the frame allows. In tall the box builder already fills the frame as the
+  // phone page it is, so C begins full frame and pulls back into the phone (S.fullScreen); square and
+  // wide begin in the phone. S.placeTop: how far the checkout scrolls to show "Start my box".
+  // S.flood: where the delivered dot floods from, its radius and the radius that covers the frame.
+  function stage(L) {
+    const { dw, dh, cx, cy } = L, tall = dh > dw, h = dh * (tall ? 0.84 : 0.86), w = h * PHONE_SCREEN[2] / PHONE_SCREEN[3];
+    L.ph = { x: cx - w / 2, y: cy - h / 2, w, h, r: w * 0.1 };
+    L.fullScreen = tall;
+    const D = SCR.m, view = (tall ? dh / (dw / 390) : 844), pl = D.checkout.place;
+    L.placeTop = Math.min(D.checkout.h - view, pl[1] + pl[3] / 2 - view * 0.6);
+    const u = w / 390, P = L.ph, note = [P.x + 195 * u, P.y + (NOTE_Y + NOTE_H / 2) * u];
+    const fl = 2.03 * Math.max(Math.hypot(note[0], note[1]), Math.hypot(dw - note[0], note[1]), Math.hypot(note[0], dh - note[1]), Math.hypot(dw - note[0], dh - note[1]));
+    L.flood = [...note, 38 * u, fl];
+    // the cursor: lets go of the knob, clicks Checkout, then "Start my box", waits by the phone, taps the delivered notification
+    const F = L.feed, s = dw / F.crop[2], fp = ([x, y]) => [(x - F.crop[0]) * s, (y - F.crop[1]) * s];
+    const Dd = SCR[F.set], go = fp(Dd.row ? [Dd.row.btn[0] + Dd.row.btn[2] * 0.56, Dd.row.btn[1] + Dd.row.btn[3] * 0.62] : [Dd.go[0] + Dd.go[2] * 0.56, Dd.go[1] + Dd.go[3] * 0.62]);
+    const knob = [L.track.x1 + 6, L.track.y + 10], uc = tall ? dw / 390 : u, ox = tall ? 0 : P.x, oy = tall ? 0 : P.y;
+    const place = [ox + (pl[0] + pl[2] * 0.6) * uc, oy + (pl[1] - L.placeTop + pl[3] * 0.62) * uc];
+    const rest = [dw - 120, dh - 170], loop = [dw - 260, dh - 290], tapAt = [P.x + 300 * u, P.y + (NOTE_Y + NOTE_H * 0.6) * u]; // rest: beside the phone; loop: where the film starts
+    L.curC = [
+      [10.0, ...knob], [10.45, ...knob], [10.95, ...go], [11.65, ...go], [12.2, dw - 170, go[1] + 380], [13.55, dw - 170, go[1] + 380], [13.95, ...place], [14.55, ...place], [15.05, ...rest],
+      [20.25, ...rest], [20.65, ...tapAt], [22.0999, ...tapAt], [22.1, ...loop], [27, ...loop],
+    ];
+  }
+
+  // ---------- the frame ----------
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    S = layoutFor(V.size);
+    if (canvas.width !== S.fw || canvas.height !== S.fh) { canvas.width = S.fw; canvas.height = S.fh; }
+    g.reset();
+    if (!S.tex) paintShape(S);
+    t = clamp(t, 0, DURATION - 1e-6);
+    const K = S.k, e = epoch(t), [z, cx, cy] = cam(t);
+    g.fillStyle = CANVAS; g.fillRect(0, 0, S.fw, S.fh);
+    g.save(); g.setTransform(K * z, 0, 0, K * z, K * (S.cx - cx * z), K * (S.cy - cy * z));
+    if (e === 'A') sceneOpen(g, t);
+    if (e === 'B') sceneFeed(g, t);
+    if (e === 'C') sceneStage(g, t);
+    if (e === 'D') arrival(g, t);
+    g.restore();
+    g.setTransform(K, 0, 0, K, 0, 0); // the frame in design units from here on
+    // C → D: the delivered dot floods the frame
+    if (t >= 21.72 && t < 22.1) {
+      const [px, py] = toScreen([S.flood[0], S.flood[1]], cam(21.72)), r = lerp(S.flood[2], S.flood[3], ease(t, 21.72, 21.92, (q) => q * q));
+      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fillStyle = INK; g.fill();
+    }
+    if (e === 'E') closeShape(t);
+    if (cursorShown(t)) { const [x, y] = cursorScreen(t), s = e === 'A' ? 1 : Math.min(1.6, z) ** 0.5; drawCursor(x, y, s * (pressed(t) ? 0.86 : 1)); }
+    return canvas;
+  }
+  // E: the black frame contracts, in one move, into the period; the letters rise back out of their line
+  function closeShape(t) {
+    const L = wordmark(g);
+    g.fillStyle = CANVAS; g.fillRect(0, 0, S.dw, S.dh);
+    const bg = g.createRadialGradient(S.cx, S.cy - 160, 0, S.cx, S.cy - 160, 700); bg.addColorStop(0, 'rgba(255,255,255,0.5)'); bg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = bg; g.fillRect(0, 0, S.dw, S.dh);
+    if (t < 25.35) {
+      // size in log space, so the shrink reads even from the full frame down to the dot; fast out, soft landing
+      const p = ease(t, 24.55, 25.35, (q) => (q < 0.4 ? 0.5 * (q / 0.4) ** 2 : 1 - 0.5 * ((1 - q) / 0.6) ** 2.4));
+      const w = Math.exp(lerp(Math.log(S.dw + 40), Math.log(L.dotD), p)), h = Math.exp(lerp(Math.log(S.dh + 40), Math.log(L.dotD), p));
+      const cx = lerp(S.cx, L.dotCx, p), cy = lerp(S.cy, L.dotCy, p), r = Math.min(w, h) / 2 * clamp(p * 1.5);
+      roundRect(g, cx - w / 2, cy - h / 2, w, h, r); g.fillStyle = INK; g.fill();
+      return;
+    }
+    drawWord(g, wordIn(t));
+    if (t >= 25.9) drawTagline(g, t);
+  }
+  function drawCursor(x, y, s) {
+    g.save(); g.translate(x, y); g.scale(s, s);
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(0, 46); g.lineTo(11, 35); g.lineTo(19, 53); g.lineTo(27, 49.5); g.lineTo(19, 32); g.lineTo(34, 32); g.closePath();
+    g.shadowColor = 'rgba(0,0,0,0.3)'; g.shadowBlur = 10; g.shadowOffsetY = 4;
+    g.lineJoin = 'round'; g.lineWidth = 5; g.strokeStyle = '#fff'; g.stroke(); g.shadowColor = 'transparent';
+    g.fillStyle = '#000'; g.fill(); g.restore();
+  }
+
+  async function prepare(values) {
+    const art = { 'can-yuzu': 'can-yuzu.png', 'can-hibiscus': 'can-hibiscus.png', 'can-pear': 'can-pear.png', trio: 'cans-trio.png', box: 'box.png', serving: 'serving.jpg', brewing: 'brewing.jpg', condensation: 'trio-condensation.jpg', seed: 'favicon.svg', ...ART_EXTRA };
+    await Promise.all([
+      loadFont('Bricolage', 'assets/fonts/bricolage-grotesque-variable.ttf', { weight: '200 800', stretch: '75% 100%' }),
+      loadFont('DM Sans', 'assets/fonts/dm-sans-variable.ttf', { weight: '100 1000' }),
+      ...Object.entries(art).map(async ([k, f]) => { if (!ART[k]) ART[k] = await loadImage(`assets/art/${f}`); }),
+      ...Object.values(SCR).flatMap((D) => [...SHOTS, ...(D.extra || [])].map(async (n) => { if (!D.img[n]) D.img[n] = await loadImage(`${D.dir}/${n}@${D.scale}.webp`); })),
+    ]);
+    await document.fonts.ready;
+    WM = null;
+    if (!prepare.done) { sample(); paintPaper(); prepare.done = true; }
+    const L = layoutFor(values && values.size);
+    if (!L.tex) paintShape(L);
+  }
+  // the black of "Start my box", for the spinner that stands in for its label; the wallpaper,
+  // blurred once, for the notifications' frosted glass
+  function sample() {
+    const [, P] = helper(1, 1), D = SCR.m, [bx, by, , bh] = D.checkout.place;
+    P.drawImage(D.img.checkout, Math.round((bx + bh) * D.scale), Math.round((by + 6) * D.scale), 1, 1, 0, 0, 1, 1);
+    const d = P.getImageData(0, 0, 1, 1).data; D.ink = `rgb(${d[0]},${d[1]},${d[2]})`;
+    const img = ART.wallpaper, [bc, B] = helper(img.width >> 2, img.height >> 2);
+    B.filter = 'blur(10px)'; B.drawImage(img, -8, -8, bc.width + 16, bc.height + 16); ART.wallBlur = bc;
+  }
+  // the paper behind the phone: a ribbon in Fennick's colours, yuzu → hibiscus → pear
+  function ribbon(q) {
+    const A = [247, 204, 51], B = [219, 56, 99], C = [140, 194, 97], [a, b, k] = q < 0.5 ? [A, B, q * 2] : [B, C, (q - 0.5) * 2];
+    return `rgba(${a.map((v, i) => Math.round(lerp(v, b[i], k))).join(',')},${0.1 + 0.5 * Math.sin(Math.PI * q) ** 2})`;
+  }
+  function paintPaper() {
+    const bg = PL.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#f6f1e8'); bg.addColorStop(1, '#ede5d7'); PL.fillStyle = bg; PL.fillRect(0, 0, W, H);
+    for (let i = 0; i < 70; i++) {
+      const q = i / 69, col = ribbon(q);
+      PL.beginPath(); PL.moveTo(-100, 1180 + i * 5); PL.bezierCurveTo(500, 1260 + i * 4, 900, 700 + i * 3, 1560, 380 + i * 7);
+      PL.strokeStyle = col; PL.lineWidth = 2.5; PL.stroke();
+    }
+  }
+  // the same paper for a wide or tall frame (dw × dh design units), painted once per shape
+  function paintShape(L) {
+    const dw = Math.ceil(L.dw), dh = Math.ceil(L.dh), [paper, B] = helper(dw, dh), sx = dw / 1440, sy = dh / 1440;
+    const bg = B.createLinearGradient(0, 0, dw, dh); bg.addColorStop(0, '#f6f1e8'); bg.addColorStop(1, '#ede5d7'); B.fillStyle = bg; B.fillRect(0, 0, dw, dh);
+    for (let i = 0; i < 70; i++) {
+      const q = i / 69, col = ribbon(q);
+      B.beginPath(); B.moveTo(-100 * sx, (1180 + i * 5) * sy); B.bezierCurveTo(500 * sx, (1260 + i * 4) * sy, 900 * sx, (700 + i * 3) * sy, 1560 * sx, (380 + i * 7) * sy);
+      B.strokeStyle = col; B.lineWidth = 2.5 * Math.max(sx, sy) ** 0.5; B.stroke();
+    }
+    L.tex = { paper };
+  }
+
+  // ---------- sound ----------
+  // taps on the clicks; a pop as each thing appears; a soft swish on the big moves (container: a shape
+  // changing; camera: the frame moving); a tick as each can lands in the box. Each on its visual onset.
+  function cues() {
+    const out = CLICKS.map((t) => ({ t, type: 'tap', gain: 0.65 }));
+    for (const [a, b] of HOLDS) out.push({ t: a, type: 'tap', gain: 0.6 }, { t: b, type: 'tap', gain: 0.45 });
+    const pop = (t, gain = 0.42) => out.push({ t, type: 'pop', gain });
+    const swish = (t, kind, travel, gain = 0.32) => out.push({ t, type: 'swish', gain, motion: { kind, travel } });
+    swish(0.5, 'container', 0.4, 0.3); // the letters drop away from the period
+    swish(1.2, 'container', 0.5); pop(1.85, 0.4); // the pill, its label
+    pop(2.47); swish(3.0, 'container', 0.5); // the iris opens on the can; the tile grows
+    swish(3.62, 'container', 0.6); pop(3.78, 0.4); // the grid unfolds
+    swish(5.0, 'container', 0.5); swish(5.72, 'camera', 0.8, 0.36); // the bento; the zoom into the box builder
+    for (let i = 0; i < (V.verb + '.').length; i++) pop(6.25 + i * 0.07, 0.4);
+    swish(7.1, 'container', 0.35, 0.3); pop(7.42, 0.4); swish(8.4, 'container', 0.4, 0.3); // droplet, toolbar, slider
+    let n = 0; for (let f = 8.65; f < 9.8; f += 1 / 60) { const m = cansAt(f); if (m > n) { out.push({ t: f, type: 'tick', gain: 0.45 }); n = m; } }
+    pop(FULL + 0.1, 0.4); pop(FULL + 0.2, 0.42); // "Box ready", the Checkout button opens
+    swish(C.push1, 'container', 0.5); swish(C.scroll[0], 'camera', 0.4, 0.26); // the checkout pushes in, scrolls
+    pop(C.place + 0.1, 0.36); swish(C.push2, 'container', 0.5); // the spinner; the order page
+    swish(C.pull, 'camera', 0.7, 0.34); swish(C.lock, 'container', 0.5, 0.3); // the pull-back into the phone; the lock screen comes down
+    pop(C.n1, 0.42); swish(C.roll, 'container', 0.3, 0.24); pop(C.n2, 0.45); // shipped; days pass; delivered
+    swish(C.dot, 'container', 0.4, 0.3); pop(C.tick, 0.45); // the delivered dot
+    swish(21.72, 'container', 0.8); pop(22.47, 0.4); swish(23.95, 'container', 0.5, 0.3); // flood; the iris on the box, and closing
+    swish(24.55, 'container', 0.7); pop(25.38, 0.45); pop(25.92, 0.4); // the pill, the wordmark, the tagline
+    return out.sort((a, b) => a.t - b.t);
+  }
+  // the bed: 120 BPM (a bar is 2 s); D major, a quiet start, the beat in from bar 1.5, a breakdown on the wall, the beat back for the close
+  const music = {
+    bpm: 120, duration: DURATION, root: 50, // D3, upward-voiced major chords
+    chords: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]],
+    sections: [
+      { from: 0, to: 1.5, pad: 0.7, hats: 0.3 },
+      { from: 1.5, to: 11, kick: 0.75, hats: 0.6, bass: 0.6, pad: 0.55 },
+      { from: 11, to: 12, pad: 0.75, hats: 0.3 },
+      { from: 12, to: 13, kick: 0.6, hats: 0.45, bass: 0.5, pad: 0.6 },
+      { from: 13, to: 13.5, pad: 0.7 },
+    ],
+  };
+  const STATES = [[0, 'Wordmark'], [0.5, 'Letters drop'], [1.2, 'Pill'], [2.3, 'Iris'], [3.0, 'Tile'], [3.62, 'Grid'], [5.0, 'Bento'], [5.72, 'Zoom'], [6.2, 'Glass word'], [7.3, 'Toolbar'], [8.4, 'Slider'], [9.75, 'Box ready'], [11.5, 'Checkout'], [14.05, 'Start my box'], [14.45, 'Order'], [15.85, 'Phone'], [17.0, 'Lock screen'], [18.75, 'Days pass'], [19.25, 'Delivered'], [20.9, 'Dot'], [21.72, 'Flood'], [22.45, 'The box, arrived'], [24.25, 'Black'], [24.55, 'Into the period'], [25.35, 'Wordmark']];
+  // the film ships tall; SHAPES still lays out square and wide, not yet reviewed with this story
+  window.template = { fps: FPS, duration: DURATION, sizes: { '9:16': SHAPES['9:16'] }, width: 1080, height: 1920, defaults: () => ({ size: '9:16', ...DEFAULTS }), fields: FIELDS, states: STATES, prepare, seek: (t, values) => seek(t, values), cues, music,
+    keyTimes: [0.3, 0.7, 1.0, 2.2, 2.9, 3.4, 4.3, 5.4, 5.85, 6.6, 7.9, 9.2, 10.1, 10.9, 11.7, 12.5, 13.6, 14.3, 15.2, 16.5, 17.4, 18.3, 19.0, 19.9, 20.95, 21.4, 21.9, 23.2, 24.1, 24.8, 25.45, 26.5] };
+  const q = new URLSearchParams(location.search);
+  if (window.parent === window && !q.has('render')) { const size = q.get('size') || '9:16'; prepare({ size }).then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, { size }); requestAnimationFrame(loop); }; loop(); }); }
+})();
+</script>

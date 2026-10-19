@@ -1,0 +1,123 @@
+{
+ "url": "http://localhost:4413/fernwise/app/#/today",
+ "viewport": "mobile",
+ "ready": "body",
+ "rects": {
+  "greeting": "[data-greeting]",
+  "summary": "[data-summary]",
+  "cards": "[data-card]*",
+  "tabbar": "[data-tabbar]"
+ },
+ "steps": [
+  {
+   "eval": "location.hash = '#/today?lang=en'"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "document.querySelector('#screen').scrollTop = 0"
+  },
+  {
+   "rects": "today-en"
+  },
+  {
+   "capture": "today-en",
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "scale": 4
+  },
+  {
+   "eval": "location.hash = '#/today?lang=es'"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "document.querySelector('#screen').scrollTop = 0"
+  },
+  {
+   "rects": "today-es"
+  },
+  {
+   "capture": "today-es",
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "scale": 4
+  },
+  {
+   "eval": "location.hash = '#/today?lang=ja'"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "document.querySelector('#screen').scrollTop = 0"
+  },
+  {
+   "rects": "today-ja"
+  },
+  {
+   "capture": "today-ja",
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "scale": 4
+  },
+  {
+   "eval": "location.hash = '#/today?lang=de'"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "document.querySelector('#screen').scrollTop = 0"
+  },
+  {
+   "rects": "today-de"
+  },
+  {
+   "capture": "today-de",
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "scale": 4
+  },
+  {
+   "eval": "location.hash = '#/today?lang=pt'"
+  },
+  {
+   "wait": 500
+  },
+  {
+   "eval": "document.querySelector('#screen').scrollTop = 0"
+  },
+  {
+   "rects": "today-pt"
+  },
+  {
+   "capture": "today-pt",
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "scale": 4
+  }
+ ]
+}

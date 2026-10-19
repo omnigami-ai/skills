@@ -1,0 +1,878 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fernwise · Fictional app · App Store preview</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0e1b10; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<footer id="credit" hidden style="position:fixed;bottom:8px;left:8px;right:8px;text-align:center;font:11px/1.4 system-ui;color:#f6f1e7;background:#0e1b10e8;padding:6px;border-radius:8px">Fernwise is a fictional company made for omnigami’s examples. <a style="color:inherit" href="https://x.com/wallacex227/status/2103245000989659422">Style inspired by @wallacex227’s video</a>. An independent study, without endorsement. omnigami is not affiliated with Anthropic.</footer>
+<canvas id="c" width="886" height="1920"></canvas>
+<script src="kit.js"></script>
+<script>
+// Fernwise's App Store preview, the reference film of the app-store-preview skill. Fernwise is a
+// fictional company made for omnigami's examples; every screen here is a real capture of its
+// working app (cast/fernwise/app), made by scripts/screens.mjs from plans/fernwise.json at 3×
+// (assets/screens/, with screens.json saying where every element sits).
+//
+// One film, two cuts, one story grid (28 s, 120 BPM, 30 fps):
+//   '886:1920'           the store cut: Apple's App Store preview (iPhone, large and medium
+//                        displays). Only the app's screens, full frame, touch hotspots, captions,
+//                        dissolves, one music bed. template.encode gives its MP4 Apple's spec.
+//   '9:16' '1:1' '16:9'  the social cut, in the grammar of @wallacex227's app promo: a dark
+//                        ground, chapters, headlines, the app in a phone, callouts, a recap, an end card.
+//
+// How it's built, and what a new film changes (style.md has the grammar):
+//   KEEP    the grid, the toolkit (type, frost, pill, touch, phone, callouts, tap rings), drawing,
+//           the encode spec
+//   ADAPT   the words (DEFAULTS), the colours, the moments (M), each cut's screen timeline,
+//           taps, captions, callouts, the hook, the end, the cues and the music
+//   REPLACE nothing: every moment is built from the app's own captures by name
+(() => {
+  const { clamp, lerp, loadFont, loadImage, roundRect, fitText, rng } = window.kit;
+  const FPS = 30, BPM = 120, BEAT = 60 / BPM, BAR = 4 * BEAT, DURATION = 28, F = 1 / 15; // F: a step, two frames
+  const STORE = '886:1920';
+  const SIZES = { '886:1920': [886, 1920], '9:16': [1080, 1920], '1:1': [1440, 1440], '16:9': [1920, 1080] };
+  let W = 886, H = 1920, U = 8.86, shape = STORE; // U: 1% of the frame's short side
+
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+
+  // ---------- ADAPT: the app's colours (cast/fernwise/brand.md) ----------
+  const CREAM = '#F6F1E7', MOSS = '#3E6B3A', MOSS_DEEP = '#28452A', SPROUT = '#9CC57A', SUN = '#F2C14E', INK = '#2B2A26';
+  const GROUND = ['#22402a', '#142817', '#0c180e']; // the social cut's ground: moss-deep, darker to the edges
+  const SERIF = (w) => (s) => `${w} ${s}px Fraunces`;
+  const ITALIC = (w) => (s) => `italic ${w} ${s}px Fraunces`;
+  const SANS = (w) => (s) => `${w} ${s}px Nunito`;
+
+  // ---------- ADAPT: the words, as named fields ----------
+  const DEFAULTS = {
+    name: 'Fernwise', line: 'Plant care for people who forget to water.', tagline: 'Keep the little ones *alive.*',
+    hook: "Who's thirsty *today?*",
+    cap1: 'Three thirsty. *Three taps.*', cap2: 'Add a plant *by name.*', cap3: "Pale leaves? *Here's the plan.*", cap4: 'Find the *right light.*', cap5: 'Eight plants. *All watered.*',
+    ch1: 'Water', ch2: 'Add', ch3: 'Rescue', ch4: 'Light',
+    recap1: 'Watered.', recap2: 'Well lit.', recap3: '*Thriving.*',
+    rating: '4.8', ratings: '12.4k ratings', button: 'Get Fernwise', where: 'Free on iPhone',
+    plus: 'Fernwise Plus', disclosure: 'Light check, rescue guides and unlimited plants need Fernwise Plus.',
+  };
+  const FIELDS = [
+    { id: 'name', type: 'text', label: 'App name', maxLength: 16 },
+    { id: 'line', type: 'text', label: 'Opening line (store)', maxLength: 52, help: 'What the app is, in its own words. The store cut opens on it.' },
+    { id: 'cap1', type: 'text', label: 'Moment 1', maxLength: 34, help: 'The store caption and the social headline. *Stars* mark the accent phrase.' },
+    { id: 'cap2', type: 'text', label: 'Moment 2', maxLength: 34 },
+    { id: 'cap3', type: 'text', label: 'Moment 3', maxLength: 34 },
+    { id: 'cap4', type: 'text', label: 'Moment 4', maxLength: 34 },
+    { id: 'cap5', type: 'text', label: 'Payoff (store)', maxLength: 34 },
+    { id: 'tagline', type: 'text', label: 'Tagline', maxLength: 36 },
+    { id: 'plus', type: 'text', label: 'Subscription name', maxLength: 18 },
+    { id: 'disclosure', type: 'text', label: 'Subscription disclosure (store)', maxLength: 80, help: 'Apple asks you to say which features need a subscription. No prices.' },
+    { id: 'hook', type: 'text', label: 'Hook (social)', maxLength: 30 },
+    { id: 'ch1', type: 'text', label: 'Chapter 1 (social)', maxLength: 12 },
+    { id: 'ch2', type: 'text', label: 'Chapter 2 (social)', maxLength: 12 },
+    { id: 'ch3', type: 'text', label: 'Chapter 3 (social)', maxLength: 12 },
+    { id: 'ch4', type: 'text', label: 'Chapter 4 (social)', maxLength: 12 },
+    { id: 'recap1', type: 'text', label: 'Recap, 1 (social)', maxLength: 14 },
+    { id: 'recap2', type: 'text', label: 'Recap, 2 (social)', maxLength: 14 },
+    { id: 'recap3', type: 'text', label: 'Recap, 3 (social)', maxLength: 14 },
+    { id: 'rating', type: 'text', label: 'Rating (social)', maxLength: 4 },
+    { id: 'ratings', type: 'text', label: 'Ratings count (social)', maxLength: 18 },
+    { id: 'button', type: 'text', label: 'Button (social)', maxLength: 18 },
+    { id: 'where', type: 'text', label: 'Under the button (social)', maxLength: 28 },
+  ];
+  let V = DEFAULTS; // set from seek's arguments on every frame
+
+  // ---------- ADAPT: the moments (both cuts change moment together) ----------
+  const M_BASE = { water: 2, add: 7.9, rescue: 13.6, light: 17.6, payoff: 21.6, end: 24.5 }; // the store cut's chapters
+  let M = M_BASE; // the tall cut has its own beats (M_TALL)
+
+  // ---------- KEEP: the app's real screens ----------
+  const A = { m: null, img: {} };
+  const cap = (name) => A.m.captures[name];
+  const R = (state) => A.m.rects[state];
+  const IMG = (name) => A.img[cap(name).file];
+  // which recorded rects belong to a capture
+  const STATE_OF = (name) => (name.startsWith('add-search') ? 'add-search' : name === 'rescue-scroll-00' ? 'rescue' : name.startsWith('rescue-scroll') ? 'rescue-scrolled' : name);
+  const SCROLL = Array.from({ length: 11 }, (_, i) => `rescue-scroll-${String(i).padStart(2, '0')}`);
+  const swipe = (t0) => SCROLL.slice(1).map((n, i) => [t0 + (i + 1) / FPS - 1e-3, n, 0]); // a scroll: one capture a frame, cut (the MP4's motion blur smooths it)
+  // The store cut's own beats live with the social cut's (TS, SEQ_S, TAPS_S, below).
+  // a point in a recorded rect, in the app's CSS px
+  function pointIn(state, rectName, idx, fx = 0.5, fy = 0.5) {
+    const r = idx === null || idx === undefined ? R(state)[rectName] : R(state)[rectName][idx];
+    return [r[0] + r[2] * fx, r[1] + r[3] * fy];
+  }
+
+  // ---------- KEEP: the toolkit ----------
+  // KEEP: house motion. Geometry is always evaluated from absolute film time.
+  const { out, settle, inOut, markReveal } = window.kit.motion;
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const rgba = (h, a) => `rgba(${hex(h).join(',')},${a})`;
+  const floor = () => 28 * Math.min(W, H) / 1440; // the quick test's size floor
+  function setText(font, size, tracking = 0) { g.font = font(size); g.letterSpacing = `${tracking * size}px`; g.textBaseline = 'alphabetic'; g.textAlign = 'left'; }
+  const widthOf = (font, size, s, tracking = 0) => { setText(font, size, tracking); return g.measureText(s).width; };
+  // words fitted into a box (shrink, then wrap, balanced); accent words (*…*) in their own font
+  function fit(text, { base, accent = base, maxWidth, maxLines = 2, maxSize, minSize = floor(), lineHeight = 1.1, tracking = 0, accentScale = 1 }) {
+    g.letterSpacing = '0px';
+    return fitText(g, { text, fontFor: (s, em) => (em ? accent(s * accentScale) : base(s)), maxWidth, maxLines, maxSize, minSize, lineHeight, tracking, balance: true });
+  }
+  // a headline in the reference's shape: the plain phrase on one line, the accent phrase under it,
+  // both at one size; anything else (no accent, or one too long) fits as usual, wrapped and balanced
+  function headFit(text, o) {
+    const words = window.kit.parseEmphasis(text), i = words.findIndex((w) => w.em);
+    if (i > 0 && words.slice(i).every((w) => w.em)) {
+      const one = (part) => fit(part, { ...o, maxLines: 1 });
+      const a = one(words.slice(0, i)), b = one(words.slice(i)), size = Math.min(a.size, b.size);
+      if (size >= o.maxSize * 0.62) {
+        const A2 = fit(words.slice(0, i), { ...o, maxLines: 1, maxSize: size }), B2 = fit(words.slice(i), { ...o, maxLines: 1, maxSize: size });
+        const lineHeight = size * (o.lineHeight || 1.1), lines = [...A2.lines, ...B2.lines];
+        return { size, lines, lineHeight, height: lines.length * lineHeight, width: Math.max(...lines.map((l) => l.width)) };
+      }
+    }
+    return fit(text, { ...o, maxLines: 3 });
+  }
+  // draw fitted lines; align 'center' around x or 'left' from x; baseline of the first line at y.
+  // reveal(j) returns { dy, alpha, clip } for line j, for lines that rise out of a mask
+  function drawFit(L, x, y, { base, accent = base, colour, accentColour = colour, align = 'center', tracking = 0, accentScale = 1, reveal } = {}) {
+    L.lines.forEach((line, j) => {
+      const by = y + j * L.lineHeight, x0 = align === 'center' ? x - line.width / 2 : x;
+      const r = reveal ? reveal(j) : { dy: 0, alpha: 1 };
+      if (r.alpha <= 0) return;
+      g.save();
+      if (r.clip) { g.beginPath(); g.rect(0, by - L.size * 1.05, W, L.size * 1.45); g.clip(); }
+      g.globalAlpha *= r.alpha;
+      for (const w of line.words) {
+        const s = w.em ? L.size * accentScale : L.size;
+        setText(w.em ? accent : base, s, tracking); g.fillStyle = w.em ? accentColour : colour;
+        g.fillText(w.text, x0 + w.x, by + r.dy);
+      }
+      g.restore();
+    });
+  }
+  // a line that rises out of its mask at t0 and rolls up into it at t1
+  const roll = (t, t0, t1, lh) => (j) => {
+    const a = out((t - t0 - j * 2 * F) / 0.38), b = out((t - t1 - j * F) / 0.24);
+    return { dy: (1 - a) * lh * 1.05 - b * lh * 1.05, alpha: a * (1 - b), clip: true };
+  };
+
+  // the app's capture, drawn into a box at the app's own proportions (390 × 844 pt)
+  function drawScreen(name, box, alpha = 1) {
+    if (alpha <= 0) return;
+    g.save(); g.globalAlpha *= alpha; g.imageSmoothingQuality = 'high';
+    g.drawImage(IMG(name), box.x, box.y, box.w, box.h); g.restore();
+  }
+  function drawShot(shot, box) { if (shot.prev && shot.a < 1) drawScreen(shot.prev, box); drawScreen(shot.name, box, shot.a); }
+
+  // ======================================================================================
+  // THE STORE CUT: only the app, full frame, with touch hotspots, captions and dissolves
+  // ======================================================================================
+  // the app fills the frame: 390 × 844 pt at 2.27× (downscaled from the 3× capture, never enlarged)
+  function storeBox() { const k = Math.max(W / 390, H / 844); return { x: (W - 390 * k) / 2, y: (H - 844 * k) / 2, w: 390 * k, h: 844 * k, k }; }
+  const toStore = (b, [x, y]) => [b.x + x * b.k, b.y + y * b.k];
+
+  // A long name is revealed by a mask that runs ahead of its slide: this context keeps the name's
+  // ink at `ink` (0 until its leading edge is inside the 7% margin) and passes everything else on.
+  const nameInk = (ink) => ink >= 1 ? g : new Proxy(g, {
+    get(c, key) { if (key === 'fillText') return (text, ...rest) => { c.save(); if (text === V.name) c.globalAlpha *= ink; c.fillText(text, ...rest); c.restore(); };
+      const value = c[key]; return typeof value === 'function' ? value.bind(c) : value; },
+    set(c, key, value) { c[key] = value; return true; },
+  });
+  // the store's screen as the social cut's phone: full frame, the app's own scale
+  const storePhone = () => { const b = storeBox(); return { x: b.x, y: b.y, w: b.w, h: b.h, k: b.k, alpha: 1 }; };
+  // the screen at t for the pill's glass and the paid-feature label: what is arriving, and from what
+  function seqShot(t, SEQ) {
+    let i = 0; for (let k = 0; k < SEQ.length; k++) if (t >= SEQ[k][0]) i = k;
+    const [t0, name, kind, extra] = SEQ[i], prev = i > 0 ? SEQ[i - 1][1] : null;
+    const a = kind === 'fade' ? inOut((t - t0) / extra) : kind === 'push' || kind === 'sheet' ? glide(t, t0) : kind === 'water' ? clamp((t - t0) / LAND) : 1;
+    return { name, prev, a };
+  }
+  function storeTouches(t, P) {
+    for (const [hit, state, rect, idx, fx, fy] of TAPS_S) {
+      if (t < hit - 0.45 || t > hit + 0.55) continue;
+      const [x, y] = inPhone(P, pointIn(state, rect, idx, fx, fy));
+      tallTouch(t, hit, x, y);
+    }
+    const t0 = TS.swipe, t1 = TS.swipe + 10 / 30;
+    if (t > t0 - 0.45 && t < t1 + 0.55) {
+      const [x, ya] = inPhone(P, [214, 640]), [, yb] = inPhone(P, [214, 503]);
+      tallTouch(t, t0, x, t < t0 ? ya : t < t1 ? lerp(ya, yb, (t - t0) / (t1 - t0)) : yb);
+    }
+  }
+
+  // the caption pill, docked over the tab bar: [from, to, field, needs the subscription]
+  const PILL = [[M.water, M.add, 'cap1'], [M.add, M.rescue, 'cap2'], [M.rescue, M.light, 'cap3', true], [M.light, M.payoff, 'cap4', true], [M.payoff, M.end, 'cap5']];
+  const PILL_IN = 1.7, PILL_OUT = M.end; // the pill rises as the opening frost clears, and sinks into the end frame
+  function pillText(text) {
+    const pad = 0.06 * W;
+    return fit(text, { base: SERIF(480), accent: SERIF(360), maxWidth: W * 0.94 - 2 * pad, maxLines: 2, maxSize: 0.062 * W, minSize: Math.max(floor(), 0.032 * W), lineHeight: 1.12, tracking: -0.015 });
+  }
+  function pillGeom(L) {
+    const padY = 0.042 * W, h = L.height + 2 * padY - L.lineHeight * 0.12, w = W * 0.94;
+    return { x: (W - w) / 2, y: H * 0.986 - h, w, h, r: 22 * (W / 390), padY };
+  }
+  function drawPill(t, shot, b) {
+    if (t < PILL_IN || t > PILL_OUT + 0.4) return;
+    let i = 0; for (let k = 0; k < PILL.length; k++) if (t >= PILL[k][0] - 0.05) i = k;
+    const cur = PILL[i], L = pillText(V[cur[2]]);
+    // the pill's height follows its words with a quint-out settle
+    const prevL = i > 0 ? pillText(V[PILL[i - 1][2]]) : L, s = i > 0 ? out((t - (cur[0] - 0.05)) / 0.3) : 1;
+    const G = pillGeom(L), G0 = pillGeom(prevL), h = lerp(G0.h, G.h, s);
+    const rise = t < PILL_OUT ? out((t - PILL_IN) / 0.45) : 1 - out((t - PILL_OUT) / 0.35);
+    const y = H * 0.986 - h + (1 - rise) * (h + H * 0.04);
+    if (rise <= 0) return;
+    g.save();
+    // soft shadow, then the glass: the screen under it, blurred, and a cream wash
+    g.shadowColor = 'rgba(40,55,35,0.18)'; g.shadowBlur = 0.05 * W; g.shadowOffsetY = 0.008 * W;
+    roundRect(g, G.x, y, G.w, h, G.r); g.fillStyle = rgba(CREAM, 0.9 * rise); g.fill(); g.shadowColor = 'transparent';
+    roundRect(g, G.x, y, G.w, h, G.r); g.clip();
+    g.globalAlpha = rise; g.filter = 'blur(20px)'; drawShot(shot, b); g.filter = 'none';
+    g.fillStyle = rgba(CREAM, 0.8); g.fillRect(G.x, y, G.w, h);
+    g.restore();
+    g.save(); g.globalAlpha = rise; roundRect(g, G.x + 0.5, y + 0.5, G.w - 1, h - 1, G.r); g.lineWidth = 1.5; g.strokeStyle = 'rgba(112,108,96,0.22)'; g.stroke(); g.restore();
+    // the words: the old caption sinks as the new one rises
+    const words = (k, alpha, dy) => {
+      const Lk = pillText(V[PILL[k][2]]), Gk = pillGeom(Lk);
+      const top = y + (h - Lk.height) / 2 + Lk.size * 0.86;
+      g.save(); g.globalAlpha = alpha * rise; g.beginPath(); g.rect(G.x, y, G.w, h); g.clip();
+      drawFit(Lk, W / 2, top + dy, { base: SERIF(480), accent: SERIF(360), colour: MOSS_DEEP, accentColour: MOSS, tracking: -0.015 });
+      g.restore();
+      return Gk;
+    };
+    // Sequential fades keep two captions from double-exposing. The glass resizes on out5.
+    const dt = t - (cur[0] - 0.05), oldA = 1 - out(dt / 0.12), newA = out((dt - 0.12) / 0.22);
+    if (i > 0 && oldA > 0) words(i - 1, oldA, 0);
+    words(i, i > 0 ? newA : 1, 0);
+    // Follow the paid footage itself, including the first/last dissolve frame;
+    // caption timing must never leave a visible subscription feature unlabelled.
+    const paid = (name) => name?.startsWith('rescue-') || name?.startsWith('light-');
+    const plusA = paid(shot.name) ? (shot.prev && !paid(shot.prev) ? shot.a : 1) : paid(shot.prev) ? 1 - shot.a : 0;
+    if (plusA > 0) drawPlusTag(W / 2, y, plusA * rise);
+  }
+  function drawPlusTag(cx, cy, alpha) {
+    const s = Math.max(floor(), 0.03 * W), tw = widthOf(SANS(800), s, V.plus.toUpperCase(), 0.08), padX = s * 0.95, h = s * 1.95, w = tw + 2 * padX + s * 1.1;
+    g.save(); g.globalAlpha = alpha;
+    g.shadowColor = 'rgba(40,55,35,0.16)'; g.shadowBlur = s * 0.6; g.shadowOffsetY = s * 0.12;
+    roundRect(g, cx - w / 2, cy - h / 2, w, h, h / 2); g.fillStyle = '#FFF7E0'; g.fill(); g.shadowColor = 'transparent';
+    g.lineWidth = 1.5; g.strokeStyle = rgba(SUN, 0.9); g.stroke();
+    // the app's sun icon, then the name
+    const ix = cx - w / 2 + padX + s * 0.4, iy = cy;
+    g.strokeStyle = '#B8871C'; g.lineWidth = s * 0.09; g.lineCap = 'round';
+    g.beginPath(); g.arc(ix, iy, s * 0.17, 0, Math.PI * 2); g.stroke();
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.beginPath(); g.moveTo(ix + Math.cos(a) * s * 0.29, iy + Math.sin(a) * s * 0.29); g.lineTo(ix + Math.cos(a) * s * 0.38, iy + Math.sin(a) * s * 0.38); g.stroke(); }
+    setText(SANS(800), s, 0.08); g.fillStyle = '#7A5A12';
+    g.fillText(V.plus.toUpperCase(), ix + s * 0.7, cy + s * 0.36);
+    g.restore();
+  }
+
+  // the opening title over the frosted app: the mark and the app's own line
+  function storeTitle(t) {
+    if (t > 2.3) return;
+    const leave = out((t - 1.55) / 0.5), a = 1 - leave;
+    if (a <= 0) return;
+    const L = fit(V.line, { base: SERIF(480), maxWidth: W * 0.8, maxLines: 3, maxSize: 0.094 * W, lineHeight: 1.1, tracking: -0.02 });
+    const markS = 0.13 * W, top = H * 0.42 - (L.height + markS + 0.05 * W) / 2;
+    g.save(); g.globalAlpha = a; g.translate(0, -leave * 0.03 * H);
+    g.globalAlpha *= inOut((t - 0.17) / 0.25); // visible only once it has grown past a dot
+    markReveal(g, { t, at: 0.05, cx: W / 2, cy: top + markS / 2, size: markS,
+      shape: 'none', bg: { from: MOSS, to: MOSS }, fg: MOSS,
+      drawMark: (ctx, { size }) => ctx.drawImage(A.img['assets/brand/mark.svg'], -size / 2, -size / 2, size, size) });
+    // the words land one after another, a step apart
+    let n = 0;
+    L.lines.forEach((line, j) => {
+      const by = top + markS + 0.05 * W + L.size * 0.86 + j * L.lineHeight, x0 = W / 2 - line.width / 2;
+      for (const w of line.words) {
+        const p = out((t - 0.25 - n * F) / 0.35); n++;
+        if (p <= 0) continue;
+        g.save(); g.globalAlpha *= p; setText(SERIF(480), L.size, -0.02); g.fillStyle = MOSS_DEEP;
+        g.fillText(w.text, x0 + w.x, by + (1 - p) * L.size * 0.25); g.restore();
+      }
+    });
+    g.restore();
+  }
+  // the end frame: the last screen frosts; the mark, the name, the tagline, the disclosure
+  function storeEnd(t) {
+    if (t < M.end) return;
+    const t0 = M.end;
+    const markS = 0.12 * W, nameS = Math.min(0.094 * W, W * 0.8 / widthOf(SERIF(520), 100, V.name, -0.02) * 100);
+    const T = fit(V.tagline, { base: SERIF(480), accent: SERIF(360), maxWidth: W * 0.84, maxLines: 2, maxSize: 0.066 * W, lineHeight: 1.12, tracking: -0.015 });
+    const D = fit(V.disclosure, { base: SANS(600), maxWidth: W * 0.8, maxLines: 3, maxSize: 0.042 * W, minSize: Math.max(floor(), 0.036 * W), lineHeight: 1.3 });
+    const block = markS + 0.045 * W + nameS * 0.75 + 0.05 * W + T.height;
+    const top = H * 0.43 - block / 2;
+    const pop = (k) => { const p = out((t - t0 - k * 0.04) / 0.25); return { a: p, dy: (1 - p) * 0.02 * H }; };
+    g.letterSpacing = '0px';
+    const lockS = Math.min(nameS, (W * 0.78 - markS - W * 0.025) / widthOf(SERIF(520), 100, V.name) * 100);
+    const lockAt = M.end + 0.55, nameW = widthOf(SERIF(520), lockS, V.name), gapL = W * 0.025;
+    const right = W / 2 + markS / 2 + gapL + nameW - (gapL + nameW) / 2 * settle(t - lockAt, 0.5);
+    g.save(); g.globalAlpha *= inOut((t - t0 - 0.12) / 0.25); // visible only once it has grown past a dot
+    markReveal(nameInk(clamp((W * 0.93 - right) / (W * 0.01))), { t, at: t0, cx: W / 2, cy: top + markS / 2, size: markS,
+      shape: 'none', bg: { from: MOSS, to: MOSS }, fg: MOSS_DEEP,
+      drawMark: (ctx, { size }) => ctx.drawImage(A.img['assets/brand/mark.svg'], -size / 2, -size / 2, size, size),
+      lockup: { text: V.name, font: SERIF(520)(lockS), color: MOSS_DEEP, gap: W * 0.025,
+        at: lockAt, dur: 0.5, hold: 1.2 } }); // the name joins the mark within half a second
+    g.restore();
+    const nb = top + markS + 0.045 * W + nameS * 0.75;
+    let p;
+    p = pop(2);
+    g.save(); g.globalAlpha = p.a; drawFit(T, W / 2, nb + 0.05 * W + T.size * 0.86 + p.dy, { base: SERIF(480), accent: SERIF(360), colour: MOSS_DEEP, accentColour: MOSS, tracking: -0.015 }); g.restore();
+    // the disclosure: plain, legible, held to the last frame
+    p = pop(4);
+    g.save(); g.globalAlpha = p.a; drawFit(D, W / 2, H * 0.865 - D.height + D.size + p.dy * 0.5, { base: SANS(600), colour: 'rgba(43,42,38,0.88)' }); g.restore();
+  }
+
+  function store(t) {
+    const b = storeBox(), P = storePhone(), shot = seqShot(t, SEQ_S);
+    // the frost: in for the opening title, out as the pill rises, in again for the end frame
+    const fOpen = 1 - out((t - 1.55) / 0.55), fEnd = out((t - M.end) / 0.5), f = Math.max(fOpen, fEnd);
+    g.fillStyle = CREAM; g.fillRect(0, 0, W, H);
+    g.save(); if (f > 0.012) g.filter = `blur(${(26 * f).toFixed(2)}px)`;
+    appScreen(t, P, SEQ_S, TAPS_S, false); g.restore();
+    if (f > 0) { g.fillStyle = rgba(CREAM, 0.58 * f); g.fillRect(0, 0, W, H); }
+    if (f < 0.98) storeTouches(t, P);
+    drawPill(t, shot, b);
+    storeTitle(t);
+    storeEnd(t);
+  }
+
+  // ======================================================================================
+  // THE SOCIAL CUT: the ground behind it (the cut itself is socialFilm, below)
+  // ======================================================================================
+  function ground() {
+    const P = SL().phone, cx = P.cx, cy = P.top + P.h * 0.45, r = Math.max(W, H) * 0.78;
+    const grad = g.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, GROUND[0]); grad.addColorStop(0.45, GROUND[1]); grad.addColorStop(1, GROUND[2]);
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    // a fixed grain, so the gradient doesn't band once encoded
+    g.save(); g.globalAlpha = 0.06; g.fillStyle = g.createPattern(A.grain, 'repeat'); g.fillRect(0, 0, W, H); g.restore();
+  }
+
+
+
+  // callouts: a label and its sub-label beside the phone, a fine line to a dot on what matters
+
+  // Tall callouts sit in the viewport's bottom band. The full-width capture now
+  // carries the proof; the labels remain readable without squeezing side gutters.
+  // the hook: the three thirsty plants, real close-ups of their empty rings, one a beat
+
+  // the isolated control: Monty's real card alone on the ground, its Water tapped; the phone rises over it
+
+  // the recap: three lines, one a beat, the last in the accent
+  function recap(t) {
+    const lead = 0.45; // the first line rises as the phone clears
+    if (t < M.payoff + lead - 0.2 || t > M.end + 0.65) return;
+    const size = U * (shape === '9:16' ? 10 : shape === '1:1' ? 8.6 : 8.8), lh = size * 1.1, words = [V.recap1, V.recap2, V.recap3];
+    const Ls = words.map((w) => fit(w, { base: SERIF(560), accent: ITALIC(340), maxWidth: W * 0.84, maxLines: 1, maxSize: size, lineHeight: 1.1, tracking: -0.03, accentScale: 1.04 }));
+    const top = H * (shape === '16:9' ? 0.5 : 0.46) - lh * 1.5 + size * 0.86;
+    Ls.forEach((L, i) => drawFit(L, W / 2, top + i * lh, { base: SERIF(560), accent: ITALIC(340), colour: CREAM, accentColour: SPROUT, tracking: -0.03, accentScale: 1.04, reveal: roll(t, M.payoff + lead + i * BEAT, M.end - 0.3 + i * F, lh) }));
+  }
+
+  // The same container grows from a seed, reveals Keeper and slides into its lockup.
+  function keeperLockup(t, cy, iconS, nameS) {
+    g.letterSpacing = '0px';
+    const ns = Math.min(nameS, (W * 0.84 - iconS - 0.025 * W) / widthOf(SERIF(560), 100, V.name) * 100);
+    // Tall: the tile starts as the recap leaves and fades up as it grows: never a lone dot.
+    const at = M.end - 0.28; // as the recap rolls out
+    g.save(); g.globalAlpha *= inOut((t - at) / 0.3);
+    // A long name is revealed by a mask that runs ahead of the slide: keep its ink out until its
+    // leading edge is inside the 7% margin, so no letter is ever cut by the frame (as in the reel).
+    const lockAt = M.end + 0.2, slide = settle(t - lockAt, 0.5), nameW = widthOf(SERIF(560), ns, V.name);
+    const right = W / 2 + iconS / 2 + 0.025 * W + nameW - (0.025 * W + nameW) / 2 * slide;
+    const ink = clamp((W * 0.93 - right) / (W * 0.01));
+    const ctx = nameInk(ink);
+    const state = markReveal(ctx, { t, at, cx: W / 2, cy, size: iconS, shape: 'squircle',
+      bg: { from: MOSS, to: MOSS }, fg: CREAM,
+      drawMark: (ctx, { size }) => ctx.drawImage(A.img['assets/brand/mark-cream.svg'], -size * 0.3125, -size * 0.3125, size * 0.625, size * 0.625),
+      lockup: { text: V.name, font: SERIF(560)(ns), color: CREAM, gap: W * 0.025,
+        at: lockAt, dur: 0.5, hold: 1.2 } });
+    g.restore(); return state;
+  }
+
+  // the end card: the app icon, the name, the tagline, the rating, the button, where to get it
+  function endCard(t) {
+    if (t < M.end - 0.15) return;
+    const t0 = M.end, at = (k) => t0 + 0.45 + k * 0.12;
+    const pop = (k) => { const p = settle(t - at(k), 0.5); return { a: p, s: lerp(0.85, 1, p), dy: (1 - p) * 2.4 * U * gapScale }; };
+    const wide = shape === '16:9', gapScale = wide ? 0.85 : 1;
+    const iconS = (wide ? 17 : 19) * U, nameS = Math.min((wide ? 13 : 10) * U, W * 0.8 / widthOf(SERIF(560), 100, V.name, -0.03) * 100);
+    const T = fit(V.tagline, { base: SERIF(480), accent: ITALIC(340), maxWidth: W * 0.84, maxLines: 2, maxSize: (wide ? 6 : 4.6) * U, lineHeight: 1.15, tracking: -0.01, accentScale: 1.04 });
+    const rs = Math.max(floor(), (wide ? 4.3 : 3.3) * U), bs = Math.max(floor(), (wide ? 6.5 : 4.4) * U), ws = Math.max(floor(), (wide ? 4.8 : 3.1) * U);
+    const total = iconS + 4 * U * gapScale + nameS * 0.72 + 3.2 * U * gapScale + T.height + 2.6 * U * gapScale + rs + 5 * U * gapScale + bs * 2.5 + 3.4 * U * gapScale * gapScale + ws;
+    let y = H * 0.5 - total / 2;
+    let p = pop(0);
+    keeperLockup(t, y + iconS / 2, iconS, nameS);
+    y += iconS + 4 * U * gapScale;
+    y += 3.2 * U * gapScale;
+    p = pop(2);
+    g.save(); g.globalAlpha = p.a; drawFit(T, W / 2, y + T.size * 0.86 + p.dy, { base: SERIF(480), accent: ITALIC(340), colour: rgba(CREAM, 0.78), accentColour: SPROUT, tracking: -0.01, accentScale: 1.04 }); g.restore();
+    y += T.height + 2.6 * U * gapScale + rs;
+    // the rating: five stars, the last filled to the rating's share, then the number and count
+    p = pop(3);
+    const star = (x, cy, r, fill) => {
+      const path = () => { g.beginPath(); for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * 0.45 : r; g.lineTo(x + Math.cos(a) * rr, cy + Math.sin(a) * rr); } g.closePath(); };
+      path(); g.fillStyle = rgba(SPROUT, 0.25); g.fill();
+      g.save(); g.beginPath(); g.rect(x - r, cy - r, 2 * r * fill, 2 * r); g.clip(); path(); g.fillStyle = SPROUT; g.fill(); g.restore();
+    };
+    const rating = parseFloat(V.rating) || 0, sr = rs * 0.5, sg = rs * 1.12;
+    const txt = `${V.rating} · ${V.ratings}`, tw = widthOf(SANS(700), rs, txt, 0.01), rowW = sg * 4 + sr * 2 + rs * 0.7 + tw;
+    g.save(); g.globalAlpha = p.a; g.translate(0, p.dy);
+    const rx = W / 2 - rowW / 2;
+    for (let k = 0; k < 5; k++) star(rx + sr + k * sg, y - rs * 0.36, sr, clamp(rating - k));
+    setText(SANS(700), rs, 0.01); g.fillStyle = rgba(CREAM, 0.86); g.fillText(txt, rx + sg * 4 + sr * 2 + rs * 0.7, y);
+    g.restore();
+    y += 5 * U * gapScale;
+    // the button: a sprout pill with moss-deep words
+    p = pop(4);
+    const bw = Math.min(W * 0.84, widthOf(SANS(800), bs, V.button, -0.01) + bs * 3.2), bh = bs * 2.5;
+    g.save(); g.globalAlpha = p.a; g.translate(W / 2, y + bh / 2 + p.dy); g.scale(p.s, p.s);
+    g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = bh * 0.4; g.shadowOffsetY = bh * 0.1;
+    roundRect(g, -bw / 2, -bh / 2, bw, bh, bh / 2); g.fillStyle = SPROUT; g.fill(); g.shadowColor = 'transparent';
+    const B = fit(V.button, { base: SANS(800), maxWidth: bw - bs * 1.6, maxLines: 1, maxSize: bs, lineHeight: 1 });
+    drawFit(B, 0, B.size * 0.36, { base: SANS(800), colour: MOSS_DEEP, tracking: -0.01 });
+    g.restore();
+    y += bh + 3.4 * U * gapScale * gapScale + ws;
+    p = pop(5);
+    const Wh = fit(V.where, { base: SANS(700), maxWidth: W * 0.8, maxLines: 1, maxSize: ws, lineHeight: 1 });
+    g.save(); g.globalAlpha = p.a; drawFit(Wh, W / 2, y + p.dy, { base: SANS(700), colour: rgba(CREAM, 0.6), tracking: 0.01 }); g.restore();
+  }
+
+  // ======================================================================================
+  // THE SOCIAL CUT (9:16, 1:1, 16:9 at 60 fps): the reference's beats. A chapter label, a headline,
+  // one whole phone; each change waits for the last to land: headline out, the screen moves,
+  // the new headline in. Every travel is one curve, fast out of the blocks and a long, soft
+  // settle (expo out, measured from the reference's phone rise: 95% by 0.37 s, still by 0.8 s).
+  // ======================================================================================
+  const { snap } = window.kit.motion;
+  const GLIDE = 0.85, glide = (t, t0, dur = GLIDE) => snap((t - t0) / dur);
+  const LAND = 0.9; // a card's move into its row; its slot is open exactly this long, never longer
+  const PAPER_CARD = '#FEFDF9', PAGE = '#F6F1E7'; // the app's card and page, sampled from its captures
+  // Where things sit in each social shape. Tall and square: words on top, the phone below.
+  // Wide: words in a left column, the phone on the right. Everything else is shared.
+  function SL() {
+    if (shape === '16:9') return { phone: { h: H * 0.9, cx: W * 0.68, top: H * 0.05 }, stage: { cx: W * 0.68, cy: H * 0.5, w: W * 0.36 }, hookD: W * 0.105,
+      label: { x: W * 0.08, y: H * 0.34, align: 'left' }, head: { x: W * 0.08, y: H * 0.37, w: W * 0.42, size: H * 0.095, align: 'left' }, chips: { x: W * 0.08, w: W * 0.42, y: H * 0.66, s: 3.2 * U } };
+    if (shape === '1:1') return { phone: { h: H * 0.72, cx: W / 2, top: H * 0.255 }, stage: { cx: W / 2, cy: H * 0.6, w: W * 0.62 }, hookD: W * 0.17,
+      label: { x: W / 2, y: H * 0.05, align: 'center' }, head: { x: W / 2, y: H * 0.066, w: W * 0.86, size: W * 0.058, align: 'center' }, chips: { x: W * 0.07, w: W * 0.86, y: H * 0.222, s: 2.6 * U } };
+    return { phone: { h: H * 0.705, cx: W / 2, top: H * 0.245 }, stage: { cx: W / 2, cy: H * 0.52, w: W * 0.86 }, hookD: W * 0.25,
+      label: { x: W / 2, y: H * 0.058, align: 'center' }, head: { x: W / 2, y: H * 0.078, w: W * 0.86, size: W * 0.08, align: 'center' }, chips: { x: W * 0.07, w: W * 0.86, y: H * 0.212, s: 3.1 * U } };
+  }
+  // the social timeline, in seconds
+  const TT = {
+    hookOut: 2.35, cardIn: 2.4, tap1: 3.6, phoneIn: 3.95,
+    tap2: 5.4, tap3: 6.6, sheet: 8.95, search: 9.95, type: [10.2, 10.35, 10.5], result: 11.65, addPlant: 13.45,
+    rescue: 14.85, swipe: 16.7, remind: 17.6, light: 19.1, stand: 21.1, payoff: 22.85, end: 25.4,
+  };
+  const M_TALL = { water: 0, add: 8.85, rescue: 14.75, light: 19.0, payoff: TT.payoff, end: TT.end };
+  const HEADS_T = [[0.25, TT.hookOut, 'hook'], [2.75, M_TALL.add - 0.05, 'cap1'], [9.15, M_TALL.rescue - 0.05, 'cap2'], [15.05, M_TALL.light - 0.05, 'cap3'], [19.3, TT.payoff - 0.05, 'cap4']];
+  const CHAPTERS_T = [[0.1, M_TALL.add - 0.05, 1, 'ch1'], [9.0, M_TALL.rescue - 0.05, 2, 'ch2'], [14.9, M_TALL.light - 0.05, 3, 'ch3', true], [19.15, TT.payoff - 0.05, 4, 'ch4', true]];
+  // [from, to, state, rect, index, x and y in the rect, label, sub-label]
+  const CALLOUTS_T = [
+    [7.75, 8.6, 'today-3', 'done', null, 0.1, 0.5, 'All watered', '13-day streak'],
+    [10.75, 11.45, 'add-search', 'resultsLabel', null, 0.08, 0.5, '3 matches', 'from “mon”'],
+    [12.5, 13.2, 'add-name', 'nameField', null, 0.05, 0.5, 'Mona', 'a name to start'],
+    [15.65, 16.45, 'rescue', 'steps', 0, 0.075, 0.3, 'Step 1', 'move it brighter'],
+    [15.9, 16.45, 'rescue', 'steps', 1, 0.075, 0.3, 'Step 2', 'soil first'],
+    [17.9, 18.85, 'rescue-reminded', 'remind', null, 0.88, 0.5, 'Reminder', 'in a week'],
+    [19.95, 20.9, 'light-window', 'lux', null, 0.98, 0.62, '12,000 lux', 'too much for Dot'],
+    [21.75, 22.7, 'light-back', 'lux', null, 0.98, 0.62, '1,800 lux', 'good for Dot'],
+  ];
+  // taps: [time, state, rect, index, x and y in the rect]
+  const TAPS_T = [[TT.tap2, 'today-1', 'waterButtons', 0], [TT.tap3, 'today-2', 'waterButtons', 0],
+    [TT.search, 'add', 'search', null, 0.42], [TT.result, 'add-search', 'results', 0, 0.36], [TT.addPlant, 'add-name', 'addPlant', null, 0.56],
+    [TT.remind, 'rescue-scrolled', 'remind', null, 0.56], [TT.stand, 'light-window', 'moveBack', null, 0.56]];
+  const SCROLL_T = SCROLL.slice(1).map((n, i) => [TT.swipe + (i + 1) / 30 - 1e-3, n, 'cut']);
+  // the store cut's timeline: the frosted title, then the same app moments, full frame, 30 fps
+  const TS = { tap1: 3.0, tap2: 4.5, tap3: 6.0, sheet: 8.1, search: 9.0, type: [9.25, 9.4, 9.55], result: 10.6, addPlant: 12.2,
+    rescue: 13.8, swipe: 15.2, remind: 16.2, light: 17.8, stand: 19.6, shelf: 21.75 };
+  // the screen in the phone: [time, capture, how it arrives, extra]
+  const WATER1 = { from: 'today-1', to: 'today-2', card: [20, 221, 350, 106], thumb: [13, 15, 76, 76], name: [100, 35, 140, 30], row: [21, 460, 348, 68],
+    corners: [0, 0, 18, 18], head: [0, 0, 390, 212], roll: [0, 147, 390, 52], ab: [212, 460, 116], c: [518, 761, 48], wcount: [[22, 481, 346, 16], [22, 365, 346, 16]] };
+  const WATER2 = { from: 'today-2', to: 'today-3', card: [20, 221, 350, 116], thumb: [13, 20, 76, 76], name: [100, 30, 140, 30], row: [21, 400, 348, 68],
+    corners: [0, 0, 18, 18], head: [0, 0, 390, 140], roll: [0, 140, 390, 72], ab: [212, 400, 128], c: [458, 761, 60], wcount: [[22, 365, 346, 16], [22, 237, 346, 16]] };
+  const SEQ_T = [[0, 'today-1', 'cut'], [TT.tap2 + 0.12, 'today-2', 'water', WATER1], [TT.tap3 + 0.12, 'today-3', 'water', WATER2],
+    [TT.sheet, 'add', 'sheet'], ...TT.type.map((t, i) => [t, `add-search-0${i + 1}`, 'cut']),
+    [TT.result + 0.12, 'add-name', 'push'], [TT.addPlant + 0.12, 'add-done', 'push'],
+    [TT.rescue, 'rescue-scroll-00', 'push'], ...SCROLL_T, [TT.remind + 0.08, 'rescue-reminded', 'fade', 0.25],
+    [TT.light, 'light-window', 'push'], [TT.stand + 0.08, 'light-back', 'fade', 0.4]];
+  // the store opens with all three due, so its first watering also opens the 'Watered today' group
+  const WATER0 = { from: 'today', to: 'today-1', card: [20, 221, 350, 106], thumb: [13, 15, 76, 76], name: [100, 35, 140, 30], row: [21, 508, 348, 68],
+    corners: [18, 18, 18, 18], head: [0, 0, 390, 212], roll: [0, 147, 390, 52], ab: [212, 463, 116], insert: [463, 595], c: [595, 761, -10] };
+  const TAPS_S = [[TS.tap1, 'today', 'waterButtons', 0], [TS.tap2, 'today-1', 'waterButtons', 0], [TS.tap3, 'today-2', 'waterButtons', 0],
+    [TS.search, 'add', 'search', null, 0.42], [TS.result, 'add-search', 'results', 0, 0.36], [TS.addPlant, 'add-name', 'addPlant', null, 0.56],
+    [TS.remind, 'rescue-scrolled', 'remind', null, 0.56], [TS.stand, 'light-window', 'moveBack', null, 0.56]];
+  const SEQ_S = [[0, 'today', 'cut'], [TS.tap1 + 0.12, 'today-1', 'water', WATER0], [TS.tap2 + 0.12, 'today-2', 'water', WATER1], [TS.tap3 + 0.12, 'today-3', 'water', WATER2],
+    [TS.sheet, 'add', 'sheet'], ...TS.type.map((t, i) => [t, `add-search-0${i + 1}`, 'cut']),
+    [TS.result + 0.12, 'add-name', 'push'], [TS.addPlant + 0.12, 'add-done', 'push'],
+    [TS.rescue, 'rescue-scroll-00', 'push'], ...SCROLL.slice(1).map((n, i) => [TS.swipe + (i + 1) / 30 - 1e-3, n, 'cut']), [TS.remind + 0.08, 'rescue-reminded', 'fade', 0.25],
+    [TS.light, 'light-window', 'push'], [TS.stand + 0.08, 'light-back', 'fade', 0.4], [TS.shelf, 'shelf', 'push']];
+  const ROW = { thumb: [14, 12, 44, 44], name: [70, 11, 150, 30], sub: [70, 40, 200, 17], check: [302, 18, 32, 32] };
+
+  // a region of a capture (CSS px) drawn into a frame rectangle
+  function crop(name, [x, y, w, h], dx, dy, dw, dh, alpha = 1) {
+    if (alpha <= 0) return;
+    const c = cap(name), s = c.scale;
+    g.save(); g.globalAlpha *= Math.min(1, alpha); g.imageSmoothingQuality = 'high';
+    g.drawImage(IMG(name), (x - c.rect[0]) * s, (y - c.rect[1]) * s, w * s, h * s, dx, dy, dw, dh); g.restore();
+  }
+  // the phone at rest, then rising in and dropping away
+  function tallPhone(t) {
+    const L = SL().phone, k = L.h / 866.6, w = 390 * k, h = 844 * k, bz = w * 0.029, x = L.cx - w / 2, y0 = L.top + bz;
+    const rise = glide(t, TT.phoneIn, 0.9), drop = clamp((t - TT.payoff) / 0.55) ** 3;
+    const alpha = inOut((t - TT.phoneIn) / 0.3) * (1 - inOut((t - TT.payoff - 0.2) / 0.35));
+    return { x, y: y0 + (1 - rise) * H * 0.62 + drop * H * 0.7, w, h, k, bz, alpha, rest: y0 };
+  }
+  const inPhone = (P, [x, y]) => [P.x + x * P.k, P.y + y * P.k];
+  function tallDevice(t, P) {
+    if (P.alpha <= 0) return;
+    const r = 47 * P.k, bz = P.bz, ox = P.x - bz, oy = P.y - bz, ow = P.w + 2 * bz, oh = P.h + 2 * bz;
+    g.save(); g.globalAlpha *= P.alpha;
+    g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = P.w * 0.16; g.shadowOffsetY = P.w * 0.06;
+    roundRect(g, ox, oy, ow, oh, r + bz); g.fillStyle = '#121512'; g.fill(); g.shadowColor = 'transparent';
+    const edge = g.createLinearGradient(0, oy, 0, oy + oh); edge.addColorStop(0, 'rgba(255,255,255,0.22)'); edge.addColorStop(0.5, 'rgba(255,255,255,0.06)'); edge.addColorStop(1, 'rgba(255,255,255,0.14)');
+    g.lineWidth = Math.max(1.5, bz * 0.16); g.strokeStyle = edge; roundRect(g, ox + 0.75, oy + 0.75, ow - 1.5, oh - 1.5, r + bz); g.stroke();
+    g.save(); roundRect(g, P.x, P.y, P.w, P.h, r); g.clip();
+    g.fillStyle = PAGE; g.fillRect(P.x, P.y, P.w, P.h);
+    appScreen(t, P, SEQ_T, TAPS_T, true);
+    g.restore();
+    const iw = 126 * P.k * 0.86, ih = 37 * P.k * 0.86;
+    roundRect(g, P.x + P.w / 2 - iw / 2, P.y + 11 * P.k, iw, ih, ih / 2); g.fillStyle = '#050605'; g.fill();
+    g.restore();
+  }
+  // the app's screen at t: cuts, the app's own sheet and push, dissolves where only a region changes,
+  // and the watering reflow, where the card becomes its row and the list makes room
+  function appScreen(t, P, SEQ, TAPS, montySlot) {
+    let i = 0; for (let k = 0; k < SEQ.length; k++) if (t >= SEQ[k][0]) i = k;
+    const [t0, name, kind, extra] = SEQ[i], prev = i > 0 ? SEQ[i - 1][1] : null, box = { x: P.x, y: P.y, w: P.w, h: P.h };
+    const shot = (n, b = box, a = 1) => drawScreen(n, b, a);
+    if (kind === 'water' && t - t0 < LAND) waterStep(t, t0, P, extra);
+    else if ((kind === 'push' || kind === 'sheet') && t - t0 < GLIDE + 0.15) {
+      const e = glide(t, t0);
+      shot(prev, kind === 'push' ? { ...box, x: box.x - e * box.w * 0.3 } : box);
+      g.fillStyle = `rgba(20,30,20,${(0.18 * e).toFixed(3)})`; g.fillRect(P.x, P.y, P.w, P.h);
+      const nb = kind === 'push' ? { ...box, x: box.x + (1 - e) * box.w } : { ...box, y: box.y + (1 - e) * box.h };
+      g.save(); g.shadowColor = 'rgba(0,0,0,0.22)'; g.shadowBlur = 0.03 * W; g.fillStyle = PAGE; g.fillRect(nb.x, nb.y, nb.w, nb.h); g.restore();
+      shot(name, nb);
+    } else if (kind === 'fade' && t - t0 < extra) { shot(prev); shot(name, box, inOut((t - t0) / extra)); }
+    else shot(name);
+    // Monty's slot stays open until his card lands in it
+    if (montySlot && t < TT.phoneIn + LAND && t >= TT.phoneIn - 0.5) {
+      const [rx, ry, rw, rh] = R('today-1').watered[0], [x, y] = inPhone(P, [rx - 3, ry - 3]);
+      g.fillStyle = PAGE; g.fillRect(x, y, (rw + 6) * P.k, (rh + 6) * P.k);
+    }
+    // the pressed control, the app's own :active state, for a few frames
+    for (const [hit, state, rect, idx] of TAPS) {
+      const long = rect === 'search' ? 0.25 : 0.1;
+      if (t >= hit && t < hit + long) drawScreen(`pressed-${state}-${rect}-${idx ?? 'one'}`, box);
+    }
+  }
+  // One watering inside the phone: the card travels into its new row and changes on the way;
+  // the list around it moves to where the app puts it. Bands are cut from the after-capture.
+  function waterStep(t, t0, P, S) {
+    const p = clamp((t - t0) / LAND), e = snap(p), to = S.to, k = P.k;
+    const at = (y) => P.y + y * k, band = ([y0, y1, dy]) => {
+      const d = dy * (1 - e);
+      g.save(); g.beginPath(); g.rect(P.x, at(y0 + d), P.w, (Math.min(y1, 761) - y0) * k); g.clip();
+      crop(to, [0, y0, 390, y1 - y0], P.x, at(y0 + d), P.w, (y1 - y0) * k); g.restore();
+      return d;
+    };
+    const rollIn = (rect, dy, q) => { // the old words rise out of their box as the new ones rise in
+      const [x, y, w, h] = rect[1], [fx, fy] = rect[0], top = at(y + dy);
+      g.save(); g.beginPath(); g.rect(P.x + x * k, top, w * k, h * k); g.clip();
+      g.fillStyle = PAGE; g.fillRect(P.x + x * k, top, w * k, h * k);
+      crop(S.from, [fx, fy, w, h], P.x + x * k, top - q * h * k, w * k, h * k, 1 - q);
+      crop(to, [x, y, w, h], P.x + x * k, top + (1 - q) * h * k, w * k, h * k, q);
+      g.restore();
+    };
+    const q = inOut((t - t0) / 0.45);
+    crop(to, S.head, P.x, P.y, P.w, S.head[3] * k);
+    rollIn([[S.roll[0], S.roll[1]], S.roll], 0, q);
+    const dAB = band(S.ab);
+    if (S.wcount) rollIn(S.wcount, dAB, q);
+    const [rx, ry, rw, rh] = S.row;
+    if (S.insert) {
+      // a new section: its header and group fade in where the list opens; the card lands in it
+      const [y0, y1] = S.insert;
+      crop(to, [0, y0, 390, y1 - y0], P.x, at(y0), P.w, (y1 - y0) * k, inOut((p - 0.2) / 0.5));
+      g.fillStyle = PAGE; g.fillRect(P.x + (rx - 3) * k, at(ry - 3), (rw + 6) * k, (rh + 6) * k);
+    } else {
+      // the slot opens as the list below it settles
+      const top = at(ry + dAB), bottom = at(S.c[0] + S.c[2] * (1 - e));
+      if (bottom > top) { g.fillStyle = PAPER_CARD; g.fillRect(P.x + rx * k, top, rw * k, bottom - top); }
+    }
+    band(S.c);
+    crop(to, [0, 761, 390, 83], P.x, at(761), P.w, 83 * k);
+    const [cx, cy, cw, ch] = S.card;
+    morph(p, { name: S.from, card: S.card, thumb: S.thumb, nameRect: S.name, x: P.x + cx * k, y: at(cy), k },
+      { name: to, row: S.row, corners: S.corners, x: P.x + rx * k, y: at(ry), k });
+  }
+  // A card becomes its watered row: one container reshapes; the photo and the name travel to
+  // their places; "Due today", the line and Water leave first; the row's line and check arrive last.
+  function morph(p, A, B) {
+    if (p >= 1) return;
+    const e = snap(p), k = lerp(A.k, B.k, e), [, , aw, ah] = A.card, [, , bw, bh] = B.row;
+    const x = lerp(A.x, B.x, e), y = lerp(A.y, B.y, e), w = lerp(aw * A.k, bw * B.k, e), h = lerp(ah * A.k, bh * B.k, e);
+    const radii = B.corners.map((c) => lerp(22 * A.k, c * B.k, e));
+    g.save(); g.shadowColor = `rgba(40,55,35,${(0.22 * (1 - e) + 0.06).toFixed(3)})`; g.shadowBlur = lerp(24, 8, e) * k; g.shadowOffsetY = lerp(8, 2, e) * k;
+    g.beginPath(); g.roundRect(x, y, w, h, radii); g.fillStyle = PAPER_CARD; g.fill(); g.restore();
+    g.save(); g.beginPath(); g.roundRect(x, y, w, h, radii); g.clip();
+    const [acx, acy] = A.card, [bx, by] = B.row;
+    crop(A.name, A.card, x, y, aw * k, ah * k, 1 - inOut(p / 0.3));
+    const piece = (ra, rb, an, bn) => {
+      const px = lerp(A.x + ra[0] * A.k, B.x + rb[0] * B.k, e), py = lerp(A.y + ra[1] * A.k, B.y + rb[1] * B.k, e);
+      const pw = lerp(ra[2] * A.k, rb[2] * B.k, e), ph = lerp(ra[3] * A.k, rb[3] * B.k, e), c = inOut((p - 0.3) / 0.45);
+      crop(an, [acx + ra[0], acy + ra[1], ra[2], ra[3]], px, py, pw, ph, 1 - c);
+      crop(bn, [bx + rb[0], by + rb[1], rb[2], rb[3]], px, py, pw, ph, c);
+    };
+    piece(A.thumb, ROW.thumb, A.name, B.name);
+    piece(A.nameRect, ROW.name, A.name, B.name);
+    const sub = ROW.sub, chk = ROW.check;
+    crop(B.name, [bx + sub[0], by + sub[1], sub[2], sub[3]], x + sub[0] * k, y + sub[1] * k, sub[2] * k, sub[3] * k, inOut((p - 0.55) / 0.35));
+    const rc = snap((p - 0.68) / 0.3);
+    if (rc > 0) {
+      g.save(); g.beginPath(); g.arc(x + (chk[0] + chk[2] / 2) * k, y + (chk[1] + chk[3] / 2) * k, chk[2] * 0.75 * k * rc, 0, Math.PI * 2); g.clip();
+      crop(B.name, [bx + chk[0], by + chk[1], chk[2], chk[3]], x + chk[0] * k, y + chk[1] * k, chk[2] * k, chk[3] * k); g.restore();
+    }
+    crop(B.name, B.row, x, y, w, h, inOut((p - 0.85) / 0.15));
+    g.restore();
+  }
+  // Monty: the first ring of the hook becomes his card's photo; the card is tapped; as the phone
+  // rises the card travels into the watered row and becomes it
+  function tallMonty(t, P) {
+    const c = cap('card-monty'), [rx, ry, rw, rh] = c.rect, st = SL().stage, kI = st.w / rw;
+    const ix = st.cx - (rw * kI) / 2, iy = st.cy - (rh * kI) / 2, body = inOut((t - TT.cardIn - 0.15) / 0.35);
+    if (t < TT.cardIn || t >= TT.phoneIn + LAND) return;
+    if (t < TT.phoneIn) {
+      // the card's body grows around the photo that came from the hook
+      const s = lerp(0.94, 1, glide(t, TT.cardIn + 0.1)), cx = st.cx, cy = st.cy;
+      g.save(); g.translate(cx, cy); g.scale(s, s); g.translate(-cx, -cy); g.globalAlpha *= body;
+      g.shadowColor = 'rgba(0,0,0,0.45)'; g.shadowBlur = 30; g.shadowOffsetY = 10;
+      roundRect(g, ix, iy, rw * kI, rh * kI, 22 * kI); g.fillStyle = PAPER_CARD; g.fill(); g.shadowColor = 'transparent';
+      g.beginPath(); roundRect(g, ix, iy, rw * kI, rh * kI, 22 * kI); g.clip();
+      crop(t >= TT.tap1 && t < TT.tap1 + 0.1 ? 'pressed-today-waterButtons-0' : 'card-monty', c.rect, ix, iy, rw * kI, rh * kI);
+      g.restore();
+      return;
+    }
+    const [wx, wy] = R('today-1').watered[0];
+    morph((t - TT.phoneIn) / LAND, { name: 'card-monty', card: c.rect, thumb: [13, 15, 76, 76], nameRect: [100, 35, 140, 30], x: ix, y: iy, k: kI },
+      // aim for the row where the phone comes to rest: both land together, and the card never dips with the rising phone
+      { name: 'today-1', row: R('today-1').watered[0], corners: [18, 18, 18, 18], x: P.x + wx * P.k, y: P.rest + wy * P.k, k: P.k });
+  }
+  // the hook: three thirsty plants, a beat apart; Monty's stays and becomes his card's photo
+  function tallHook(t) {
+    const st = SL().stage, d = SL().hookD, gap = d * 0.16, cy = st.cy, kI = st.w / 350, ix = st.cx - st.w / 2, iy = cy - (106 * kI) / 2;
+    const leave = inOut((t - TT.hookOut) / 0.35), go = glide(t, TT.cardIn);
+    ['monty', 'pickles', 'fernando'].forEach((id, i) => {
+      const t0 = 0.55 + i * 0.4, sp = snap((t - t0) / 0.6);
+      if (sp <= 0) return;
+      let x = st.cx + (i - 1) * (d + gap), y = cy + (1 - sp) * d * 0.2, size = d * lerp(0.82, 1, sp), a = sp * (1 - leave);
+      if (i === 0) { // to the photo's place in the card: thumb [13, 15, 76, 76] at the card's scale
+        const tx = ix + (13 + 38) * kI, ty = iy + (15 + 38) * kI;
+        x = lerp(x, tx, go); y = lerp(y, ty, go); size = lerp(size, 76 * kI, go); a = sp * (1 - inOut((t - TT.cardIn - 0.45) / 0.15));
+      }
+      if (a <= 0) return;
+      for (const kk of [0, 1]) {
+        const ph = ((t - t0 - kk * 0.7) % 1.4) / 1.4;
+        if (t - t0 - kk * 0.7 < 0) continue;
+        g.save(); g.globalAlpha = (1 - out(ph)) * 0.5 * sp * (1 - leave) * (i === 0 ? 1 - go : 1); g.beginPath(); g.arc(x, y, size / 2 * (1.02 + 0.55 * out(ph)), 0, Math.PI * 2);
+        g.lineWidth = Math.max(1.5, 0.18 * U); g.strokeStyle = SPROUT; g.stroke(); g.restore();
+      }
+      g.save(); g.globalAlpha = a; g.shadowColor = 'rgba(0,0,0,0.45)'; g.shadowBlur = size * 0.18; g.shadowOffsetY = size * 0.06;
+      g.beginPath(); g.arc(x, y, size / 2, 0, Math.PI * 2); g.fillStyle = PAPER_CARD; g.fill(); g.shadowColor = 'transparent';
+      g.clip(); const c = cap(`ring-${id}`); g.drawImage(A.img[c.file], x - size / 2, y - size / 2, size, size * c.rect[3] / c.rect[2]); g.restore();
+    });
+  }
+  // a fingertip: it settles onto the control, presses, ripples and lifts; never a desktop arrow
+  function tallTouch(t, hit, x, y, { from, to } = {}) {
+    const a = inOut((t - hit + 0.4) / 0.2) * (1 - inOut((t - hit - 0.3) / 0.2));
+    if (a <= 0) return;
+    const s0 = settle(t - hit + 0.4, 0.4), r = W * 0.034, pr = t >= hit && t < hit + 0.18 ? lerp(1, 0.86, out((t - hit) / 0.06)) * (t > hit + 0.06 ? lerp(0.86, 1, settle(t - hit - 0.06, 0.12)) / 0.86 : 1) : 1;
+    let px = x + (1 - s0) * W * 0.03, py = y + (1 - s0) * W * 0.03;
+    if (from && to) { const m = inOut((t - from[2]) / (to[2] - from[2])); px = lerp(from[0], to[0], m); py = lerp(from[1], to[1], m); }
+    g.save(); g.globalAlpha *= a;
+    const d = t - hit;
+    if (d >= 0 && d < 0.45) { const q = out(d / 0.45); g.save(); g.globalAlpha *= 0.5 * (1 - q); g.beginPath(); g.arc(x, y, r * (1 + 1.6 * q), 0, Math.PI * 2); g.lineWidth = W * 0.003; g.strokeStyle = MOSS; g.stroke(); g.restore(); }
+    g.shadowColor = 'rgb(30 45 30 / 25%)'; g.shadowBlur = W * 0.014;
+    g.beginPath(); g.arc(px, py, r * pr, 0, Math.PI * 2); g.fillStyle = 'rgb(255 255 255 / 58%)'; g.fill(); g.shadowColor = 'transparent';
+    g.strokeStyle = rgba(MOSS_DEEP, 0.4); g.lineWidth = W * 0.0025; g.stroke();
+    g.restore();
+  }
+  function tallTouches(t, P) {
+    const [bx, by, bw, bh] = R('today').waterButtons[0], c = cap('card-monty'), st = SL().stage, kI = st.w / c.rect[2];
+    tallTouch(t, TT.tap1, st.cx - (c.rect[2] * kI) / 2 + (bx - c.rect[0] + bw / 2) * kI, st.cy - (c.rect[3] * kI) / 2 + (by - c.rect[1] + bh / 2) * kI);
+    if (P.alpha <= 0) return;
+    for (const [hit, state, rect, idx, fx, fy] of TAPS_T) {
+      if (t < hit - 0.45 || t > hit + 0.55) continue;
+      const [x, y] = inPhone(P, pointIn(state, rect, idx, fx, fy));
+      tallTouch(t, hit, x, y);
+    }
+    // the swipe up the rescue guide: the finger rides the page 137 pt
+    const sx = 214, y0 = 640, y1 = 503, t0 = TT.swipe, t1 = TT.swipe + 10 / 30;
+    if (t > t0 - 0.45 && t < t1 + 0.55) {
+      const [x, ya] = inPhone(P, [sx, y0]), [, yb] = inPhone(P, [sx, y1]);
+      tallTouch(t, t0, x, t < t0 ? ya : t < t1 ? lerp(ya, yb, (t - t0) / (t1 - t0)) : yb);
+    }
+  }
+  // chips under the headline, and a sprout dot on what each names
+  function tallChips(t, P) {
+    const C = SL().chips, active = CALLOUTS_T.filter((c) => t >= c[0] - 0.05 && t < c[1] + 0.35), y = C.y;
+    active.forEach((item) => {
+      const [at, end, state, rect, idx, fx, fy, label, sub] = item;
+      const peers = CALLOUTS_T.filter((c) => c[0] < end && c[1] > at), n = peers.length, i = peers.indexOf(item);
+      const a = inOut((t - at) / 0.3) * (1 - inOut((t - end) / 0.3)), e = glide(t, at, 0.7);
+      if (a <= 0) return;
+      const gapX = 0.02 * C.w + 0.01 * W, room = (C.w - (n - 1) * gapX) / n, s = Math.max(floor(), C.s), dotR = s * 0.22, padX = s * 0.75, gap = s * 0.45;
+      const L = fit(label, { base: SANS(800), maxWidth: room * 0.55, maxLines: 1, maxSize: s });
+      const S2f = fit(sub, { base: SANS(600), maxWidth: room - 2 * padX - dotR * 2 - gap * 2 - L.width, maxLines: 1, maxSize: s * 0.9 });
+      const S2 = S2f.size >= s * 0.8 && S2f.lines.length === 1 ? S2f : { width: -gap, lines: [] };
+      // centred in their row; in wide they line up from the column's left edge
+      const w = Math.min(room, padX * 2 + dotR * 2 + gap * 2 + L.width + S2.width), h = s * 2.1, y0 = y - h / 2 + (1 - e) * s * 0.8;
+      const x0 = shape === '16:9' ? C.x + (room + gapX) * i : C.x + room * (i + 0.5) + i * gapX - w / 2;
+      g.save(); g.globalAlpha = a;
+      roundRect(g, x0, y0, w, h, h / 2); g.fillStyle = '#1B3220'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = rgba(SPROUT, 0.35); g.stroke();
+      g.beginPath(); g.arc(x0 + padX + dotR, y0 + h / 2, dotR, 0, Math.PI * 2); g.fillStyle = SPROUT; g.fill();
+      const bx = x0 + padX + dotR * 2 + gap, by = y0 + h / 2 + L.size * 0.36;
+      drawFit(L, bx, by, { base: SANS(800), colour: CREAM, align: 'left' });
+      if (S2.lines.length) drawFit(S2, bx + L.width + gap, by, { base: SANS(600), colour: rgba(CREAM, 0.68), align: 'left' });
+      g.restore();
+      const [tx, ty] = inPhone(P, pointIn(state, rect, idx, fx, fy)), dp = glide(t, at + 0.1, 0.6), dr = 0.9 * U;
+      if (dp > 0 && P.alpha > 0) {
+        g.save(); g.globalAlpha = a * P.alpha;
+        g.beginPath(); g.arc(tx, ty, dr * 2.3 * dp, 0, Math.PI * 2); g.fillStyle = rgba(SPROUT, 0.22); g.fill();
+        g.lineWidth = 1.5; g.strokeStyle = rgba(SPROUT, 0.55); g.stroke();
+        g.beginPath(); g.arc(tx, ty, dr * dp, 0, Math.PI * 2); g.fillStyle = SPROUT; g.fill();
+        g.restore();
+      }
+    });
+  }
+  function tallWords(t) {
+    const Lo = SL(), s = Math.max(floor(), 2.6 * U), labelY = Lo.label.y;
+    for (const [t0, t1, n, field, plus] of CHAPTERS_T) {
+      const a = inOut((t - t0) / 0.3) * (1 - inOut((t - t1) / 0.3));
+      if (a <= 0) continue;
+      const num = String(n).padStart(2, '0'), word = String(V[field]).toUpperCase();
+      setText(SANS(800), s, 0.3);
+      const nw = g.measureText(num).width, dash = '  —  ', dw = g.measureText(dash).width, ww = g.measureText(word).width;
+      const tagW = plus ? widthOf(SANS(800), s * 0.78, 'PLUS', 0.18) + s * 1.3 : 0, gap = plus ? s * 0.8 : 0;
+      const x0 = Lo.label.align === 'left' ? Lo.label.x : Lo.label.x - (nw + dw + ww + gap + tagW) / 2;
+      const y = labelY + (1 - glide(t, t0, 0.6)) * s * 0.6;
+      g.save(); g.globalAlpha = a;
+      setText(SANS(800), s, 0.3); g.fillStyle = SPROUT; g.fillText(num, x0, y);
+      g.fillStyle = rgba(CREAM, 0.62); g.fillText(dash + word, x0 + nw, y);
+      if (plus) {
+        const tx = x0 + nw + dw + ww + gap, th = s * 1.55;
+        roundRect(g, tx, y - s * 0.36 - th / 2, tagW, th, th / 2); g.lineWidth = Math.max(1.5, s * 0.07); g.strokeStyle = rgba(SPROUT, 0.8); g.stroke();
+        setText(SANS(800), s * 0.78, 0.18); g.fillStyle = SPROUT; g.fillText('PLUS', tx + s * 0.65, y - s * 0.36 + s * 0.28);
+      }
+      g.restore();
+    }
+    for (const [t0, t1, field] of HEADS_T) {
+      if (t < t0 || t > t1 + 0.5) continue;
+      const L = headFit(V[field], { base: SERIF(560), accent: ITALIC(340), maxWidth: Lo.head.w, maxSize: Lo.head.size, lineHeight: 1.08, tracking: -0.03, accentScale: 1.04 });
+      const reveal = (j) => { const a = snap((t - t0 - j * 0.08) / 0.75), b = inOut((t - t1 - j * 0.04) / 0.3);
+        return { dy: (1 - a) * L.lineHeight * 1.05 - b * L.lineHeight * 0.7, alpha: a * (1 - b), clip: true }; };
+      drawFit(L, Lo.head.x, Lo.head.y + L.size * 0.86, { base: SERIF(560), accent: ITALIC(340), colour: CREAM, accentColour: SPROUT, align: Lo.head.align, tracking: -0.03, accentScale: 1.04, reveal });
+    }
+  }
+  function socialFilm(t) {
+    ground();
+    tallHook(t);
+    const P = tallPhone(t);
+    tallDevice(t, P);
+    tallMonty(t, P);
+    tallTouches(t, P);
+    tallChips(t, P);
+    tallWords(t);
+    recap(t);
+    endCard(t);
+  }
+
+  function social(t) { socialFilm(t); }
+
+  // ---------- KEEP: drawing, loading ----------
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    shape = SIZES[V.size] ? V.size : STORE;
+    [W, H] = SIZES[shape]; U = Math.min(W, H) / 100;
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    g.reset();
+    t = clamp(t, 0, DURATION - 1e-6);
+    M = shape === STORE ? M_BASE : M_TALL;
+    if (shape === STORE) store(t); else social(t);
+    return canvas;
+  }
+  async function prepare() {
+    await Promise.all([
+      loadFont('Fraunces', 'assets/fonts/fraunces-soft.ttf', { weight: '100 900' }),
+      loadFont('Fraunces', 'assets/fonts/fraunces-soft-italic.ttf', { weight: '100 900', style: 'italic' }),
+      loadFont('Nunito', 'assets/fonts/nunito-variable.ttf', { weight: '200 1000' }),
+    ]);
+    if (!A.m) A.m = await (await fetch('assets/screens/screens.json')).json();
+    const files = [...Object.values(A.m.captures).map((c) => c.file)];
+    await Promise.all(files.map(async (f) => { A.img[f] = await loadImage(`assets/screens/${f}`); }));
+    for (const f of ['assets/brand/mark.svg', 'assets/brand/mark-cream.svg', 'assets/brand/icon.svg']) A.img[f] = await loadImage(f);
+    if (!A.grain) { // seeded grain, made once
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const x = c.getContext('2d', { willReadFrequently: true }), img = x.createImageData(256, 256), r = rng(1907);
+      for (let i = 0; i < img.data.length; i += 4) { const v = Math.round(r() * 255); img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+      x.putImageData(img, 0, 0); A.grain = c;
+    }
+    await document.fonts.ready;
+  }
+
+  // ---------- ADAPT: the cues (sound effects) for each cut, and the one music bed ----------
+  function cues(values) {
+    const v = { ...DEFAULTS, ...values }, social = SIZES[v.size] && v.size !== STORE, out = [];
+    M = social ? M_TALL : M_BASE;
+    const add = (t, type, gain, motion) => out.push({ t, type, ...(gain ? { gain } : {}), ...(motion ? { motion } : {}) });
+    if (social) {
+      // Social: every sound sits on its visual onset. Taps on presses, soft pops on results, chips and
+      // the recap; quiet swishes only on the large moves (the phone rising, the app's sheet and pushes).
+      const travel = { kind: 'container', travel: 0.8 };
+      for (let i = 0; i < 3; i++) add(0.55 + i * 0.4, 'pop', 0.42);                  // the three thirsty plants
+      add(TT.tap1, 'tap', 0.7); add(TT.phoneIn, 'whoosh', 0.32, travel);            // Monty's Water; the phone rises
+      for (const [hit] of TAPS_T) add(hit, 'tap', 0.7);
+      for (const [t0, , kind] of SEQ_T) if (kind === 'push' || kind === 'sheet') add(t0, 'swish', 0.32, travel);
+      for (const t0 of TT.type) add(t0, 'tick', 0.6);
+      for (const t0 of [TT.phoneIn + 0.62, TT.tap2 + 0.74, TT.tap3 + 0.74]) add(t0, 'pop', 0.42); // each check fills
+      add(TT.swipe, 'swish', 0.3, { kind: 'container', travel: 0.3 });
+      for (const c of CALLOUTS_T) add(c[0], 'pop', 0.38);
+      add(TT.payoff, 'swish', 0.3, travel);                                          // the phone drops away
+      for (let i = 0; i < 3; i++) add(TT.payoff + 0.45 + i * BEAT, 'pop', 0.45);    // the recap
+      add(TT.end - 0.28, 'pop', 0.4);                                                // the closing tile
+      return out.sort((a, b) => a.t - b.t);
+    }
+    // The store cut: the same rules. Taps on presses, soft pops on results and each caption,
+    // quiet swishes only on full-frame moves (the app's sheet and pushes).
+    const full = { kind: 'container', travel: 1 };
+    add(0.05, 'pop', 0.4);                                                         // the opening mark
+    for (const [hit] of TAPS_S) add(hit, 'tap', 0.7);
+    for (const [t0, , kind] of SEQ_S) if (kind === 'push' || kind === 'sheet') add(t0, 'swish', 0.32, full);
+    for (const t0 of TS.type) add(t0, 'tick', 0.6);
+    for (const t0 of [TS.tap1, TS.tap2, TS.tap3]) add(t0 + 0.12 + 0.62, 'pop', 0.42); // each check fills
+    add(TS.swipe, 'swish', 0.3, { kind: 'container', travel: 0.3 });
+    for (const m of [M.add, M.rescue, M.light, M.payoff]) add(m - 0.05, 'pop', 0.35); // each caption
+    add(M.end, 'pop', 0.4);                                                        // the closing mark
+    return out.sort((a, b) => a.t - b.t);
+  }
+  const music = {
+    bpm: BPM, duration: DURATION, root: 43,
+    chords: [[0, 4, 7, 11], [-3, 0, 4, 7], [5, 9, 12, 16], [7, 11, 14, 17]],
+    sections: [
+      { from: 0, to: 1, pad: 0.75, hats: 0.25 },
+      { from: 1, to: 3, kick: 0.6, hats: 0.45, bass: 0.6, pad: 0.6 },
+      { from: 3, to: 11, kick: 0.7, hats: 0.5, clap: 0.3, bass: 0.65, pad: 0.55 },
+      { from: 11, to: 12, kick: 0.75, hats: 0.55, clap: 0.35, bass: 0.7, pad: 0.6 },
+      { from: 12, to: 14, pad: 0.8, hats: 0.2 },
+    ],
+    breaks: [[4, 4.5], [9.75, 10.25], [14.75, 15.25], [18.75, 19.25], [24, 24.5]],
+  };
+  const STATES = [[0, 'Open'], [M.water, 'Water'], [M.add, 'Add'], [M.rescue, 'Rescue'], [M.light, 'Light'], [M.payoff, 'Payoff'], [M.end, 'End']];
+  window.template = {
+    fps: FPS, fpsBySize: { '9:16': 60, '1:1': 60, '16:9': 60 }, duration: DURATION, sizes: SIZES, width: W, height: H, defaults: () => ({ size: STORE, ...DEFAULTS }), fields: FIELDS, states: STATES,
+    prepare, seek: (t, values) => seek(t, values), cues, music,
+    // the store cut's MP4 to Apple's spec: H.264 High 4.0 at a constant 11 Mbps (a still UI would
+    // otherwise come in near 5), AAC 256 kbps
+    encode: { [STORE]: { bitrate: '11M', minrate: '11M', maxrate: '11M', bufsize: '11M', x264: 'nal-hrd=cbr', profile: 'high', level: '4.0', audioBitrate: '256k' } },
+    keyTimes: [0.9, 1.75, 2.7, 5.0, 5.5, 7.9, 9.9, 11.4, 13.5, 16.2, 18.5, 20.9, 23.9, 25.1, 26.8, 27.9],
+  };
+  const q = new URLSearchParams(location.search);
+  if (window.parent === window && !q.has('render')) document.getElementById('credit').hidden = false;
+  if (window.parent === window && !q.has('render')) prepare().then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, { size: q.get('size') || STORE }); requestAnimationFrame(loop); }; loop(); });
+})();
+</script>

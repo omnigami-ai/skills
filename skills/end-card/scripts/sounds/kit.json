@@ -1,0 +1,100 @@
+{
+  "tap": {
+    "files": [
+      "tap.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.17,
+    "about": "A cushioned fingertip contact with a warm body; the default cursor tap."
+  },
+  "click": {
+    "files": [
+      "click.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.14,
+    "about": "A small mechanical press, a little firmer than tap, without a sharp top."
+  },
+  "tick": {
+    "files": [
+      "tick-1.wav",
+      "tick-2.wav",
+      "tick-3.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.07,
+    "about": "A muted key contact; three equally calibrated timbres for fast typing."
+  },
+  "toggle": {
+    "files": [
+      "toggle.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.17,
+    "about": "Two restrained latch contacts, 38 ms apart, with a slight change in weight."
+  },
+  "pop": {
+    "files": [
+      "pop.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.21,
+    "about": "A soft, hollow arrival with a felt attack, without a pitched droplet or blip."
+  },
+  "swish": {
+    "files": [
+      "swish.wav"
+    ],
+    "lead": 0.0828,
+    "duration": 0.2,
+    "about": "A short, quiet breath for camera/container travel >25% of the frame; never a UI change."
+  },
+  "whoosh": {
+    "files": [
+      "whoosh.wav"
+    ],
+    "lead": 0.203,
+    "duration": 0.38,
+    "about": "Quiet, rounded air for camera/container travel >25% of the frame; never a UI change."
+  },
+  "sparkle": {
+    "files": [
+      "sparkle.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.51,
+    "about": "A quiet glint of damped glass over air, without high bells or a glitter trail."
+  },
+  "chime": {
+    "files": [
+      "chime.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.67,
+    "about": "A restrained warm-glass confirmation, two low notes with a brief soft tail."
+  },
+  "ping": {
+    "files": [
+      "ping.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.435,
+    "about": "One short, centred, damped-glass notification; no stereo beating or shimmer."
+  },
+  "riser": {
+    "files": [
+      "riser.wav"
+    ],
+    "lead": 1.0,
+    "duration": 1.0,
+    "about": "A gentle opening breath into a reveal, ending on the cue; no climbing synth."
+  },
+  "hit": {
+    "files": [
+      "hit.wav"
+    ],
+    "lead": 0.0,
+    "duration": 0.48,
+    "about": "A low, cushioned settle for a landing; audible body without a long sub drop."
+  }
+}

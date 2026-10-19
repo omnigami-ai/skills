@@ -1,0 +1,73 @@
+{
+  "url": "http://localhost:4412/fennick/app/#/box",
+  "viewport": "mobile",
+  "ready": "html.ready",
+  "rects": {
+    "catalogue": "#flavours",
+    "tiles": ".tile*",
+    "photos": ".page-flavour .cut.sh*",
+    "picks": "#g-flavours",
+    "thumbs": ".pick .sw*",
+    "plus": ".pick [data-action=\"add\"]*"
+  },
+  "steps": [
+    {
+      "eval": "location.hash='#/box'"
+    },
+    {
+      "rects": "box"
+    },
+    {
+      "capture": "box-00",
+      "scale": 3,
+      "rect": [
+        0,
+        491.3,
+        390,
+        645.5
+      ]
+    },
+    {
+      "click": ".pick[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-01",
+      "scale": 3,
+      "rect": [
+        0,
+        491.3,
+        390,
+        645.5
+      ]
+    },
+    {
+      "click": ".pick[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-02",
+      "scale": 3,
+      "rect": [
+        0,
+        491.3,
+        390,
+        645.5
+      ]
+    },
+    {
+      "click": ".pick[data-flavour=\"pear\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-03",
+      "scale": 3,
+      "rect": [
+        0,
+        491.3,
+        390,
+        645.5
+      ]
+    },
+    {
+      "rects": "box-filled"
+    }
+  ]
+}

@@ -1,0 +1,1911 @@
+{
+ "url": "http://localhost:4413/fernwise/app/#/today",
+ "viewport": [
+  390,
+  844
+ ],
+ "captures": {
+  "today": {
+   "file": "today@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "ring-monty": {
+   "file": "ring-monty@6.webp",
+   "scale": 6,
+   "rect": [
+    30,
+    233,
+    82,
+    82
+   ]
+  },
+  "ring-pickles": {
+   "file": "ring-pickles@6.webp",
+   "scale": 6,
+   "rect": [
+    30,
+    349,
+    82,
+    82
+   ]
+  },
+  "ring-fernando": {
+   "file": "ring-fernando@6.webp",
+   "scale": 6,
+   "rect": [
+    30,
+    470,
+    82,
+    82
+   ]
+  },
+  "card-monty": {
+   "file": "card-monty@5.webp",
+   "scale": 5,
+   "rect": [
+    20,
+    221,
+    350,
+    106
+   ]
+  },
+  "today-1": {
+   "file": "today-1@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "today-2": {
+   "file": "today-2@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "today-3": {
+   "file": "today-3@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add": {
+   "file": "add@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add-search-01": {
+   "file": "add-search-01@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add-search-02": {
+   "file": "add-search-02@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add-search-03": {
+   "file": "add-search-03@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add-name": {
+   "file": "add-name@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "add-done": {
+   "file": "add-done@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-00": {
+   "file": "rescue-scroll-00@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-01": {
+   "file": "rescue-scroll-01@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-02": {
+   "file": "rescue-scroll-02@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-03": {
+   "file": "rescue-scroll-03@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-04": {
+   "file": "rescue-scroll-04@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-05": {
+   "file": "rescue-scroll-05@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-06": {
+   "file": "rescue-scroll-06@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-07": {
+   "file": "rescue-scroll-07@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-08": {
+   "file": "rescue-scroll-08@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-09": {
+   "file": "rescue-scroll-09@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-scroll-10": {
+   "file": "rescue-scroll-10@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "rescue-reminded": {
+   "file": "rescue-reminded@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "light-stand": {
+   "file": "light-stand@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "light-window": {
+   "file": "light-window@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "light-back": {
+   "file": "light-back@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "shelf": {
+   "file": "shelf@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ]
+  },
+  "pressed-today-waterButtons-0": {
+   "file": "pressed-today-waterButtons-0@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"water\"][data-plant=\"monty\"]"
+  },
+  "pressed-today-1-waterButtons-0": {
+   "file": "pressed-today-1-waterButtons-0@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"water\"][data-plant=\"pickles\"]"
+  },
+  "pressed-today-2-waterButtons-0": {
+   "file": "pressed-today-2-waterButtons-0@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"water\"][data-plant=\"fernando\"]"
+  },
+  "pressed-add-search-one": {
+   "file": "pressed-add-search-one@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :focus-within on label.search"
+  },
+  "pressed-add-search-results-0": {
+   "file": "pressed-add-search-results-0@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-species=\"monstera-deliciosa\"]"
+  },
+  "pressed-add-name-addPlant-one": {
+   "file": "pressed-add-name-addPlant-one@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"add-plant\"]"
+  },
+  "pressed-rescue-scrolled-remind-one": {
+   "file": "pressed-rescue-scrolled-remind-one@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"remind\"]"
+  },
+  "pressed-light-window-moveBack-one": {
+   "file": "pressed-light-window-moveBack-one@3.webp",
+   "scale": 3,
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "source": "Native :active on [data-action=\"move-back\"]"
+  }
+ },
+ "rects": {
+  "today": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": [
+    0,
+    147,
+    390,
+    52
+   ],
+   "count": [
+    22,
+    155,
+    346,
+    22
+   ],
+   "done": null,
+   "streak": null,
+   "cards": [
+    [
+     20,
+     221,
+     350,
+     106
+    ],
+    [
+     20,
+     337,
+     350,
+     106
+    ],
+    [
+     20,
+     453,
+     350,
+     116
+    ]
+   ],
+   "waterButtons": [
+    [
+     262.16,
+     242,
+     92.84,
+     40
+    ],
+    [
+     262.16,
+     358,
+     92.84,
+     40
+    ],
+    [
+     262.16,
+     469.5,
+     92.84,
+     40
+    ]
+   ],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "today-1": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": [
+    0,
+    147,
+    390,
+    52
+   ],
+   "count": [
+    22,
+    155,
+    346,
+    22
+   ],
+   "done": null,
+   "streak": null,
+   "cards": [
+    [
+     20,
+     221,
+     350,
+     106
+    ],
+    [
+     20,
+     337,
+     350,
+     116
+    ]
+   ],
+   "waterButtons": [
+    [
+     262.16,
+     242,
+     92.84,
+     40
+    ],
+    [
+     262.16,
+     353.5,
+     92.84,
+     40
+    ]
+   ],
+   "watered": [
+    [
+     21,
+     508,
+     348,
+     68
+    ]
+   ],
+   "wateredCount": [
+    22,
+    481,
+    346,
+    16
+   ],
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "today-2": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": [
+    0,
+    147,
+    390,
+    52
+   ],
+   "count": [
+    22,
+    155,
+    346,
+    22
+   ],
+   "done": null,
+   "streak": null,
+   "cards": [
+    [
+     20,
+     221,
+     350,
+     116
+    ]
+   ],
+   "waterButtons": [
+    [
+     262.16,
+     237.5,
+     92.84,
+     40
+    ]
+   ],
+   "watered": [
+    [
+     21,
+     392,
+     348,
+     68
+    ],
+    [
+     21,
+     460,
+     348,
+     68
+    ]
+   ],
+   "wateredCount": [
+    22,
+    365,
+    346,
+    16
+   ],
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "today-3": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": [
+    0,
+    147,
+    390,
+    62
+   ],
+   "count": null,
+   "done": [
+    18,
+    157,
+    354,
+    52
+   ],
+   "streak": [
+    82,
+    185.5,
+    103.3,
+    19
+   ],
+   "cards": [],
+   "waterButtons": [],
+   "watered": [
+    [
+     21,
+     264,
+     348,
+     68
+    ],
+    [
+     21,
+     332,
+     348,
+     68
+    ],
+    [
+     21,
+     400,
+     348,
+     68
+    ]
+   ],
+   "wateredCount": [
+    22,
+    237,
+    346,
+    16
+   ],
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "add": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": [
+    20,
+    174,
+    350,
+    50
+   ],
+   "results": [
+    [
+     21,
+     279,
+     348,
+     76
+    ],
+    [
+     21,
+     355,
+     348,
+     76
+    ],
+    [
+     21,
+     431,
+     348,
+     76
+    ],
+    [
+     21,
+     507,
+     348,
+     76
+    ],
+    [
+     21,
+     583,
+     348,
+     76
+    ],
+    [
+     21,
+     659,
+     348,
+     76
+    ]
+   ],
+   "resultsLabel": [
+    22,
+    252,
+    346,
+    16
+   ],
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "add-search": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": [
+    20,
+    174,
+    350,
+    50
+   ],
+   "results": [
+    [
+     21,
+     279,
+     348,
+     76
+    ],
+    [
+     21,
+     355,
+     348,
+     76
+    ],
+    [
+     21,
+     431,
+     348,
+     76
+    ]
+   ],
+   "resultsLabel": [
+    22,
+    252,
+    346,
+    16
+   ],
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "add-name": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": [
+    0,
+    95,
+    390,
+    134
+   ],
+   "nameField": [
+    20,
+    281,
+    350,
+    56
+   ],
+   "ideas": [
+    20,
+    347,
+    350,
+    36
+   ],
+   "every": [
+    89,
+    437,
+    158,
+    22
+   ],
+   "settings": [
+    [
+     20,
+     403,
+     350,
+     124
+    ],
+    [
+     20,
+     539,
+     350,
+     120
+    ]
+   ],
+   "addPlant": [
+    20,
+    683,
+    350,
+    52
+   ],
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "add-done": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": [
+    65,
+    87,
+    260,
+    260
+   ],
+   "newName": [
+    236.44,
+    361,
+    83.05,
+    39
+   ],
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "rescue": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": [
+    0,
+    47,
+    390,
+    150
+   ],
+   "rescueIntro": [
+    22,
+    213,
+    346,
+    22
+   ],
+   "steps": [
+    [
+     21,
+     260,
+     348,
+     103
+    ],
+    [
+     21,
+     363,
+     348,
+     103
+    ],
+    [
+     21,
+     466,
+     348,
+     103
+    ]
+   ],
+   "checks": [
+    [
+     21,
+     631,
+     348,
+     56
+    ],
+    [
+     21,
+     687,
+     348,
+     56
+    ],
+    [
+     21,
+     743,
+     348,
+     56
+    ]
+   ],
+   "checkCount": [
+    105.83,
+    604,
+    41.39,
+    16
+   ],
+   "remind": [
+    20,
+    818,
+    350,
+    52
+   ],
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "rescue-scrolled": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": [
+    0,
+    -90,
+    390,
+    150
+   ],
+   "rescueIntro": [
+    22,
+    76,
+    346,
+    22
+   ],
+   "steps": [
+    [
+     21,
+     123,
+     348,
+     103
+    ],
+    [
+     21,
+     226,
+     348,
+     103
+    ],
+    [
+     21,
+     329,
+     348,
+     103
+    ]
+   ],
+   "checks": [
+    [
+     21,
+     494,
+     348,
+     56
+    ],
+    [
+     21,
+     550,
+     348,
+     56
+    ],
+    [
+     21,
+     606,
+     348,
+     56
+    ]
+   ],
+   "checkCount": [
+    105.83,
+    467,
+    41.39,
+    16
+   ],
+   "remind": [
+    20,
+    681,
+    350,
+    52
+   ],
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "rescue-reminded": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": [
+    0,
+    -90,
+    390,
+    150
+   ],
+   "rescueIntro": [
+    22,
+    76,
+    346,
+    22
+   ],
+   "steps": [
+    [
+     21,
+     123,
+     348,
+     103
+    ],
+    [
+     21,
+     226,
+     348,
+     103
+    ],
+    [
+     21,
+     329,
+     348,
+     103
+    ]
+   ],
+   "checks": [
+    [
+     21,
+     494,
+     348,
+     56
+    ],
+    [
+     21,
+     550,
+     348,
+     56
+    ],
+    [
+     21,
+     606,
+     348,
+     56
+    ]
+   ],
+   "checkCount": [
+    105.83,
+    467,
+    41.39,
+    16
+   ],
+   "remind": [
+    20,
+    681,
+    350,
+    52
+   ],
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "light-stand": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": [
+    16,
+    138,
+    358,
+    236
+   ],
+   "reading": [
+    16,
+    386,
+    358,
+    355
+   ],
+   "dial": [
+    51,
+    447,
+    288,
+    132
+   ],
+   "lux": [
+    51,
+    515,
+    288,
+    42
+   ],
+   "luxLabel": [
+    51,
+    558,
+    288,
+    19
+   ],
+   "verdict": [
+    33,
+    589,
+    324,
+    73
+   ],
+   "moveBack": null,
+   "moveWindow": [
+    33,
+    676,
+    324,
+    48
+   ],
+   "checking": [
+    263.84,
+    397,
+    99.16,
+    44
+   ],
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "light-window": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": [
+    16,
+    138,
+    358,
+    236
+   ],
+   "reading": [
+    16,
+    386,
+    358,
+    355
+   ],
+   "dial": [
+    51,
+    447,
+    288,
+    132
+   ],
+   "lux": [
+    51,
+    515,
+    288,
+    42
+   ],
+   "luxLabel": [
+    51,
+    558,
+    288,
+    19
+   ],
+   "verdict": [
+    33,
+    589,
+    324,
+    73
+   ],
+   "moveBack": [
+    33,
+    676,
+    324,
+    48
+   ],
+   "moveWindow": null,
+   "checking": [
+    263.84,
+    397,
+    99.16,
+    44
+   ],
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "light-back": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": [
+    16,
+    138,
+    358,
+    236
+   ],
+   "reading": [
+    16,
+    386,
+    358,
+    355
+   ],
+   "dial": [
+    51,
+    447,
+    288,
+    132
+   ],
+   "lux": [
+    51,
+    515,
+    288,
+    42
+   ],
+   "luxLabel": [
+    51,
+    558,
+    288,
+    19
+   ],
+   "verdict": [
+    33,
+    589,
+    324,
+    73
+   ],
+   "moveBack": null,
+   "moveWindow": [
+    33,
+    676,
+    324,
+    48
+   ],
+   "checking": [
+    263.84,
+    397,
+    99.16,
+    44
+   ],
+   "tiles": [],
+   "shelfHead": null,
+   "addButton": null
+  },
+  "shelf": {
+   "page": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "statusbar": [
+    0,
+    0,
+    390,
+    47
+   ],
+   "tabbar": [
+    0,
+    761,
+    390,
+    83
+   ],
+   "summary": null,
+   "count": null,
+   "done": null,
+   "streak": null,
+   "cards": [],
+   "waterButtons": [],
+   "watered": [],
+   "wateredCount": null,
+   "search": null,
+   "results": [],
+   "resultsLabel": null,
+   "speciesHead": null,
+   "nameField": null,
+   "ideas": null,
+   "every": null,
+   "settings": [],
+   "addPlant": null,
+   "doneArt": null,
+   "newName": null,
+   "rescueHead": null,
+   "rescueIntro": null,
+   "steps": [],
+   "checks": [],
+   "checkCount": null,
+   "remind": null,
+   "viewfinder": null,
+   "reading": null,
+   "dial": null,
+   "lux": null,
+   "luxLabel": null,
+   "verdict": null,
+   "moveBack": null,
+   "moveWindow": null,
+   "checking": null,
+   "tiles": [
+    [
+     16,
+     140,
+     112.66,
+     171.67
+    ],
+    [
+     138.66,
+     140,
+     112.67,
+     171.67
+    ],
+    [
+     261.33,
+     140,
+     112.66,
+     171.67
+    ],
+    [
+     16,
+     321.67,
+     112.66,
+     171.67
+    ],
+    [
+     138.66,
+     321.67,
+     112.67,
+     171.67
+    ],
+    [
+     261.33,
+     321.67,
+     112.66,
+     171.67
+    ],
+    [
+     16,
+     503.34,
+     112.66,
+     171.67
+    ],
+    [
+     138.66,
+     503.34,
+     112.67,
+     171.67
+    ]
+   ],
+   "shelfHead": [
+    0,
+    47,
+    390,
+    75
+   ],
+   "addButton": [
+    326,
+    78,
+    44,
+    44
+   ]
+  }
+ },
+ "typed": {
+  "add-search": "mon"
+ }
+}

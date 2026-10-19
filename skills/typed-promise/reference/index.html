@@ -1,0 +1,292 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamplit · Typed promise · Fictional company example</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #080b14; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="kit.js"></script>
+<script>
+// "One line, then the name": one shot, cut from the product film's reference (its turn and
+// promise, bars 2–3), here for Lamplit, a fictional developer tool made for omnigami's examples. The turn lands on the cut into ink; the mark is born under it, opens into a prompt
+// bar and types the request; the bar closes back into the mark, which takes its place beside
+// the product's name, and the promise lands under them and holds. 6 s at 120 BPM, 60 fps, in
+// wide, square and tall.
+//
+// What a new shot changes (style.md has the grammar):
+//   ADAPT  the colours, the mark, and the words (DEFAULTS, FIELDS)
+//   KEEP   the grid, the shapes, the type toolkit, the relay of the mark, the timing, the cues
+(() => {
+  const { clamp, lerp, spring, loadFont, loadImage, roundRect, motion: M } = window.kit;
+  const FPS = 60, F = 1 / 12, BPM = 120, BEAT = 60 / BPM, BAR = 4 * BEAT, DURATION = 6;
+  // The grid starts one frame in, so the first frame is the clean, empty field.
+  const LEAD = 1 / FPS;
+  const at = (bar, beat = 0) => LEAD + bar * BAR + beat * BEAT; // a time on the beat grid
+  const SHAPES = { '16:9': [1920, 1080], '1:1': [1440, 1440], '9:16': [1080, 1920] };
+  let W = 1920, H = 1080, U = 10.8, tall = false; // U: 1% of the frame's short side
+
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+
+  // ---------- ADAPT: the product's colours ----------
+  // Ink is the product's world (its dark colour, or near-black); the accent is its brand colour,
+  // and means only "just arrived" and "the action" (the send button, the mark). TEXT is the
+  // words on ink and the prompt bar; QUIET the promise line.
+  const INK = '#080B14', ACCENT = '#FFB23F', TEXT = '#ECEAE3', QUIET = '#8D93A8';
+  const SANS = (w) => (s) => `${w} ${s}px "Instrument Sans"`;
+  const MONO = (w) => (s) => `${w} ${s}px "JetBrains Mono"`;
+
+  // ---------- ADAPT: the product's mark, the relay object ----------
+  // null keeps a placeholder, a pill in the accent. Or an SVG path, filled with the
+  // accent: { path: 'M…', box: [width, height] } (the path's own viewBox); or an image in assets/
+  // of the coloured mark, one that reads on ink and on the white bar:
+  // { src: 'assets/mark.svg', aspect: width / height }.
+  const MARK = { src: 'assets/brand/mark.svg', aspect: 1 }; // Lamplit's flame
+
+  // ---------- ADAPT: the words, as named fields ----------
+  const DEFAULTS = {
+    turn: 'Or one line.', prompt: 'npx lamplit deploy',
+    name: 'lamplit', promise: 'Every job, in the light.',
+  };
+  const FIELDS = [
+    { id: 'turn', type: 'text', label: 'The turn', maxLength: 18, help: 'The answer to the problem, in its own terms.' },
+    { id: 'prompt', type: 'text', label: 'Prompt', maxLength: 44, help: 'What the viewer types. Typed into the bar, then sent.' },
+    { id: 'name', type: 'text', label: 'Name', maxLength: 16 },
+    { id: 'promise', type: 'text', label: 'Promise', maxLength: 52, help: 'What it does, for whom.' },
+  ];
+  let V = DEFAULTS; // set from seek's arguments on every frame
+  const A = { mark: null };
+
+  // ---------- KEEP: the type toolkit. Words slam in and arrive in the accent ----------
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => { const x = hex(a), y = hex(b); return `rgb(${x.map((v, i) => Math.round(lerp(v, y[i], clamp(p)))).join(',')})`; };
+  const steps = (t, t0) => (t - t0) / F; // time since t0 in steps of 1/12 s, the choreography's unit
+  const out3 = (p) => 1 - (1 - clamp(p)) ** 3;
+  // new words arrive in the accent and cool to their colour: a quarter second, then settling
+  const arrive = (t, t0, colour) => { const d = steps(t, t0); return d < 2.5 ? ACCENT : d < 5 ? mix(ACCENT, colour, (d - 2.5) / 2.5) : colour; };
+  function setText(c, font, size, tracking = -0.035) { c.font = font(size); c.letterSpacing = `${tracking * size}px`; c.textBaseline = 'alphabetic'; }
+  const widthOf = (c, font, size, s, tracking) => { setText(c, font, size, tracking); return c.measureText(s).width; };
+  const capOf = (size) => size * 0.7; // Instrument Sans' cap height
+
+  // a word slammed in: from 116% and soft to set in 2.6 steps
+  function slam(c, s, x, y, font, size, t, t0, colour, tracking) {
+    const d = steps(t, t0);
+    if (d < 0) return;
+    const e = out3(d / 2.6), k = lerp(1.16, 1, e), blur = 10 * (1 - e) ** 2, alpha = lerp(0.55, 1, Math.sqrt(e));
+    setText(c, font, size, tracking);
+    const w = c.measureText(s).width;
+    c.save(); c.globalAlpha *= alpha; if (blur > 0.2) c.filter = `blur(${blur * U / 10}px)`;
+    c.translate(x + w / 2, y - capOf(size) / 2); c.scale(k, k);
+    c.fillStyle = colour; c.fillText(s, -w / 2, capOf(size) / 2); c.restore();
+  }
+  // a line whose words land one after another, a step apart
+  function line(c, text, x, y, font, size, t, t0, { colour = INK, stagger = F, align = 'left', tracking } = {}) {
+    const words = text.split(' ').filter(Boolean), space = widthOf(c, font, size, ' ', tracking);
+    const widths = words.map((w) => widthOf(c, font, size, w, tracking));
+    const total = widths.reduce((a, b) => a + b, 0) + space * Math.max(0, words.length - 1);
+    let wx = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+    words.forEach((w, i) => { slam(c, w, wx, y, font, size, t, t0 + i * stagger, arrive(t, t0 + i * stagger, colour), tracking); wx += widths[i] + space; });
+    return total;
+  }
+  // words wrapped at spaces into as few lines as fit maxW, then evened out. Two lines: the break
+  // that makes the longer line shortest, a break after a comma or full stop counting as 25%
+  // shorter and one that leaves a lone last word as 20% longer. More: the narrowest measure that
+  // keeps that many lines.
+  function wrap(c, text, font, size, maxW, tracking) {
+    const words = text.split(' ').filter(Boolean), wd = (s) => widthOf(c, font, size, s, tracking);
+    const layout = (width) => {
+      const lines = []; let cur = '';
+      for (const w of words) { const next = cur ? `${cur} ${w}` : w; if (cur && wd(next) > width) { lines.push(cur); cur = w; } else cur = next; }
+      return [...lines, cur];
+    };
+    let best = layout(maxW), lo = 0, hi = maxW;
+    if (best.length === 2) {
+      let pick = null;
+      for (let i = 1; i < words.length; i++) {
+        const two = [words.slice(0, i).join(' '), words.slice(i).join(' ')], w = Math.max(...two.map(wd));
+        if (w > maxW) continue;
+        const cost = w * (/[,.;:!?]$/.test(words[i - 1]) ? 0.75 : 1) * (i === words.length - 1 ? 1.2 : 1);
+        if (!pick || cost < pick.cost) pick = { cost, two };
+      }
+      return pick ? pick.two : best;
+    }
+    for (let i = 0; i < 14 && best.length > 1; i++) { const mid = (lo + hi) / 2, next = layout(mid); if (next.length <= best.length) { best = next; hi = mid; } else lo = mid; }
+    return best;
+  }
+
+  // ---------- KEEP: the mark ----------
+  const markAspect = () => (!MARK ? 2 : MARK.path ? MARK.box[0] / MARK.box[1] : MARK.aspect || 1);
+  // a narrower mark stands a little taller (a square one 1.4 ×), so it keeps the pill's weight
+  const markScale = () => (MARK ? clamp(Math.sqrt(2 / markAspect()), 1, 1.4) : 1);
+  // the mark centred on (x, y), h tall, scaled by k
+  function drawMark(c, x, y, h, k = 1) {
+    const w = h * markAspect();
+    c.save(); c.translate(x, y); c.scale(k, k);
+    if (!MARK) { roundRect(c, -w / 2, -h / 2, w, h, h / 2); c.fillStyle = ACCENT; c.fill(); }
+    else if (MARK.path) { c.translate(-w / 2, -h / 2); c.scale(h / MARK.box[1], h / MARK.box[1]); c.fillStyle = ACCENT; c.fill(new Path2D(MARK.path)); }
+    else if (A.mark) c.drawImage(A.mark, -w / 2, -h / 2, w, h);
+    c.restore();
+  }
+
+  // ============================== the shot ==============================
+  // The grid, in the shot's own bars (product film: add 2 bars). The send waits one beat longer
+  // than in the product film, so the whole prompt is on screen before it goes.
+  const T = { born: at(0, 1), grow: at(0, 1.75), leave: at(0, 1.5), send: at(1, 1), close: at(1, 1.25) };
+  T.type = T.grow + 2 * F; // the first letter
+  T.lockup = T.close + 3 * F; // the mark leaves the bar for the name
+  // letters a step: 3 (36 a second), or faster for a long prompt, so the last one lands a step
+  // before the beat before the send: the prompt is whole on that beat
+  const rate = () => Math.max(3, V.prompt.length / steps(T.send - BEAT - F, T.type));
+  const typedAt = (i) => T.type + (i / rate()) * F; // when letter i appears
+  const PILL_H = 6.4; // the mark's height in the turn, in U
+  // the bar, in U: a one-line bar's height, the words' left pad, the room kept for the caret
+  // before the send button, and the button's inset from the bar's end (as from its top)
+  const BOX = { h: 12.5, pad: 3.4, gap: 4.4, inset: (12.5 - PILL_H * 0.86) / 2, min: 56 };
+
+  // the prompt in the bar: one line in mono, up to 4.6% of the short side; when one line would
+  // fall under 3.7% (square and tall), two even lines instead, so it stays readable on a phone
+  function promptLayout() {
+    const font = MONO(500), pw = PILL_H * U * markScale() * markAspect(), room = W * 0.9 - (BOX.pad + BOX.gap + BOX.inset) * U - pw * 0.86;
+    const fit = (s) => room / Math.max(1, widthOf(g, font, 100, s, 0)) * 100;
+    let lines = [V.prompt], size = Math.min(4.6 * U, fit(V.prompt));
+    if (size < 3.7 * U && V.prompt.includes(' ')) {
+      // split at the space that makes the longer half shortest
+      let best = null;
+      for (let i = V.prompt.indexOf(' '); i > 0; i = V.prompt.indexOf(' ', i + 1)) {
+        const two = [V.prompt.slice(0, i), V.prompt.slice(i + 1)], w = Math.max(...two.map((s) => widthOf(g, font, 100, s, 0)));
+        if (!best || w < best.w) best = { w, two, i };
+      }
+      lines = best.two; size = Math.min(4.6 * U, room / best.w * 100);
+    }
+    const starts = lines.length === 1 ? [0] : [0, lines[0].length + 1]; // each line's first letter in the prompt
+    return { font, size, lines, starts, lh: size * 1.32, textW: Math.max(...lines.map((s) => widthOf(g, font, size, s, 0))) };
+  }
+
+  // ---- the turn (bar 0 to bar 1, beat 1): one line, then the prompt typed into the mark ----
+  function turn(t) {
+    g.fillStyle = INK; g.fillRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2;
+    // the turn lands word by word on the cut, then leaves upward
+    const out = out3(steps(t, T.leave) / 2.5);
+    if (out < 1) {
+      g.save(); g.globalAlpha = 1 - out; g.translate(0, -out * 4 * U);
+      line(g, V.turn, cx, cy - 3 * U, SANS(700), Math.min(11 * U, W * 0.84 / widthOf(g, SANS(700), 100, V.turn) * 100), t, at(0, 0), { colour: TEXT, align: 'center' });
+      g.restore();
+    }
+    // the mark: born under the line on beat 1, grows into the prompt bar, which types the request
+    if (t < T.born) return;
+    const ph = PILL_H * U * markScale(), pw = ph * markAspect(), s0 = spring(t - T.born, 420, 22);
+    const P = promptLayout(), ps = P.size, bar1 = BOX.h * U;
+    // as wide as the words need, and never a stub: at least 56% of the short side
+    const barW = Math.max((BOX.pad + BOX.gap + BOX.inset) * U + P.textW + pw * 0.86, Math.min(W * 0.9, BOX.min * U)), barH = bar1 + (P.lines.length - 1) * P.lh;
+    const open = t < T.close ? spring(t - T.grow, 300, 24) : 1 - spring(t - T.close, 300, 24);
+    // the width leads the height, so the bar slides out from behind the mark instead of ringing it
+    const o = clamp(open, 0, 1.08), w = lerp(pw, barW, o), h = lerp(ph, barH, o * Math.min(o, 1));
+    // the bar rises from under the line to the middle as it opens, and closes in the middle
+    const bcy = t < T.grow ? cy + 9 * U : t < T.close ? lerp(cy + 9 * U, cy, clamp(open)) : cy;
+    const bx = cx - w / 2, by = bcy - h / 2;
+    // the bar (TEXT) opens out of the mark; the mark rides to the bar's right end as its send button
+    const r = Math.min(h / 2, bar1 / 2);
+    if (open > 0.02) { roundRect(g, bx, by, w, h, r); g.fillStyle = TEXT; g.fill(); }
+    const pressed = t >= T.send && t < T.send + 2 * F;
+    const pk = (pressed ? 0.88 : 1) * (t < T.grow ? lerp(0.6, 1, s0) : 1); // born at 60%, never a dot
+    const pcx = open > 0.02 ? lerp(cx, bx + w - BOX.inset * U - pw * 0.43, clamp(open)) : cx, pcy = bcy;
+    // the request types in, a letter at a time, each arriving in the accent; letters that have
+    // settled are drawn as one run. The words and the caret appear once the bar has room and stay
+    // inside it; once sent they clear (half a step after the press, in 1.5 steps), held where
+    // they were, before the bar closes around them.
+    const closing = t >= T.close, fade = out3(steps(t, T.send + F / 2) / 1.5);
+    if (t >= T.grow && fade < 1 && (closing || open > 0.6)) {
+      const left = closing ? cx - barW / 2 : bx;
+      g.save(); roundRect(g, bx, by, w, h, r); g.clip(); g.globalAlpha = 1 - fade;
+      const n = clamp(Math.floor(steps(t, T.type) * rate()), 0, V.prompt.length);
+      setText(g, P.font, ps, 0);
+      let cx2 = left + BOX.pad * U, cy2 = pcy;
+      P.lines.forEach((s, j) => {
+        const y = pcy + capOf(ps) / 2 + (j - (P.lines.length - 1) / 2) * P.lh, x0 = left + BOX.pad * U;
+        const k = clamp(n - P.starts[j], 0, s.length);
+        if (k <= 0 && j > 0) return;
+        let settled = 0;
+        while (settled < k && steps(t, typedAt(P.starts[j] + settled)) >= 5) settled++;
+        g.fillStyle = INK; if (settled) g.fillText(s.slice(0, settled), x0, y);
+        let x = x0 + (settled ? g.measureText(s.slice(0, settled)).width : 0);
+        for (let i = settled; i < k; i++) { const ch = s[i]; g.fillStyle = arrive(t, typedAt(P.starts[j] + i), INK); g.fillText(ch, x, y); x += g.measureText(ch).width; }
+        cx2 = x; cy2 = y - capOf(ps) / 2;
+      });
+      // the caret, in the accent: steady while typing, blinking once the prompt is whole
+      if (t < T.send && (n < V.prompt.length || Math.floor(t * 2) % 2 === 0)) { g.fillStyle = ACCENT; g.fillRect(cx2 + 0.3 * U, cy2 - ps * 0.55, 0.32 * U, ps * 1.1); }
+      g.restore();
+    }
+    g.save(); g.globalAlpha *= M.inOut((t - T.born) / 0.2); // it fades up as it is born
+    drawMark(g, pcx, pcy, lerp(ph, ph * 0.86, clamp(open)), pk); // on top: the words pass under it as the bar closes
+    g.restore();
+  }
+
+  // ---- the promise (bar 1, beat 2 to the end): the mark beside the name, the promise under them ----
+  function lockup() {
+    const nameW = widthOf(g, SANS(600), 100, V.name, -0.04), markW = capOf(100) * 0.82 * markScale() * markAspect();
+    // the name at 13% of the short side, smaller if the lockup would pass 86% of the width
+    const size = Math.min(13 * U, W * 0.86 / (markW + 24 + nameW) * 100);
+    const ph = capOf(size) * 0.82 * markScale(), pw = ph * markAspect(), gap = size * 0.24, total = pw + gap + nameW * size / 100;
+    // the promise at 4.4% (× 1.15 in tall); a long name that had to shrink takes it down with it,
+    // so the name stays about twice its size (the promise gives up a quarter at most)
+    const ps0 = 4.4 * U * (tall ? 1.15 : 1), ps = clamp(size / 2, ps0 * 0.75, ps0), k = ps / ps0;
+    const lines = wrap(g, V.promise, SANS(500), ps, W * 0.86, -0.01), lh = ps * 1.3, drop = 9.5 * U * k;
+    const cy = H / 2 - 2 * U - (lines.length - 1) * lh / 2; // the name's baseline: the group stays centred
+    return { size, ph, pw, gap, x: W / 2 - total / 2, cy, ps, lines, lh, drop };
+  }
+  function promise(t) {
+    g.fillStyle = INK; g.fillRect(0, 0, W, H);
+    const t0 = T.lockup, L = lockup();
+    // the mark slides from the middle, where the bar closed, to its place in the lockup
+    const m = spring(t - t0, 260, 24);
+    drawMark(g, lerp(W / 2, L.x + L.pw / 2, m), lerp(H / 2, L.cy - capOf(L.size) / 2, m), lerp(PILL_H * U * markScale(), L.ph, m));
+    slam(g, V.name, L.x + L.pw + L.gap, L.cy, SANS(600), L.size, t, t0 + 0.3, arrive(t, t0 + 0.3, TEXT), -0.04); // once the mark has made room
+    L.lines.forEach((l, i) => line(g, l, W / 2, L.cy + L.drop + i * L.lh, SANS(500), L.ps, t, t0 + (5 + i * 3) * F, { colour: QUIET, align: 'center', tracking: -0.01 }));
+  }
+
+  // ---------- KEEP: drawing, loading, sound ----------
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    [W, H] = SHAPES[V.size] || SHAPES['16:9']; U = Math.min(W, H) / 100; tall = H > W;
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    g.reset();
+    t = clamp(t, 0, DURATION - 1e-6);
+    (t < T.lockup ? turn : promise)(t);
+    return canvas;
+  }
+  async function prepare() {
+    await Promise.all([loadFont('Instrument Sans', 'assets/fonts/instrument-sans-variable.ttf', { weight: '400 700', stretch: '75% 100%' }), loadFont('JetBrains Mono', 'assets/fonts/jetbrains-mono-variable.ttf', { weight: '100 800' })]);
+    if (MARK && MARK.src) A.mark = await loadImage(MARK.src);
+    await document.fonts.ready;
+  }
+  // every sound on its visual onset: a pop as the line lands and as the mark is born, a tick a
+  // step while typing, a click on send, a pop as the name lands. No accent, no swish without travel.
+  function cues(values) {
+    V = { ...DEFAULTS, ...values };
+    const out = [], add = (t, type, gain) => out.push({ t, type, gain });
+    add(at(0), 'pop', 0.42); add(T.born, 'pop', 0.4);
+    for (let i = 0; i < Math.ceil(V.prompt.length / rate()); i++) add(T.type + i * F, 'tick', 0.55);
+    add(T.send, 'click', 0.65); add(T.lockup + 0.3, 'pop', 0.42);
+    return out;
+  }
+  // the bed: kick, hats, bass and pad from the cut (the product film's bars 2–3, in its key),
+  // an impact on the cut, then the pad and hats hold the lockup
+  const music = {
+    bpm: BPM, duration: DURATION, root: 50, // D3, upward-voiced major chords
+    chords: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]],
+    sections: [{ from: 0, to: 2, kick: 0.75, hats: 0.55, bass: 0.6, pad: 0.55 }, { from: 2, to: 3, pad: 0.75, hats: 0.3 }],
+  };
+  const STATES = [[0, 'Turn'], [T.grow, 'Prompt'], [T.lockup, 'Name']];
+  window.template = {
+    fps: FPS, duration: DURATION, sizes: SHAPES, width: W, height: H, defaults: () => ({ size: '16:9', ...DEFAULTS }), fields: FIELDS, states: STATES,
+    prepare, seek: (t, values) => seek(t, values), cues, music,
+    // settled moments: the turn line, the whole prompt before the send, the lockup with its promise
+    keyTimes: [0.67, 2.45, 4.75, 5.9],
+  };
+  const q = new URLSearchParams(location.search);
+  if (window.parent === window && !q.has('render')) prepare().then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, { size: q.get('size') || '16:9' }); requestAnimationFrame(loop); }; loop(); });
+})();
+</script>

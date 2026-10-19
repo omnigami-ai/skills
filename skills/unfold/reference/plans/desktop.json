@@ -1,0 +1,305 @@
+{
+ "url": "http://localhost:4413/fennick/app/#/",
+ "viewport": [
+  1440,
+  1000
+ ],
+ "ready": "html.ready",
+ "rects": {
+  "header": "header",
+  "hero": ".hero",
+  "heroPic": ".hero-pic",
+  "heroBtn": ".hero .btn",
+  "stage": "#stage",
+  "count": "[data-count]",
+  "checkout": "[data-action=\"checkout\"]*",
+  "headline": "h1"
+ },
+ "steps": [
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "home"
+  },
+  {
+   "capture": "home",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "eval": "document.querySelector('.hero-pic').style.visibility = 'hidden'"
+  },
+  {
+   "capture": "home-bare",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "eval": "document.querySelector('.hero-pic').style.visibility = ''"
+  },
+  {
+   "eval": "location.hash = '#/box'"
+  },
+  {
+   "wait": 400
+  },
+  {
+   "click": "[data-action=\"clear\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-00"
+  },
+  {
+   "capture": "box-00",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-01"
+  },
+  {
+   "capture": "box-01",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-02"
+  },
+  {
+   "capture": "box-02",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"pear\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-03"
+  },
+  {
+   "capture": "box-03",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-04"
+  },
+  {
+   "capture": "box-04",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-05"
+  },
+  {
+   "capture": "box-05",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"pear\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-06"
+  },
+  {
+   "capture": "box-06",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-07"
+  },
+  {
+   "capture": "box-07",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-08"
+  },
+  {
+   "capture": "box-08",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"pear\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-09"
+  },
+  {
+   "capture": "box-09",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-10"
+  },
+  {
+   "capture": "box-10",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-11"
+  },
+  {
+   "capture": "box-11",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  },
+  {
+   "click": "[data-flavour=\"pear\"] [data-action=\"add\"]"
+  },
+  {
+   "eval": "scrollTo(0, 0)"
+  },
+  {
+   "rects": "box-12"
+  },
+  {
+   "capture": "box-12",
+   "rect": [
+    0,
+    0,
+    1440,
+    1000
+   ],
+   "scale": 3
+  }
+ ]
+}

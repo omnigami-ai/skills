@@ -1,0 +1,202 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fernwise · Language launch</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1E3822; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="kit.js"></script>
+<script src="assets/screens/screens.js"></script> <!-- the captures and their rects: plans/mobile.json, written by scripts/screens.mjs -->
+<script>
+// Language launch: a short announcement that a product now speaks more languages, on its real
+// screens. The headline says it ("Fernwise now speaks" over the language's own name); the phone's
+// phones, one per language in a carousel, swipe one over a beat-and-a-half apart, each held long enough to
+// read; then the count, every name, and the end card. Filled with Fernwise, a fictional plant-care
+// app made for omnigami's examples (cast/fernwise): its Today screen in English, Spanish, Japanese,
+// German and Portuguese, captured from the app (plans/mobile.json). Tall (9:16).
+(() => {
+  const { clamp, lerp, spring, loadFont, loadImage, measure, fitText, roundRect, easeOutExpo, easeInOutCubic } = window.kit;
+  const FPS = 60, BEAT = 0.5, DURATION = 28 * BEAT; // 120 BPM, 28 beats, 14 s
+  const W = 1080, H = 1920;
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+
+  // ---------- Fernwise: colour, type, mark (cast/fernwise/brand.md) ----------
+  const GROUND = ['#2C4F2E', '#1A3120'], CREAM = '#F6F1E7', SPROUT = '#9CC57A', MOSS = '#3E6B3A';
+  const SERIF = (s, w = 480) => `${w} ${s}px Fraunces, "Noto Serif JP"`;
+  const ITALIC = (s, w = 480) => `${w} ${s}px "Fraunces Italic", "Noto Serif JP"`;
+  const SANS = (s, w = 600) => `${w} ${s}px Nunito, "Noto Sans JP"`;
+  // the Keeper mark: the f, in its 256-unit square (cast/fernwise/mark.svg)
+  const MARK = new Path2D('M126 129V180C126 214 102 236 70 236C54 236 40 232 27 224L40 200C49 205 59 208 69 208C84 208 92 198 92 182V129H57V99H92V78C92 39 114 19 149 19C172 19 190 28 203 42L182 65C173 55 163 50 152 50C134 50 126 61 126 80V99H180L169 129Z');
+
+  // ---------- the words: named fields ----------
+  const DEFAULTS = { name: 'Fernwise', speaks: 'now speaks', count: '5 languages.', tagline: 'Keep the little ones alive.' };
+  const FIELDS = [
+    { id: 'name', type: 'text', label: 'Product name', maxLength: 12 },
+    { id: 'speaks', type: 'text', label: 'Verb', maxLength: 14, help: 'Follows the name: "Fernwise now speaks".' },
+    { id: 'count', type: 'text', label: 'The count', maxLength: 16, help: 'Ends the headline once every language has shown.' },
+    { id: 'tagline', type: 'text', label: 'Tagline', maxLength: 32 },
+  ];
+  // the languages, in the order the film shows them: the capture and the language's own name
+  const LANGS = [['en', 'English'], ['es', 'Español'], ['ja', '日本語'], ['de', 'Deutsch'], ['pt', 'Português']];
+  let V = DEFAULTS;
+
+  // ---------- the beats (120 BPM) ----------
+  const T = {
+    head: 0.25, phone: [0.45, 1.3], first: 1.0,
+    lang: [2.5, 4.25, 6.0, 7.75], // each new language: its name rolls in and the row swipes to its phone
+    swipe: 0.6, count: 9.5, toRow: 0.85, names: 10.2, endOut: 11.4, tile: 11.6, word: 11.9, tagline: 12.2,
+  };
+
+  // ---------- the phone: an unbranded phone, photographed, its screen cut out ----------
+  const PHONE_SCREEN = [25, 26, 490, 1118];          // the screen's rect in phone.png's pixels
+  const U = 2;                                       // frame px per CSS px of the captures
+  const SCREEN = { w: 390 * U, h: 390 * U * PHONE_SCREEN[3] / PHONE_SCREEN[2], r: 44 * U };
+  const SCR = { img: {}, scale: 4, rects: {}, caps: {} };
+  // the phones: one per language, side by side in a carousel, its neighbours peeking in at the edges.
+  // Each new language swipes the row one phone over (fast out, a soft settle; the phone in the middle
+  // dips a little as it goes). At the count every phone flies into one row under the headline; at the
+  // end they drop away.
+  const STEP = 860, ROW = { scale: 0.205, step: 206, top: 1050 };
+  function langAt(t) { let k = 0; T.lang.forEach((tl) => { if (t >= tl) k++; }); return k; }
+  function carousel(t) { // the row's position (0 = the first language in the middle) and the swipe's progress
+    const k = langAt(t); if (!k) return { p: 0, q: 1 };
+    const q = clamp((t - T.lang[k - 1]) / T.swipe), e = 1 - (1 - q) ** 3.4;
+    return { p: k - 1 + e, q };
+  }
+  function phones(t) {
+    const up = easeOutExpo(clamp((t - T.phone[0]) / (T.phone[1] - T.phone[0]))), { p, q } = carousel(t);
+    const r = easeInOutCubic(clamp((t - T.count) / T.toRow)), dip = q < 1 ? 1 - 0.07 * Math.sin(Math.PI * q) : 1;
+    return LANGS.map(([l, n], i) => {
+      const d = i - p, ad = Math.min(1, Math.abs(d));
+      let cx = W / 2 + d * STEP, top = 640 + 46 * ad + (1 - up) * 1350, sc = (1 - 0.1 * ad) * dip;
+      // into the row: each phone from where it is to its place, size eased in log space
+      const rx = W / 2 + (i - (LANGS.length - 1) / 2) * ROW.step;
+      cx = lerp(cx, rx, r); top = lerp(top, ROW.top, r); sc = Math.exp(lerp(Math.log(sc), Math.log(ROW.scale), r));
+      // and away, one after another
+      const away = easeInOutCubic(clamp((t - T.endOut - i * 0.04) / 0.5)); top += away * 1000;
+      return { l, n, i, cx, top, sc, d: Math.abs(d) * (1 - r) };
+    });
+  }
+  function phone(c, x, y, k, front) { // x, y: the screen's top-left; k: its scale
+    const [sx, sy, sw] = PHONE_SCREEN, f = (SCREEN.w / sw) * k, img = SCR.phone;
+    c.save(); if (!front) { c.shadowColor = 'rgba(5,20,8,0.45)'; c.shadowBlur = 70 * k; c.shadowOffsetY = 30 * k; }
+    c.drawImage(img, x - sx * f, y - sy * f, img.width * f, img.height * f); c.restore();
+  }
+  function drawPhone(c, P) {
+    const w = SCREEN.w * P.sc, h = SCREEN.h * P.sc, x = P.cx - w / 2, y = P.top;
+    if (x > W + 50 || x + w < -50 || y > H) return;
+    phone(c, x, y, P.sc, false);
+    c.save(); roundRect(c, x, y, w, h, SCREEN.r * P.sc); c.clip(); c.fillStyle = CREAM; c.fillRect(x, y, w, h);
+    const im = SCR.img[`today-${P.l}`]; c.drawImage(im, x, y, im.width * U * P.sc / SCR.scale, im.height * U * P.sc / SCR.scale);
+    if (P.d > 0.01) { c.fillStyle = `rgba(16,34,20,${0.32 * Math.min(1, P.d)})`; c.fillRect(x, y, w, h); } // the neighbours sit back
+    c.restore();
+    phone(c, x, y, P.sc, true);
+  }
+
+  // ---------- type helpers ----------
+  function text(c, s, x, y, font, colour, align = 'left', base = 'middle') {
+    c.font = font; c.fillStyle = colour; c.textAlign = align;
+    if (base === 'middle') window.kit.centreText(c, s, x, y); else { c.textBaseline = base; c.fillText(s, x, y); }
+  }
+  // a line rising out of a mask line: p 0 → 1 rises in, 1 → 2 rises out through the top
+  // top: where the mask ends above (by default a size above the baseline), so a line never rises into the one over it
+  function rise(c, draw, baseline, size, p, top = baseline - size * 1.05) {
+    if (p <= 0 || p >= 2) return;
+    const off = p < 1 ? (1 - easeOutExpo(p)) * size * 1.45 : -easeInOutCubic(p - 1) * size * 1.45; // far enough that a descender clears the mask too
+    c.save(); c.beginPath(); c.rect(0, top, W, baseline + size * 0.35 - top); c.clip(); c.translate(0, off); draw(); c.restore();
+  }
+  const riseP = (t, tin, tout, dur = 0.32) => (t < tout ? clamp((t - tin) / dur) : 1 + clamp((t - tout) / 0.24));
+
+  // ---------- the headline: the name and verb, word by word; under them the language, rolling ----------
+  const HEAD = { y1: 330, y2: 478, s1: 84, s2: 128 };
+  // as the phone leaves, the headline glides down to the frame's middle, in the same move
+  const headDy = (t) => easeInOutCubic(clamp((t - T.count) / T.toRow)) * 300;
+  function headline(t) {
+    const dy = headDy(t), y1 = HEAD.y1 + dy, y2 = HEAD.y2 + dy;
+    const words = `${V.name} ${V.speaks}`.split(' '), s1 = Math.min(HEAD.s1, (HEAD.s1 * 960) / Math.max(1, measure(g, SERIF(HEAD.s1), words.join(' ')))), font = SERIF(s1); // a long name sets smaller, never off the frame
+    g.font = font; const total = measure(g, font, words.join(' ')), space = measure(g, font, ' ');
+    let x = W / 2 - total / 2;
+    words.forEach((w, i) => {
+      const ww = measure(g, font, w), p = riseP(t, T.head + i * 0.08, T.endOut + i * 0.03);
+      rise(g, () => text(g, w, x, y1, font, CREAM, 'left', 'alphabetic'), y1, s1, p);
+      x += ww + space;
+    });
+    // the language's own name, in italic; each new one rolls up into place; then the count
+    const items = [...LANGS.map(([, n]) => n), V.count], times = [T.first, ...T.lang, T.count];
+    items.forEach((s, i) => {
+      const tout = i + 1 < times.length ? times[i + 1] : T.endOut;
+      const size = Math.min(HEAD.s2, (HEAD.s2 * 940) / Math.max(1, measure(g, ITALIC(HEAD.s2), s)));
+      rise(g, () => text(g, s, W / 2, y2, ITALIC(size), SPROUT, 'center', 'alphabetic'), y2, HEAD.s2, riseP(t, times[i] + (i ? 0.14 : 0), tout, i ? 0.38 : 0.32), y1 + s1 * 0.32); // the old name leaves first, the new one follows it up, under the line above
+    });
+  }
+  // every language, in its own name, under its phone in the row
+  function names(t) {
+    LANGS.forEach(([, n], i) => {
+      const x = W / 2 + (i - (LANGS.length - 1) / 2) * ROW.step, base = ROW.top + SCREEN.h * ROW.scale + 78, size = Math.min(32, (32 * 190) / Math.max(1, measure(g, SANS(32, 700), n)));
+      rise(g, () => text(g, n, x, base, SANS(size, 700), CREAM, 'center', 'alphabetic'), base, 32, riseP(t, T.names + i * 0.07, T.endOut + i * 0.03));
+    });
+  }
+
+  // ---------- the end card: the app's icon, its name, its line ----------
+  function endCard(t) {
+    const s = spring(t - T.tile, 260, 18); if (s <= 0.01) return;
+    const size = 230, cy = 820;
+    g.save(); g.translate(W / 2, cy); g.scale(s, s);
+    roundRect(g, -size / 2, -size / 2, size, size, size * 0.225); g.fillStyle = MOSS; g.fill();
+    g.save(); g.shadowColor = 'rgba(0,0,0,0.25)'; g.shadowBlur = 40; g.shadowOffsetY = 16; roundRect(g, -size / 2, -size / 2, size, size, size * 0.225); g.strokeStyle = 'rgba(246,241,231,0.08)'; g.lineWidth = 2; g.stroke(); g.restore();
+    const k = (size * 0.56) / 256; g.translate(-128 * k, -128 * k); g.scale(k, k); g.fillStyle = CREAM; g.fill(MARK); g.restore();
+    rise(g, () => text(g, V.name, W / 2, cy + 280, SERIF(132), CREAM, 'center', 'alphabetic'), cy + 280, 132, riseP(t, T.word, 99, 0.4));
+    rise(g, () => text(g, V.tagline, W / 2, cy + 380, ITALIC(58), SPROUT, 'center', 'alphabetic'), cy + 380, 58, riseP(t, T.tagline, 99, 0.36));
+  }
+
+  // ---------- the frame ----------
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    g.reset();
+    t = clamp(t, 0, DURATION - 1e-6);
+    const bg = g.createRadialGradient(W / 2, H * 0.36, 0, W / 2, H * 0.36, H * 0.9); bg.addColorStop(0, GROUND[0]); bg.addColorStop(1, GROUND[1]); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    if (t < T.endOut + 0.8) for (const P of phones(t).sort((a, b) => b.d - a.d)) drawPhone(g, P); // the one in the middle on top
+    if (t < T.endOut + 0.4) { headline(t); if (t >= T.names) names(t); }
+    if (t >= T.tile) endCard(t);
+    return canvas;
+  }
+
+  async function prepare() {
+    const S = window.SCREENS;
+    if (!SCR.caps['today-en']) { Object.assign(SCR.caps, S.captures); Object.assign(SCR.rects, S.rects); }
+    await Promise.all([
+      loadFont('Fraunces', 'assets/fonts/fraunces-soft.ttf', { weight: '100 900' }),
+      loadFont('Fraunces Italic', 'assets/fonts/fraunces-soft-italic.ttf', { weight: '100 900' }),
+      loadFont('Nunito', 'assets/fonts/nunito-variable.ttf', { weight: '200 1000' }),
+      loadFont('Noto Serif JP', 'assets/fonts/noto-serif-jp-subset.ttf', { weight: '200 900' }),
+      loadFont('Noto Sans JP', 'assets/fonts/noto-sans-jp-subset.ttf', { weight: '100 900' }),
+      (async () => { if (!SCR.phone) SCR.phone = await loadImage('assets/art/phone.png'); })(),
+      ...LANGS.map(async ([l]) => { const n = `today-${l}`; if (!SCR.img[n]) SCR.img[n] = await loadImage(`assets/screens/${SCR.caps[n].file}`); }),
+    ]);
+    await document.fonts.ready;
+  }
+  // sound: a pop as each word lands, a swish on each swipe and as the phones fly into the row
+  function cues() {
+    const out = [], pop = (t, gain = 0.4) => out.push({ t, type: 'pop', gain }), swish = (t, kind, travel, gain = 0.3) => out.push({ t, type: 'swish', gain, motion: { kind, travel } });
+    pop(T.head, 0.34); swish(T.phone[0], 'container', 0.6); pop(T.first, 0.4);
+    for (const tl of T.lang) { swish(tl, 'camera', 0.8, 0.34); pop(tl + 0.16, 0.42); }
+    pop(T.count + 0.05, 0.45); swish(T.count, 'container', 0.8, 0.34); pop(T.names, 0.32);
+    swish(T.endOut, 'container', 0.4, 0.24); pop(T.tile, 0.45); pop(T.word, 0.4); pop(T.tagline, 0.34);
+    return out.sort((a, b) => a.t - b.t);
+  }
+  const music = {
+    bpm: 120, duration: DURATION, root: 50,
+    chords: [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]],
+    sections: [{ from: 0, to: 1, pad: 0.7, hats: 0.3 }, { from: 1, to: 5.5, kick: 0.7, hats: 0.55, bass: 0.6, pad: 0.55 }, { from: 5.5, to: 7, pad: 0.7, hats: 0.3 }],
+  };
+  const STATES = [[0, 'Headline'], [T.lang[0], 'Español'], [T.lang[1], '日本語'], [T.lang[2], 'Deutsch'], [T.lang[3], 'Português'], [T.count, 'The count'], [T.endOut, 'End card']];
+  window.template = { fps: FPS, duration: DURATION, sizes: { '9:16': [1080, 1920] }, width: W, height: H, defaults: () => ({ size: '9:16', ...DEFAULTS }), fields: FIELDS, states: STATES, prepare, seek: (t, values) => seek(t, values), cues, music,
+    keyTimes: [0.2, 0.7, 1.6, 2.8, 3.6, 4.5, 5.4, 6.3, 7.2, 8.0, 8.9, 9.8, 10.6, 11.6, 12.4, 13.6] };
+  const q = new URLSearchParams(location.search);
+  if (window.parent === window && !q.has('render')) prepare().then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, {}); requestAnimationFrame(loop); }; loop(); });
+})();
+</script>

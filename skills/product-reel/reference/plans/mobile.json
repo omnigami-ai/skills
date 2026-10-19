@@ -1,0 +1,63 @@
+{
+ "url": "http://localhost:4411/fernwise/app/#/shelf",
+ "viewport": "mobile",
+ "ready": "[data-ready]",
+ "rects": {
+  "screen": "#phone",
+  "statusbar": "[data-statusbar]",
+  "tabbar": "[data-tabbar]",
+  "head": ".page-head",
+  "grid": ".grid",
+  "tiles": ".tile*",
+  "photos": ".tile-photo*",
+  "names": ".tile .t-plant*",
+  "search": ".search",
+  "results": "[data-species]*",
+  "resultList": "[data-results] .list",
+  "streak": "[data-streak-card]",
+  "stats": ".stats",
+  "thumbs": "[data-species] .thumb*"
+ },
+ "steps": [
+  {
+   "rects": "shelf"
+  },
+  {
+   "capture": "shelf",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"add\"]"
+  },
+  {
+   "rects": "add"
+  },
+  {
+   "capture": "add",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "type": "[data-field=\"search\"]",
+   "text": "mon",
+   "capture": "add-search",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "rects": "add-search"
+  },
+  {
+   "eval": "location.hash = '#/you'"
+  },
+  {
+   "rects": "you"
+  },
+  {
+   "capture": "you",
+   "full": true,
+   "scale": 3
+  }
+ ]
+}

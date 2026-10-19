@@ -1,0 +1,25 @@
+{
+  "url": "http://localhost:4477/fennick/app/#/",
+  "viewport": [
+    680,
+    960
+  ],
+  "ready": "html.ready",
+  "rects": {
+    "catalogue": "#flavours",
+    "tiles": ".tile*",
+    "photos": ".tile .cut*"
+  },
+  "steps": [
+    {
+      "rects": "range"
+    },
+    {
+      "capture": "range",
+      "around": ".tile",
+      "nth": 2,
+      "scale": 3,
+      "pad": 0
+    }
+  ]
+}

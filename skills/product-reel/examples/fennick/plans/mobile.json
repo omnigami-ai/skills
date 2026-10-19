@@ -1,0 +1,66 @@
+{
+  "url": "http://localhost:4412/fennick/app/#/",
+  "viewport": "mobile",
+  "ready": "html.ready",
+  "rects": {
+    "catalogue": "#flavours",
+    "tiles": ".tile*",
+    "photos": ".tile .cut*",
+    "picks": "#g-flavours",
+    "thumbs": ".pick .sw*",
+    "plus": ".pick [data-action=\"add\"]*"
+  },
+  "steps": [
+    {
+      "rects": "range"
+    },
+    {
+      "capture": "range",
+      "around": "[data-tile=\"pear\"]",
+      "pad": 0,
+      "scale": 3
+    },
+    {
+      "eval": "location.hash='#/box'"
+    },
+    {
+      "rects": "box"
+    },
+    {
+      "capture": "box-00",
+      "around": "#g-flavours",
+      "pad": 14,
+      "scale": 3
+    },
+    {
+      "click": ".pick[data-flavour=\"yuzu\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-01",
+      "around": "#g-flavours",
+      "pad": 14,
+      "scale": 3
+    },
+    {
+      "click": ".pick[data-flavour=\"hibiscus\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-02",
+      "around": "#g-flavours",
+      "pad": 14,
+      "scale": 3
+    },
+    {
+      "click": ".pick[data-flavour=\"pear\"] [data-action=\"add\"]"
+    },
+    {
+      "capture": "box-03",
+      "around": "#g-flavours",
+      "pad": 14,
+      "scale": 3
+    },
+    {
+      "rects": "box-filled"
+    }
+  ]
+}

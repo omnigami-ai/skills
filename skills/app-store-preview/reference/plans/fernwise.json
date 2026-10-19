@@ -1,0 +1,313 @@
+{
+ "url": "http://localhost:4413/fernwise/app/#/today",
+ "viewport": "mobile",
+ "ready": "[data-ready]",
+ "rects": {
+  "statusbar": "[data-statusbar]",
+  "tabbar": "[data-tabbar]",
+  "summary": "[data-summary]",
+  "count": "[data-count]",
+  "done": "[data-done]",
+  "streak": "[data-streak]",
+  "cards": "[data-card]*",
+  "waterButtons": "[data-action=\"water\"]*",
+  "watered": "[data-watered]*",
+  "wateredCount": "[data-watered-count]",
+  "search": "label.search",
+  "results": "[data-species]*",
+  "resultsLabel": "[data-results] .section-label",
+  "speciesHead": ".setup-head",
+  "nameField": "label.name-field",
+  "ideas": ".ideas",
+  "every": "[data-every]",
+  "settings": ".setting*",
+  "addPlant": "[data-action=\"add-plant\"]",
+  "doneArt": ".done-art",
+  "newName": "[data-new-name]",
+  "rescueHead": ".rescue-head",
+  "rescueIntro": ".rescue-intro",
+  "steps": ".step*",
+  "checks": "[data-check]*",
+  "checkCount": "[data-check-count]",
+  "remind": "[data-action=\"remind\"]",
+  "viewfinder": "[data-viewfinder]",
+  "reading": "[data-reading]",
+  "dial": "[data-dial]",
+  "lux": "[data-lux]",
+  "luxLabel": "[data-lux-label]",
+  "verdict": "[data-verdict]",
+  "moveBack": "[data-action=\"move-back\"]",
+  "moveWindow": "[data-action=\"move-window\"]",
+  "checking": "[data-action=\"checking-next\"]",
+  "tiles": ".tile*",
+  "shelfHead": ".shelf-view .page-head",
+  "addButton": "[data-action=\"add\"]"
+ },
+ "steps": [
+  {
+   "rects": "today"
+  },
+  {
+   "capture": "today",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "capture": "ring-monty",
+   "around": "[data-ring=\"monty\"]",
+   "pad": 3,
+   "scale": 6
+  },
+  {
+   "capture": "ring-pickles",
+   "around": "[data-ring=\"pickles\"]",
+   "pad": 3,
+   "scale": 6
+  },
+  {
+   "capture": "ring-fernando",
+   "around": "[data-ring=\"fernando\"]",
+   "pad": 3,
+   "scale": 6
+  },
+  {
+   "capture": "card-monty",
+   "around": "[data-card]",
+   "nth": 0,
+   "pad": 0,
+   "scale": 5
+  },
+  {
+   "click": "[data-action=\"water\"][data-plant=\"monty\"]"
+  },
+  {
+   "rects": "today-1"
+  },
+  {
+   "capture": "today-1",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"water\"][data-plant=\"pickles\"]"
+  },
+  {
+   "rects": "today-2"
+  },
+  {
+   "capture": "today-2",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"water\"][data-plant=\"fernando\"]"
+  },
+  {
+   "rects": "today-3"
+  },
+  {
+   "capture": "today-3",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-tab=\"shelf\"]"
+  },
+  {
+   "click": "[data-action=\"add\"]"
+  },
+  {
+   "rects": "add"
+  },
+  {
+   "capture": "add",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "type": "[data-field=\"search\"]",
+   "text": "mon",
+   "capture": "add-search",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "rects": "add-search"
+  },
+  {
+   "click": "[data-species=\"monstera-deliciosa\"]"
+  },
+  {
+   "rects": "add-name"
+  },
+  {
+   "capture": "add-name",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"add-plant\"]"
+  },
+  {
+   "rects": "add-done"
+  },
+  {
+   "capture": "add-done",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "location.hash = \"#/rescue/dot\""
+  },
+  {
+   "rects": "rescue"
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.0); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-00",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.40951); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-01",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.67232); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-02",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.83193); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-03",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.92224); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-04",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.96875); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-05",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.98976); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-06",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.99757); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-07",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.99968); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-08",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 0.99999); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-09",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "eval": "(() => { const s = document.querySelector(\"#screen\"); s.scrollTop = Math.round((s.scrollHeight - s.clientHeight) * 1.0); s.dispatchEvent(new Event(\"scroll\")); })()"
+  },
+  {
+   "capture": "rescue-scroll-10",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "rects": "rescue-scrolled"
+  },
+  {
+   "click": "[data-action=\"remind\"]"
+  },
+  {
+   "rects": "rescue-reminded"
+  },
+  {
+   "capture": "rescue-reminded",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-tab=\"light\"]"
+  },
+  {
+   "rects": "light-stand"
+  },
+  {
+   "capture": "light-stand",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"move-window\"]"
+  },
+  {
+   "rects": "light-window"
+  },
+  {
+   "capture": "light-window",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-action=\"move-back\"]"
+  },
+  {
+   "rects": "light-back"
+  },
+  {
+   "capture": "light-back",
+   "full": true,
+   "scale": 3
+  },
+  {
+   "click": "[data-tab=\"shelf\"]"
+  },
+  {
+   "rects": "shelf"
+  },
+  {
+   "capture": "shelf",
+   "full": true,
+   "scale": 3
+  }
+ ],
+ "scrollEasing": "quint-out; 11 real captures at p = 1 - (1 - frame / 10)^5, matched by the film hotspot"
+}

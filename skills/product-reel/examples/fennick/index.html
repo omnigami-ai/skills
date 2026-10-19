@@ -1,0 +1,983 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fennick · Product reel · Fictional company</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #FBF6EE; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+</style>
+<canvas id="c" width="1080" height="1920"></canvas>
+<footer id="credit" style="position:fixed;bottom:8px;left:12px;right:12px;font:11px/1.4 system-ui;color:#928a7d;text-align:center">
+  Fennick is a fictional company made for omnigami’s examples. · <a style="color:inherit" href="https://x.com/justinmfarrugia/status/2103822390870569266" target="_blank" rel="noopener noreferrer">Style inspired by @justinmfarrugia’s video</a>
+</footer>
+<script src="kit.js"></script>
+<script>
+// Fennick is a fictional sparkling-tea company made for omnigami's examples.
+// KEEP: deterministic canvas toolkit, type fitting, 120 BPM item pushes, pull, counts, orbit and irises.
+// ADAPT: brand, six honest beats (three real cans, twice each), captured responsive catalogue and box builder.
+// REPLACE: source mark path. Every claim and capture is documented in STORY.md and plans/.
+(() => {
+  const { clamp, lerp, spring: kitSpring, loadFont, loadImage, roundRect, easeOutExpo, motion: m } = window.kit;
+  const FPS = 60, F = 1 / 12, BPM = 120, BEAT = 60 / BPM, BAR = 4 * BEAT, DURATION = 20;
+  const at = (bar, beat = 0) => bar * BAR + beat * BEAT; // a time on the beat grid
+  // each shape's frame. A phone app shows its phone screens in every shape: whole in tall, a
+  // close-up card in square and wide (never a desktop page squeezed into a phone frame)
+  const SHAPES = { '9:16': [1080, 1920], '1:1': [1440, 1440], '16:9': [1920, 1080] };
+  let W = 1080, H = 1920, U = 10.8, shape = '9:16'; // U: 1% of the frame's short side
+  const tall = () => shape === '9:16', wide = () => shape === '16:9';
+
+  const canvas = document.getElementById('c');
+  const g = canvas.getContext('2d', { willReadFrequently: true });
+  // Font fitting must not change the paint canvas's spacing state on a cache miss.
+  const metrics = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+
+
+  // ---------- ADAPT: Fennick's own palette and licensed Bricolage / DM Sans ----------
+  const CREAM = '#FBF6EE', PAPER = '#FFFCF7', SAND = '#E7DDCD', MOSS = '#1D1A16', DEEP = '#1D1A16', SPROUT = '#F7CC33';
+  const TERRA = '#DB3863', AMBER = '#F7CC33', INK = '#1D1A16', MUTED = '#6E665C', TRACK = '#E7DDCD', GHOST = '#BEB09A', PALE = '#E7DDCD';
+  const TONES = { due: TERRA, light: AMBER, fine: MOSS };
+  const SAGE = '#F1EDDB'; // cream with a breath of sprout: every other item stands on it
+  const FIELD = (i) => (i % 2 ? SAGE : CREAM); // the last item must stand on the screen's colour (cream) // the pill's dot: the ring's own meaning
+  const SERIF = (w = 800) => (s) => `${w} ${s}px Bricolage`; // brand display family
+  const SANS = (w = 600) => (s) => `${w} ${s}px DMSans`;
+
+  // ---------- ADAPT: the words, as named fields (sources in STORY.md) ----------
+  const DEFAULTS = {
+    brand: 'FENNICK', tagline: 'Sparkling botanical tea. By the box.',
+    p1name: 'Yuzu & Fennel', p1kind: 'Bright citrus', p1latin: 'Sparkling green tea', p1care: 'Green sencha · yuzu · fennel seed', p1status: 'Green tea',
+    p2name: 'Hibiscus & Blackcurrant', p2kind: 'Deep berry', p2latin: 'Sparkling black tea', p2care: 'Black Assam · hibiscus · blackcurrant', p2status: 'Black tea',
+    p3name: 'Pear & Ginger', p3kind: 'Slow warmth', p3latin: 'Sparkling white tea', p3care: 'White tea · pear · fresh ginger', p3status: 'White tea',
+    p4name: 'Yuzu & Fennel', p4kind: 'Sencha', p4latin: 'Bright, citrus, an anise finish', p4care: '330 ml · No sugar added', p4status: 'Green tea',
+    p5name: 'Hibiscus & Blackcurrant', p5kind: 'Assam', p5latin: 'Tart, deep, berry', p5care: '330 ml · No sugar added', p5status: 'Black tea',
+    p6name: 'Pear & Ginger', p6kind: 'White tea', p6latin: 'Soft, warm, a little heat', p6care: '330 ml · No sugar added', p6status: 'White tea',
+    n1: '3', n1label: 'tea blends', n2: '25', n2label: 'calories per can', n3: '330', n3label: 'ml in every can',
+    headline: 'Tea, but it fizzes.', url: 'fennick.example',
+  };
+  // Exactly three products, each twice: ingredients first, then tasting notes. Never six flavours.
+  const ITEMS = [['can-yuzu','light',1], ['can-hibiscus','due',1], ['can-pear','fine',1], ['can-yuzu','light',1], ['can-hibiscus','due',1], ['can-pear','fine',1]];
+  const N = ITEMS.length;
+  const FIELDS = [
+    { id: 'brand', type: 'text', label: 'Name', maxLength: 14 },
+    { id: 'tagline', type: 'text', label: 'Line under the name', maxLength: 48 },
+    ...ITEMS.flatMap((_, i) => [
+      { id: `p${i + 1}name`, type: 'text', label: `Item ${i + 1}: name`, maxLength: 26 },
+      { id: `p${i + 1}kind`, type: 'text', label: `Item ${i + 1}: word behind it`, maxLength: 20, ...(i ? {} : { help: 'Huge and pale behind the item: its kind or category.' }) },
+      { id: `p${i + 1}latin`, type: 'text', label: `Item ${i + 1}: small line above`, maxLength: 32 },
+      { id: `p${i + 1}care`, type: 'text', label: `Item ${i + 1}: detail line`, maxLength: 40, ...(i ? {} : { help: 'A number in it ticks from one item to the next.' }) },
+      { id: `p${i + 1}status`, type: 'text', label: `Item ${i + 1}: pill`, maxLength: 14 },
+    ]),
+    { id: 'n1', type: 'text', label: 'Number 1', maxLength: 6 }, { id: 'n1label', type: 'text', label: 'Number 1: label', maxLength: 22 },
+    { id: 'n2', type: 'text', label: 'Number 2', maxLength: 6 }, { id: 'n2label', type: 'text', label: 'Number 2: label', maxLength: 22 },
+    { id: 'n3', type: 'text', label: 'Number 3', maxLength: 6 }, { id: 'n3label', type: 'text', label: 'Number 3: label', maxLength: 22 },
+    { id: 'headline', type: 'text', label: 'The line in the orbit', maxLength: 34 },
+    { id: 'url', type: 'text', label: 'Address', maxLength: 22 },
+  ];
+  let V = DEFAULTS; // set from seek's arguments on every frame
+  const item = (i) => ({ photo: ITEMS[i][0], tone: ITEMS[i][1], scale: ITEMS[i][2] || 1, name: V[`p${i + 1}name`], kind: V[`p${i + 1}kind`], latin: V[`p${i + 1}latin`], care: V[`p${i + 1}care`], status: V[`p${i + 1}status`] });
+
+  // ADAPT: actual responsive shop captures and DOM rects, never a redrawn UI.
+  const ORBIT = ['can-yuzu','can-hibiscus','can-pear','cans-trio','box','brewing','serving'];
+  const dataset = () => A.sets[tall() ? 'portrait' : 'desktop'];
+  const pullCapture = () => 'range';
+  // KEEP: the sections on the grid
+  const T = {
+    iris: 1.6, items: at(1), pull: at(2, 3), shelf: at(3, 1), counts: at(3, 2), mark: 8.62,
+    orbit: at(4, 2), words: 9.25, wordsOut: 11.25, collapse: 11.3, iris2: 11.62, fly: 11.72, search: at(6), type: at(6, 0.5), fade: 13.38, end: at(6, 3),
+  };
+  const T_ITEM = (i) => T.items + i * BEAT; // a new item every beat
+  const COUNT_AT = [at(3, 2), at(3, 3), at(4)]; // one beat apart; settle at 7.25, 7.75 and 8.25
+
+  // ---------- KEEP: assets ----------
+  const A = { sets: {}, img: {}, plants: {} };
+  const SEARCH = { orbitTile: 'can-yuzu' };
+  const cap = (name) => { const form=name==='range'?(tall()?'portrait-range':'rev7-range'):(tall()?'portrait':'desktop'); const c=A.sets[form].captures[name];return {img:A.img[form+'/'+c.file],rect:c.rect,scale:c.scale}; };
+  const R = (state) => (state==='range'?A.sets[tall()?'portrait-range':'rev7-range']:dataset()).rects[state];
+
+  // ---------- KEEP: easing ----------
+  const spring = (t,k=170,d=26) => tall() ? m.settle(t, .5) : kitSpring(t,k,d);
+  const out3 = (p) => tall() ? m.out(p) : 1 - (1 - clamp(p)) ** 3;
+  const in3 = (p) => tall() ? m.inOut(p) : clamp(p) ** 3;
+  const inOut3 = (p) => { if(tall())return m.inOut(p); p = clamp(p); return p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2; };
+  const pullEase = (p) => tall() ? m.inOut(p) : 1 - (1 - clamp(p)) ** 3.5; // front-loaded: half the zoom in the first fifth
+  const ramp = (t, a, b) => clamp((t - a) / (b - a));
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => { const x = hex(a), y = hex(b); return `rgb(${x.map((v, i) => Math.round(lerp(v, y[i], clamp(p)))).join(',')})`; };
+
+  // ---------- KEEP: type. Every block is fitted (shrunk, then wrapped) to its box ----------
+  function setText(c, font, size, tracking = 0, align = 'left') { c.font = font(size); c.letterSpacing = `${(tracking * size).toFixed(3)}px`; c.textBaseline = 'alphabetic'; c.textAlign = align; }
+  const widthOf = (_c, font, size, s, tracking = 0) => { setText(metrics, font, size, tracking); return metrics.measureText(s).width; };
+  const capCache = new Map();
+  function capOf(font, size) {
+    const key = font(100);
+    if (!capCache.has(key)) { setText(metrics, font, 100); capCache.set(key, metrics.measureText('H').actualBoundingBoxAscent / 100); }
+    return capCache.get(key) * size;
+  }
+  function wrapAt(font, size, tracking, words, maxW) {
+    const lines = []; let cur = '';
+    for (const w of words) { const next = cur ? `${cur} ${w}` : w; if (cur && widthOf(g, font, size, next, tracking) > maxW) { lines.push(cur); cur = w; } else cur = next; }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  // the largest size from max down to min at which the words wrap into maxLines lines of maxW;
+  // balanced: the measure narrowed as far as it goes without adding a line
+  const fitCache = new Map();
+  function fit(text, font, { maxW, max, min, lines: maxLines = 1, tracking = 0, balance = true, maxH = Infinity, lead = 1.2 }) {
+    const key = [text, font(100), maxW, max, min, maxLines, tracking, balance, maxH, lead].join('|');
+    if (fitCache.has(key)) return fitCache.get(key);
+    const words = String(text).trim().split(/\s+/).filter(Boolean);
+    const ok = (size) => { const ls = wrapAt(font, size, tracking, words, maxW); return ls.length <= maxLines && ls.length * size * lead <= maxH && ls.every((l) => widthOf(g, font, size, l, tracking) <= maxW + 0.5) ? ls : null; };
+    let size = max, lines = ok(max);
+    if (!lines) {
+      let lo = min, hi = max;
+      for (let i = 0; i < 14; i++) { const mid = (lo + hi) / 2, ls = ok(mid); if (ls) { size = mid; lines = ls; lo = mid; } else hi = mid; }
+      if (!lines) { size = min; lines = wrapAt(font, min, tracking, words, maxW); }
+    }
+    if (balance && lines.length > 1) {
+      let lo = maxW * 0.5, hi = maxW, keep = lines;
+      for (let i = 0; i < 12; i++) { const mid = (lo + hi) / 2, ls = wrapAt(font, size, tracking, words, mid); if (ls.length <= lines.length && ls.every((l) => widthOf(g, font, size, l, tracking) <= mid + 0.5)) { keep = ls; hi = mid; } else lo = mid; }
+      lines = keep;
+    }
+    const out = { size, lines: lines.map((l) => ({ text: l, w: widthOf(g, font, size, l, tracking) })) };
+    if (fitCache.size > 3000) fitCache.clear();
+    fitCache.set(key, out);
+    return out;
+  }
+  // a fitted block, drawn from its first baseline
+  function block(c, L, font, x, y, { align = 'left', colour = INK, lead = 1.2, tracking = 0 } = {}) {
+    setText(c, font, L.size, tracking, align); c.fillStyle = colour;
+    L.lines.forEach((l, i) => c.fillText(l.text, x, y + i * L.size * lead));
+  }
+  // words through a slot: the line rises into a mask from below and leaves upward out of it
+  function slot(c, draw, x0, top, w, h) { c.save(); c.beginPath(); c.rect(x0, top, w, h); c.clip(); draw(); c.restore(); }
+  const fmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // ---------- REPLACE: the approved Brewer's seal, from assets/mark.svg ----------
+  const SEAL = new Path2D('M77 18H179C214 18 238 44 238 80V176C238 212 214 238 179 238H77C42 238 18 212 18 176V80C18 44 42 18 77 18ZM48 198H77V145H110V117H77V86H118V58H48ZM132 198H158V113L187 198H212V58H186V143L157 58H132Z');
+  const MARK = { inkLeft: 6.5, inkRight: 57.5, inkTop: 3, dotY: 52.5, dotR: 6.5, centreY: 32 };
+  function drawMark(c,x,y,s,colour,{dot=1,stem=1,leaves=[1,1],rot=0}={}) {
+    // A static source logo; portrait motion is entirely markReveal's generic move.
+    c.save(); c.translate(x,y); c.rotate(rot); c.scale(s*51/220,s*51/220);
+    c.translate(-128,-(18+(MARK.dotY-MARK.inkTop)*220/51));
+    c.fillStyle=colour; c.fill(SEAL,'evenodd'); c.restore();
+  }
+
+  // the lockup: mark, then the name, the mark's foot on the baseline and its ink 1.25 caps tall
+  function lockup(size, baseline) {
+    const font = SERIF(800), cap = capOf(font, size), s = (1.25 * cap) / (MARK.dotY + MARK.dotR - MARK.inkTop);
+    const markW = (MARK.inkRight - MARK.inkLeft) * s, gap = size * 0.26, nameW = widthOf(g, font, size, V.brand, -0.015);
+    const x0 = W / 2 - (markW + gap + nameW) / 2;
+    return { s, cap, size, nameX: x0 + markW + gap, nameW, dot: [x0 + (32 - MARK.inkLeft) * s, baseline - MARK.dotR * s], baseline };
+  }
+  // the name's size: max, or smaller if the lockup would be wider than 84% of the frame
+  function lockSize(max) {
+    const font = SERIF(800), span = MARK.dotY + MARK.dotR - MARK.inkTop;
+    const w100 = widthOf(g, font, 100, V.brand, -0.015) + 26 + (1.25 * capOf(font, 100) / span) * (MARK.inkRight - MARK.inkLeft);
+    return Math.min(max, (W * 0.84) / w100 * 100);
+  }
+
+  // ---------- KEEP: a plant, a screen card ----------
+  // a studio cut-out in a square box, its pot standing on a soft contact shadow (pot base 3.5% up)
+  function drawPlant(c, id, cx, cy, s, alpha = 1, shadow = 1) {
+    if (alpha <= 0) return;
+    const img = A.plants[id];
+    c.save(); c.globalAlpha *= alpha;
+    if (shadow > 0) {
+      const by = cy + s * 0.5, gr = c.createRadialGradient(cx, by, 0, cx, by, s * 0.26);
+      gr.addColorStop(0, 'rgba(58,40,18,0.26)'); gr.addColorStop(0.55, 'rgba(58,40,18,0.1)'); gr.addColorStop(1, 'rgba(58,40,18,0)');
+      c.save(); c.globalAlpha *= shadow; c.translate(cx, by); c.scale(1, 0.16); c.translate(-cx, -by); c.fillStyle = gr; c.beginPath(); c.arc(cx, by, s * 0.26, 0, Math.PI * 2); c.fill(); c.restore();
+    }
+    const ratio=img.width/img.height;
+    if(id==='brewing'||id==='serving') {
+      const sw=Math.min(img.width,img.height), sx=(img.width-sw)/2, sy=(img.height-sw)/2;
+      c.drawImage(img,sx,sy,sw,sw,cx-s/2,cy-s/2,s,s);
+    } else c.drawImage(img,cx-s/2,cy-s/2,s,s);
+    c.restore();
+  }
+  // a captured phone screen as a card: rounded like the phone's own corners, on a soft shadow.
+  // f: { k (frame px per CSS px), left, top, crop: [y0, y1] in CSS px, or the whole screen };
+  // blur in px for the washed shelf. A cropped card is a clean close-up with its own corners.
+  function drawScreen(c,name,f,alpha=1,blur=0) {
+    if(alpha<=0)return;
+    const {img,rect}=cap(name), [x,y,w,h]=rect, k=f.k;
+    c.save();c.globalAlpha*=alpha;
+    if(blur>.3)c.filter=`blur(${blur.toFixed(2)}px)`;
+    c.save();c.shadowColor='rgba(29,26,22,.17)';c.shadowBlur=3*U;c.shadowOffsetY=U;
+    roundRect(c,f.left+x*k,f.top+y*k,w*k,h*k,2*U);c.fillStyle=CREAM;c.fill();c.restore();
+    roundRect(c,f.left+x*k,f.top+y*k,w*k,h*k,2*U);c.clip();c.drawImage(img,f.left+x*k,f.top+y*k,w*k,h*k);c.restore();
+  }
+
+  // ============================== ADAPT: the sections ==============================
+
+  // ---- open (0–2 s): the mark grows, the name comes out of it, the line rises; the dot opens ----
+  function open(t) {
+    g.fillStyle = DEEP; g.fillRect(0, 0, W, H);
+    const size = lockSize(tall() ? 14 * U : 13 * U), L = lockup(size, H / 2 + capOf(SERIF(800), size) / 2);
+    // mark alone at the centre, then sliding left as the name is revealed out of it
+    const m = spring(t - 0.45, 190, 24), solo = [W / 2, H / 2 + (MARK.dotY - MARK.centreY) * L.s];
+    const dx = lerp(solo[0], L.dot[0], m), dy = lerp(solo[1], L.dot[1], m);
+    const fold = 1 - in3(ramp(t, 1.46, 1.6)); // the leaves fold back into the dot before it opens
+    const parts = { dot: lerp(2.2, 1, out3(ramp(t, 0, 0.3))), stem: out3(ramp(t, 0.08, 0.26)) * fold, leaves: [spring(t - 0.16, 240, 15) * fold, spring(t - 0.22, 240, 15) * fold] }; // the dot is there on frame 0
+    // the name, revealed left to right from just right of the mark
+    const r = out3(ramp(t, 0.5, 0.82));
+    if (r > 0) {
+      const markRight = dx + (MARK.inkRight - 32) * L.s;
+      slot(g, () => { setText(g, SERIF(800), size, -0.015); g.fillStyle = CREAM; g.fillText(V.brand, dx + (L.nameX - L.dot[0]) - (1 - r) * L.nameW * 0.12, L.baseline); }, markRight + size * 0.08, 0, (L.nameW + size * 0.3) * r, H); // uncovered from the mark outward, first letter first
+    }
+    // the line under it
+    const lr = out3(ramp(t, 0.62, 0.9));
+    if (lr > 0) {
+      const LL = fit(V.tagline, SANS(600), { maxW: W * 0.82, max: (tall() ? 4.4 : 3.8) * U, min: 2.6 * U, lines: 2 });
+      g.save(); g.globalAlpha = lr; block(g, LL, SANS(600), W / 2, L.baseline + 9 * U + (1 - lr) * 2 * U, { align: 'center', colour: PALE, lead: 1.25 }); g.restore();
+    }
+    drawMark(g, dx, dy, L.s, CREAM, parts);
+    return { dot: [dx, dy], r: MARK.dotR * L.s };
+  }
+
+  // ---- the items (2–5.5 s): a plant a beat ----
+  function itemLayout() {
+    if (tall()) return {
+      plant: { cx: W / 2, cy: H * 0.405, s: W * 0.72 }, push: H * 0.16,
+      ghost: { x: W / 2, baseline: H * 0.66, align: 'center', maxW: W * 0.82, max: 24 * U, lines: 1, lead: 1, maxH: H * 0.14 }, // one complete line at the foot of the can
+      text: { align: 'center', x: W / 2, maxW: W * 0.86, latin: H * 0.7, name: H * 0.766, care: H * 0.816, latinSize: 3.6 * U, nameSize: 12 * U, careSize: 4.2 * U },
+      head: { y: H * 0.10, x0: W * 0.07, x1: W * 0.93, size: 3.8 * U, pill: 3.2 * U }, bar: { y: H * 0.886, x0: W * 0.07, x1: W * 0.93, size: 3.2 * U },
+    };
+    if (wide()) return {
+      plant: { cx: W * 0.28, cy: H * 0.54, s: H * 0.60 }, push: H * 0.2,
+      ghost: { x: W * 0.52, baseline: H * 0.335, align: 'left', maxW: W * 0.41, max: 16 * U, lines: 1, lead: 1, maxH: H * 0.15 },
+      text: { align: 'left', x: W * 0.52, maxW: W * 0.41, latin: H * 0.46, name: H * 0.58, care: H * 0.69, latinSize: 3.6 * U, nameSize: 10 * U, careSize: 4.2 * U },
+      head: { y: H * 0.16, x0: W * 0.07, x1: W * 0.93, size: 3.6 * U, pill: 3.1 * U }, bar: { y: H * 0.89, x0: W * 0.07, x1: W * 0.93, size: 3.1 * U },
+    };
+    return {
+      plant: { cx: W / 2, cy: H * 0.335, s: H * 0.42 }, push: H * 0.16,
+      ghost: { x: W / 2, baseline: H * 0.63, align: 'center', maxW: W * 0.86, max: 14 * U, lines: 1, lead: 1, maxH: H * 0.12 },
+      text: { align: 'center', x: W / 2, maxW: W * 0.86, latin: H * 0.667, name: H * 0.735, care: H * 0.79, latinSize: 3.4 * U, nameSize: 8.4 * U, careSize: 3.6 * U },
+      head: { y: H * 0.15, x0: W * 0.07, x1: W * 0.93, size: 3.3 * U, pill: 2.9 * U }, bar: { y: H * 0.89, x0: W * 0.07, x1: W * 0.93, size: 2.8 * U },
+    };
+  }
+  // the item on screen and the change into it: a change takes 0.22 s and lands on its beat, fast
+  // first and soft at the end: the new one rises a short way into place as the old one rises out,
+  // crossing over, so a moving item never travels through the words
+  const LEAD = 0.2, CHANGE = 0.22, land = (x) => tall() ? m.out(x) : 1 - (1 - clamp(x)) ** 2.6;
+  function itemAt(t) { let i = 0; for (let k = 1; k < N; k++) if (t >= T_ITEM(k) - LEAD) i = k; return i; }
+  const changeP = (t, i, delay = 0) => (i === 0 ? out3(ramp(t, T.items - 0.16 + delay, T.items + 0.12 + delay)) : land(ramp(t, T_ITEM(i) - LEAD + delay, T_ITEM(i) - LEAD + CHANGE + delay)));
+  const plantScale = (t, i) => 1 + 0.03 * (tall() ? m.inOut((t - T_ITEM(i)) / 1) : clamp((t - T_ITEM(i)) / 1)); // the camera breathes in on each plant
+  // a number in the detail line ticks from the last item's number to this one's: { num, now }
+  function ticking(t, i) {
+    const m = item(i).care.match(/\d+/);
+    if (!m || i === 0) return null;
+    const was = (item(i - 1).care.match(/\d+/) || [])[0];
+    if (was === undefined) return null;
+    const q = out3(ramp(t, T_ITEM(i) - LEAD, T_ITEM(i) + 0.04)); // done as the item lands: a still on the beat shows the true number
+    return { num: m[0], now: String(Math.round(lerp(+was, +m[0], q))) };
+  }
+
+  function drawGhost(L, text, offY, alpha) {
+    if (alpha <= 0.01) return;
+    // Very short edits have no surrounding letters to carry the word past the can.
+    const G = L.ghost, max = !wide() && String(text).trim().length <= 3 ? (tall() ? 16 : 6) * U : G.max;
+    const B = fit(text, SERIF(800), { maxW: G.maxW, max, min: 2.4 * U, lines: G.lines, tracking: -0.02, maxH: G.maxH, lead: G.lead });
+    const baseline = G.baseline - (B.lines.length - 1) * B.size * G.lead + offY;
+    g.save(); g.globalAlpha = 0.48 * alpha; // keep the pale tone; the complete word must still read
+    block(g, B, SERIF(800), G.x, baseline, { align: G.align, colour: GHOST, lead: G.lead, tracking: -0.02 });
+    g.restore();
+  }
+  function drawWords(L, it, tick, p, dir, delay) {
+    // dir +1: arriving (rises into its slot), -1: leaving (rises out of it)
+    // the old words leave in the first half of the change, the new ones arrive in the second
+    const X = L.text, phase = (q) => (dir > 0 ? clamp((q - 0.45) / 0.55) : clamp(q / 0.42));
+    const roll = (q, size) => (dir > 0 ? (1 - phase(q)) : -phase(q)) * size * 1.15, alpha = (q) => (dir > 0 ? phase(q) : 1 - phase(q));
+    const lat = fit(it.latin, SANS(600), { maxW: X.maxW, max: X.latinSize, min: 2.4 * U });
+    const nam = fit(it.name, SERIF(800), { maxW: X.maxW, max: X.nameSize, min: 2.4 * U, tracking: -0.01 });
+    const car = fit(it.care, SANS(600), { maxW: X.maxW, max: X.careSize, min: 2.8 * U, lines: X.careLines || 2 });
+    // the ticking number, set in the final line's size and breaks
+    let ticked = !tick;
+    const careLines = { size: car.size, lines: car.lines.map((l) => { if (!ticked && l.text.includes(tick.num)) { ticked = true; return { text: l.text.replace(tick.num, tick.now) }; } return l; }) };
+    const rows = [[lat, SANS(600), X.latin, MUTED, 0, 0], [nam, SERIF(800), X.name, DEEP, -0.01, 0.35], [careLines, SANS(600), X.care, INK, 0, 0.7]];
+    const sx = X.align === 'center' ? 0 : X.x, sw = X.align === 'center' ? W : W - X.x;
+    for (const [B, font, y, colour, tr, d] of rows) {
+      const q = p(d * F + delay), lines = B.lines.length || 1;
+      slot(g, () => { g.save(); g.globalAlpha *= alpha(q); block(g, B, font, X.x, y + roll(q, B.size), { align: X.align, colour, tracking: tr, lead: 1.22 }); g.restore(); },
+        sx, y - B.size * 1.02, sw, B.size * (1.02 + 0.32 + (lines - 1) * 1.22));
+    }
+  }
+  function drawHeader(L, alpha) {
+    if (alpha <= 0) return;
+    if(tall()){g.save();g.globalAlpha*=alpha;g.translate(0,(1-alpha)*-2*U);const w=W*.27,h=w*120.8/314.3;g.drawImage(A.wordmark,W*.07,L.head.y-h/2,w,h);g.restore();return;}
+    const Hd = L.head, font = SERIF(800), cap = capOf(font, Hd.size), s = (1.25 * cap) / (MARK.dotY + MARK.dotR - MARK.inkTop);
+    g.save(); g.globalAlpha = alpha; if(tall())g.translate(0,(1-alpha)*-2*U);
+    drawMark(g, Hd.x0 + (32 - MARK.inkLeft) * s, Hd.y + cap / 2 - MARK.dotR * s, s, MOSS);
+    setText(g, font, Hd.size, -0.01); g.fillStyle = DEEP; g.fillText(V.brand, Hd.x0 + (MARK.inkRight - MARK.inkLeft) * s + Hd.size * 0.26, Hd.y + cap / 2);
+    g.restore();
+  }
+  function drawPill(L, t, i, alpha) {
+    if (alpha <= 0) return;
+    const Hd = L.head, size = Hd.pill, font = SANS(700), h = size * 2, cy = Hd.y; // Hd.y: the header's cap-centre line
+    const q = i === 0 || item(i).status === item(i - 1).status ? 1 : changeP(t, i, 0.5 * F); // same words: the pill holds still
+    const label = (k) => fit(item(k).status, font, { maxW: W * 0.4, max: size, min: 2.2 * U });
+    const pw = (k) => label(k).lines[0] ? label(k).lines[0].w + size * 2.2 + h * 0.45 : h;
+    const w = i === 0 ? pw(0) : lerp(pw(i - 1), pw(i), q), x = Hd.x1 - w, y = cy - h / 2;
+    g.save(); g.globalAlpha = alpha; if(tall())g.translate((1-alpha)*3*U,0);
+    roundRect(g, x, y, w, h, h / 2); g.fillStyle = PAPER; g.fill(); g.lineWidth = Math.max(1, 0.12 * U); g.strokeStyle = SAND; g.stroke();
+    g.save(); roundRect(g, x, y, w, h, h / 2); g.clip();
+    const draw = (k, a, off) => {
+      if (a <= 0) return;
+      const B = label(k), dotR = size * 0.28;
+      g.save(); g.globalAlpha *= a; g.translate(0, off);
+      g.beginPath(); g.arc(x + h * 0.45 + dotR, cy, dotR, 0, Math.PI * 2); g.fillStyle = TONES[ITEMS[k][1]]; g.fill();
+      block(g, B, font, x + h * 0.45 + dotR * 2 + size * 0.55, cy + capOf(font, B.size) / 2, { colour: INK }); g.restore();
+    };
+    if (i > 0 && q < 1) draw(i - 1, 1 - q, -q * h);
+    draw(i, i === 0 ? 1 : q, (1 - q) * h);
+    g.restore(); g.restore();
+  }
+  function drawBar(L, t, i, alpha) {
+    if (alpha <= 0) return;
+    const Bb = L.bar, gap = 1 * U, segW = (Bb.x1 - Bb.x0 - gap * (N - 1)) / N, th = Math.max(2, 0.34 * U), y = Bb.y;
+    g.save(); g.globalAlpha = alpha; if(tall())g.translate(0,(1-alpha)*2*U);
+    for (let k = 0; k < N; k++) {
+      const x = Bb.x0 + k * (segW + gap), fill = tall() ? m.out((t - T_ITEM(k)) / BEAT) : clamp((t - T_ITEM(k)) / BEAT);
+      g.fillStyle = TRACK; g.fillRect(x, y, segW, th);
+      if (fill > 0) { g.fillStyle = DEEP; g.fillRect(x, y, segW * fill, th); }
+    }
+    // the count, "03 / 07", above the bar's left end; it flips halfway through the change
+    let ci = 0; for (let k = 1; k < N; k++) if (t >= T_ITEM(k) - 0.1) ci = k;
+    if(tall()){setText(g,SANS(600),Bb.size);g.fillStyle=MUTED;g.fillText(`${String(ci%3+1).padStart(2,'0')} / 03 · ${ci<3?'INGREDIENTS':'TASTING'}`,Bb.x0,y-Bb.size*.75);g.restore();return;}
+    const nb=String(ci%3+1).padStart(2,'0'), of=` / 03 · ${ci<3?'INGREDIENTS':'TASTING'}`;
+    setText(g, SANS(800), Bb.size); g.fillStyle = DEEP; g.fillText(nb, Bb.x0, y - Bb.size * 0.75);
+    const w = g.measureText(nb).width; setText(g, SANS(600), Bb.size); g.fillStyle = MUTED; g.fillText(of, Bb.x0 + w, y - Bb.size * 0.75);
+    g.restore();
+  }
+  // the items scene at time t; chrome: how much of the header, words and bar show (they leave at the pull)
+  function items(t, chrome = 1, plants = true) {
+    const L = itemLayout();
+    const i = itemAt(Math.min(t, T.pull)), first = i === 0;
+    const p = (d) => changeP(t, i, d), pPlant = p(0), cin = out3(ramp(t, T.items - 0.28, T.items - 0.04));
+    // the field: every other item on sage, cross-fading with the change
+    g.fillStyle = first ? FIELD(0) : mix(FIELD(i - 1), FIELD(i), pPlant); g.fillRect(0, 0, W, H);
+    // the ghost word
+    if (!first && pPlant < 1) drawGhost(L, item(i - 1).kind, -pPlant * H * 0.12, chrome * (1 - clamp(pPlant / 0.5)));
+    drawGhost(L, item(i).kind, (1 - pPlant) * H * 0.12, chrome * (first ? cin : clamp((pPlant - 0.4) / 0.6)));
+    // the plants: the old one rises out and fades, the new one rises in from a short way below
+    if (plants) {
+      const P = L.plant;
+      // Portrait overlaps the eased lifts; the other shapes keep their earlier swap.
+      const at0 = (k, s, dy, a) => drawPlant(g, item(k).photo, P.cx, P.cy + P.s / 2 - s / 2 + dy, s, a); // pot base fixed
+      if(tall() && !first) {
+        // Overlap the moving photos briefly: no empty-image frame between
+        // subjects, with both lifts eased independently of the word slots.
+        const t0=T_ITEM(i)-LEAD, leave=out3(ramp(t,t0,t0+.11)), arrive=out3(ramp(t,t0+.008,t0+.2));
+        if(leave<1)at0(i-1,P.s*item(i-1).scale*plantScale(t,i-1),-leave*L.push*.45,1-leave);
+        const s=P.s*item(i).scale*plantScale(t,i)*lerp(.94,1,arrive);
+        at0(i,s,(1-arrive)*L.push,arrive);
+      } else {
+        if (!first && pPlant < 0.25) at0(i - 1, P.s * item(i - 1).scale * plantScale(t, i - 1), -pPlant * L.push * 1.6, 1 - pPlant / 0.25);
+        const s = P.s * item(i).scale * plantScale(t, i) * (first ? lerp(1.1, 1, out3(ramp(t, T.iris, T.items + 0.2))) : lerp(0.94, 1, pPlant));
+        at0(i, s, first ? 0 : (1 - pPlant) * L.push, first ? 1 : clamp((pPlant - 0.3) / 0.4)); // never two plants at once
+      }
+    }
+    // the words beside it
+    g.save(); g.globalAlpha = chrome;
+    if (!first && pPlant < 1) drawWords(L, item(i - 1), null, p, -1, 0);
+    drawWords(L, item(i), ticking(t, i), first ? (d) => out3(ramp(t, T.items - 0.32 + d, T.items - 0.06 + d)) : p, +1, 0); // the first item's words are settled on its beat
+    g.restore();
+    const ch = chrome * cin;
+    drawHeader(L, ch); drawPill(L, t, i, ch); drawBar(L, t, i, ch);
+  }
+
+  // ---- pull back (5.5–7.5 s): the last plant becomes one tile in the real Shelf screen ----
+  // tall: the whole screen; square and wide: a clean close-up of the screen's PULL.crop
+  function shelfFrame(t=0) {
+    const [x,y,w,h]=cap('range').rect;
+    const k=Math.min(W*.86/w,H*.8/h);
+    return {k,left:W/2-(x+w/2)*k,top:H/2-(y+h/2)*k};
+  }
+  function pullFrame(t) {
+    if(!tall()) {
+      const L=itemLayout(),ph=R('range').photos[2],side=ph[3],
+        img=[ph[0]+ph[2]/2-side/2,ph[1],side,side],ic=[img[0]+side/2,img[1]+side/2],
+        k0=L.plant.s*1.03/side,end=shelfFrame(),p=m.inOut(ramp(t,T.pull,T.shelf)),
+        k=Math.exp(lerp(Math.log(k0),Math.log(end.k),p)),
+        cx=lerp(L.plant.cx,end.left+ic[0]*end.k,p),cy=lerp(L.plant.cy,end.top+ic[1]*end.k,p);
+      return {k,left:cx-ic[0]*k,top:cy-ic[1]*k,img};
+    }
+    const L=itemLayout(), ph=R('range').photos[2], s0=L.plant.s*plantScale(T.pull,N-1),
+      // Source square has its subject centred, so a square around the DOM can has the same pixels.
+      side=ph[3], img=[ph[0]+ph[2]/2-side/2,ph[1],side,side], ic=[img[0]+side/2,img[1]+side/2], k0=s0/side,
+      end=shelfFrame(t), x=ramp(t,T.pull,T.shelf), e=pullEase(x), ep=tall()?m.inOut(x):1-(1-x)**4.5,
+      k=Math.exp(lerp(Math.log(k0),Math.log(end.k),e)),
+      cx=lerp(L.plant.cx,end.left+ic[0]*end.k,ep),cy=lerp(L.plant.cy,end.top+ic[1]*end.k,ep);
+    return {k,left:cx-ic[0]*k,top:cy-ic[1]*k,img};
+  }
+  function shelf(t) {
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    const ghostAlpha=1-out3(ramp(t,T.pull,T.pull+.07));
+    if(ghostAlpha>0){g.save();g.translate(0,(1-ghostAlpha)*-2*U);drawGhost(itemLayout(),item(N-1).kind,0,ghostAlpha*(1-out3(ramp(t,T.pull,T.pull+.1))));g.restore();}
+    const f=pullFrame(t), capA=inOut3(ramp(t,T.pull+.05,T.pull+.25));drawScreen(g,'range',f,capA);
+    const cutA=Math.max(1-capA,clamp((f.k-cap('range').scale*.95)/(cap('range').scale*.3)));
+    const [x,y,w]=f.img;drawPlant(g,item(N-1).photo,f.left+(x+w/2)*f.k,f.top+(y+w/2)*f.k,w*f.k,cutA,1-capA);
+    const chrome=1-out3(ramp(t,T.pull,T.pull+.07));if(chrome>0)itemsChromeOnly(t,chrome);
+  }
+  // the header, words, ghost and bar of the last item, over the pull
+  function itemsChromeOnly(t, chrome) {
+    const L = itemLayout(), i = N - 1, up = (1 - chrome) * -2 * U;
+    if(!tall()) {
+      g.save();g.translate(0,up);g.globalAlpha*=chrome;
+      drawWords(L,item(i),null,()=>1,+1,0);
+      portraitHeader(P.pull);portraitPill(L,P.pull,i,P.step);
+      const B=L.bar,gap=U,w=(B.x1-B.x0-gap*(N-1))/N;
+      g.fillStyle=DEEP;
+      for(let k=0;k<N;k++)g.fillRect(B.x0+k*(w+gap),B.y,w,.34*U);
+      setText(g,SANS(600),B.size);g.fillStyle=MUTED;
+      g.fillText('03 / 03 · TASTING',B.x0,B.y-B.size*.75);
+      g.restore();return;
+    }
+    g.save(); g.translate(0, up);
+    g.globalAlpha = chrome; drawWords(L, item(i), null, () => 1, +1, 0); g.globalAlpha = 1;
+    drawHeader(L, chrome); drawPill(L, t, i, chrome); drawBar(L, t, i, chrome);
+    g.restore();
+  }
+
+  // ---- the numbers (7–9 s): the shelf washes pale; three counts land on beats ----
+  function countLayout() {
+    if (tall()) return { cols: [[W / 2, H * 0.33], [W / 2, H * 0.52], [W / 2, H * 0.71]], size: 17 * U, label: 4.2 * U, maxW: W * 0.8, labelLines: 1, rule: false };
+    if (wide()) return { cols: [[W * 0.2, H * 0.53], [W * 0.5, H * 0.53], [W * 0.8, H * 0.53]], size: 19 * U, label: 3.8 * U, maxW: W * 0.27, labelLines: 2, rule: true };
+    return { cols: [[W * 0.19, H * 0.52], [W * 0.5, H * 0.52], [W * 0.81, H * 0.52]], size: 15 * U, label: 3.5 * U, maxW: W * 0.28, labelLines: 2, rule: true };
+  }
+  function counts(t) {
+    g.fillStyle = CREAM; g.fillRect(0, 0, W, H);
+    const wsh = out3(ramp(t, T.counts - 0.05, T.counts + 0.25));
+    const f = shelfFrame(t), z = (1 + 0.05 * wsh) * (1 + 0.6 * in3(ramp(t, T.mark + 0.22, T.orbit))); // the camera travels into the dot
+    drawScreen(g, 'range', { k: f.k * z, left: W / 2 - (W / 2 - f.left) * z, top: H / 2 - (H / 2 - f.top) * z, crop: f.crop }, 1, wsh * (wide() ? 2 : 1.3) * U);
+    g.fillStyle = `rgba(251,246,238,${((wide() ? 0.88 : 0.8) * wsh).toFixed(3)})`; g.fillRect(0, 0, W, H);
+    const C = countLayout(), nums = [[V.n1, V.n1label], [V.n2, V.n2label], [V.n3, V.n3label]];
+    const away = tall() ? m.out(ramp(t, 8.30, 8.55)) : inOut3(ramp(t, T.mark - 0.1, T.mark + 0.08)); // the numbers step back as the mark spins in
+    g.save(); g.globalAlpha = 1 - away; g.translate(W / 2, H / 2); g.scale(1 - 0.06 * away, 1 - 0.06 * away); g.translate(-W / 2, -H / 2);
+    if (C.rule) [(C.cols[0][0] + C.cols[1][0]) / 2, (C.cols[1][0] + C.cols[2][0]) / 2].forEach((x, k) => { const a = out3(ramp(t, COUNT_AT[k + 1], COUNT_AT[k + 1] + 0.2)); if (a <= 0) return; g.save(); g.globalAlpha *= a; g.fillStyle = '#D9CCB4'; g.fillRect(x - 0.08 * U, C.cols[0][1] - C.size * 0.95, Math.max(1, 0.16 * U), C.size * 1.55); g.restore(); }); // each rule comes in with its number
+    nums.forEach(([n, label], k) => {
+      const t0 = COUNT_AT[k]; if (t < t0) return;
+      const e = out3(ramp(t, t0, t0 + 0.22)), v = out3(ramp(t, t0, t0 + 0.25)), [x, y] = C.cols[k]; // lands on the next half-beat
+      const target = /^\d[\d,]*$/.test(n.trim()) ? +n.replace(/,/g, '') : null;
+      const shown = target === null ? n : fmt(target * v);
+      const B = fit(target === null ? n : fmt(target), SERIF(800), { maxW: C.maxW, max: C.size, min: 4 * U, tracking: -0.02 });
+      slot(g, () => { g.save(); g.globalAlpha *= e; setText(g, SERIF(800), B.size, -0.02, 'center'); g.fillStyle = DEEP; g.fillText(shown, x, y + (1 - e) * B.size * 0.9); g.restore(); }, 0, y - B.size * 1.05, W, B.size * 1.33);
+      const le = out3(ramp(t, t0 + 0.06, t0 + 0.3)), LB = fit(label, SANS(600), { maxW: C.maxW, max: C.label, min: 2.4 * U, lines: C.labelLines });
+      g.save(); g.globalAlpha *= le; block(g, LB, SANS(600), x, y + C.label * 1.9 + (1 - le) * U, { align: 'center', colour: MUTED, lead: 1.22 }); g.restore();
+    });
+    g.restore();
+    // the mark spins in over them, then the camera dives into its dot: the frame floods moss-deep
+    if (!tall() && t >= T.mark) {
+      const s0 = (tall() ? 34 : 38) * U / 50, a = spring(t - T.mark, 300, 21), rot = lerp(-2.2, 0, out3(ramp(t, T.mark, T.mark + 0.16)));
+      const dive = in3(ramp(t, T.mark + 0.24, T.orbit)), zoom = tall() ? lerp(1,(Math.hypot(W,H)/2+4*U)/(MARK.dotR*s0),dive) : Math.exp(dive * Math.log((Math.hypot(W, H) / 2 + 4 * U) / (MARK.dotR * s0)));
+      const solo = [W / 2, H / 2 + (MARK.dotY - MARK.centreY) * s0], dot = [lerp(solo[0], W / 2, dive), lerp(solo[1], H / 2, dive)];
+      // in the dive only the dot grows: the leaves fold into the stem's tip, then the stem into the dot
+      const lf = 1 - out3(ramp(t, T.mark + 0.2, T.mark + 0.27)), st = 1 - out3(ramp(t, T.mark + 0.24, T.mark + 0.32)); // open, held, then folded
+      drawMark(g, dot[0], dot[1], s0 * Math.max(a, 0.001) * zoom, DEEP, { rot, stem: st, leaves: [lf, lf] });
+    }
+  }
+
+  // ---- the orbit (9–12 s): every plant on a tile, turning around the line ----
+  function ringGeom() {
+    // the line sits in the ring's hole: clear of the back tiles above, the front ones below and the sides
+    // R and Ry: the ring's radii on screen (Ry may be taller than a real tilt allows, so a tall frame
+    // gets a tall ring); tilt and f only set the depth (scale and shade)
+    if (tall()) return { cx: W / 2, cy: H * 0.5, R: W * 0.30, Ry: H * 0.30, tilt: 40, f: W * 1.6, T: W * 0.18, text: { cy: H * 0.515, maxW: W * 0.34, max: 9.6 * U, lines: 3 } };
+    if (wide()) return { cx: W / 2, cy: H * 0.5, R: W * 0.32, Ry: H * 0.26, tilt: 30, f: W * 2.2, T: H * 0.18, text: { cy: H * 0.515, maxW: W * 0.40, max: 9.5 * U, lines: 3 } };
+    return { cx: W / 2, cy: H * 0.5, R: W * 0.30, Ry: H * 0.26, tilt: 34, f: W * 1.8, T: W * 0.15, text: { cy: H * 0.515, maxW: W * 0.38, max: 9.5 * U, lines: 3 } };
+  }
+  // the orbit's tiles: every photo once
+  function tiles(t, front) {
+    if(tall())return motionTiles(t,front);
+    const Gm = ringGeom(), n = ORBIT.length;
+    const fly = easeOutExpo(ramp(t, T.orbit, T.orbit + 0.85)), fold = in3(ramp(t, T.collapse, T.iris2));
+    // the spin is phased so the first tile (SEARCH.orbitTile) is at the front as the ring folds
+    const front0 = Math.max(0, ORBIT.indexOf(SEARCH.orbitTile)), rad = Gm.R * lerp(0.06, 1, fly) * (1 - fold);
+    const spin = -0.42 * (t - T.iris2) - 2.4 * (1 - fly) - (2 * Math.PI * front0) / n;
+    const tilt = Gm.tilt * Math.PI / 180, list = [];
+    for (let k = 0; k < n; k++) {
+      const th = (2 * Math.PI * k) / n + spin, z = -rad * Math.cos(th) * Math.cos(tilt), x = rad * Math.sin(th), y = (rad / Gm.R) * Gm.Ry * Math.cos(th);
+      const s = Gm.f / (Gm.f + z);
+      list.push({ k, z, x: Gm.cx + x * s, y: Gm.cy + y * s, s, depth: Gm.R ? (z / (Gm.R * Math.cos(tilt)) + 1) / 2 : 0.5, th });
+    }
+    list.sort((a, b) => b.z - a.z); // far first
+    const size = Gm.T * lerp(0.4, 1, fly);
+    for (const p of list) {
+      if (front !== undefined && (p.z <= 0) !== front) continue;
+      const side = size * p.s * (1 - 0.1 * clamp(p.depth)), rr = side * 0.2, rot = Math.sin(p.th) * 0.2 * (1 - fold);
+      g.save(); g.translate(p.x, p.y); g.rotate(rot);
+      g.save(); g.shadowColor = 'rgba(12,28,14,0.3)'; g.shadowBlur = side * 0.14; g.shadowOffsetY = side * 0.05;
+      roundRect(g, -side / 2, -side / 2, side, side, rr); g.fillStyle = PAPER; g.fill(); g.restore();
+      roundRect(g, -side / 2, -side / 2, side, side, rr); g.clip();
+      drawPlant(g,ORBIT[p.k],0,0,side*.86,1,0);
+      const dim = clamp(p.depth) * 0.48 * (1 - fold); // far tiles recede into the dark, not into grey
+      if (dim > 0.01) { g.fillStyle = `rgba(29,26,22,${dim.toFixed(3)})`; g.fillRect(-side / 2, -side / 2, side, side); }
+      g.restore();
+    }
+  }
+  function headline(t) {
+    const Gm = ringGeom(), X = Gm.text, font = SERIF(800);
+    const B = fit(V.headline, font, { maxW: X.maxW, max: X.max, min: 5 * U, lines: X.lines, tracking: -0.015 });
+    const lead = 1.06, cap = capOf(font, B.size), top = X.cy - (B.lines.length * B.size * lead) / 2;
+    const out = out3(ramp(t, tall()?10.96:T.wordsOut, tall()?11.10:T.wordsOut + 0.14));
+    let w = 0;
+    g.save(); g.globalAlpha = 1 - out; g.translate(0, out * B.size * 0.3);
+    B.lines.forEach((l, li) => {
+      const base = top + li * B.size * lead + B.size * lead / 2 + cap / 2, x0 = W / 2 - l.w / 2;
+      const words = l.text.split(' ');
+      words.forEach((word, wi) => {
+        const prefix = words.slice(0, wi).join(' ') + (wi ? ' ' : ''), x = x0 + (wi ? widthOf(g, font, B.size, prefix, -0.015) : 0);
+        const t0 = T.words - 0.1 + w * BEAT / 2, n = word.length; w++;
+        if (t < t0) return;
+        const colour = (tt) => { const d = t - tt; return d < 0.18 ? SPROUT : mix(SPROUT, CREAM, (d - 0.18) / 0.45); };
+        if (t >= t0 + n * 0.022 + 0.2) { setText(g, font, B.size, -0.015); g.fillStyle = colour(t0 + n * 0.022); g.fillText(word, x, base); return; }
+        slot(g, () => {
+          for (let j = 0; j < n; j++) {
+            const e = out3(ramp(t, t0 + j * 0.022, t0 + j * 0.022 + 0.2)); if (e <= 0) continue;
+            const cx = x + (j ? widthOf(g, font, B.size, word.slice(0, j), -0.015) : 0);
+            setText(g, font, B.size, -0.015); g.globalAlpha = (1 - out) * e; g.fillStyle = colour(t0 + j * 0.022); g.fillText(word[j], cx, base + (1 - e) * B.size * 0.6);
+          }
+        }, 0, base - B.size * 1.02, W, B.size * 1.34);
+      });
+    });
+    g.restore();
+  }
+  function orbit(t) {
+    g.fillStyle = DEEP; g.fillRect(0, 0, W, H);
+    tiles(t, false); headline(t); tiles(t, true);
+  }
+
+  // ---- the search (12–13.5 s): the real sheet, a word typed, the real results ----
+  // Fennick has no search. The closing proof uses the real box builder's three plus buttons.
+  function searchFrame(t) {
+    const [x,y,w,h]=cap('box-00').rect,k=Math.min(W*.86/w,H*.8/h);
+    return {k,left:W/2-(x+w/2)*k,top:H/2-(y+h/2)*k};
+  }
+  function searchCapture(t) {
+    const n=clamp(Math.floor((t-12.15)/.27)+1,0,3);return `box-${String(n).padStart(2,'0')}`;
+  }
+  function search(t) {
+    if(tall())return motionProof(t);
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    const c=inOut3(ramp(t,T.fade-.18,T.end));g.save();
+    if(c>0){const E=endGeom(),r=lerp(Math.hypot(W,H)+2*U,MARK.dotR*E.s,c);g.beginPath();g.arc(E.solo[0],E.solo[1],r,0,Math.PI*2);g.clip();}
+    const f=searchFrame(t);drawScreen(g,searchCapture(t),f);
+    // Cursor indicates the exact real plus button, and its pressed screenshot carries the result.
+    const n=clamp(Math.floor((t-12.15)/.27),0,2), b=R('box').plus[n], x=f.left+(b[0]+b[2]/2)*f.k,y=f.top+(b[1]+b[3]/2)*f.k;
+    if(t<12.98){g.save();g.translate(x,y);const p=new Path2D('M0 0L0 25L7 19L12 30L18 27L13 17L23 17Z');g.scale(U*.13,U*.13);g.fillStyle=PAPER;g.strokeStyle=INK;g.lineWidth=2;g.fill(p);g.stroke(p);g.restore();}
+    if(c>0){g.fillStyle=MOSS;g.globalAlpha=ramp(c,.55,.85);g.fillRect(0,0,W,H);}g.restore();
+  }
+  function irisToSearch(t) {
+    if(tall())return motionProofIris(t);
+    const p=in3(ramp(t,T.iris2,T.search)),Gm=ringGeom(),side=Gm.T,r=p*(Math.hypot(W,H)+2*U);
+    // The collapsed source tile stays under an aperture that begins at zero radius.
+    if(r<side*.8){g.save();g.translate(W/2,H/2);roundRect(g,-side/2,-side/2,side,side,side*.2);g.fillStyle=PAPER;g.fill();drawPlant(g,SEARCH.orbitTile,0,-side*.02,side*.86,1,0);g.restore();}
+    g.save();g.beginPath();g.arc(W/2,H/2,r,0,Math.PI*2);g.clip();search(t);g.restore();
+  }
+
+  // ---- the end (13.5–15 s): the mark draws itself, the name comes out of it, the address ----
+  function endGeom() {
+    const size = lockSize(tall() ? 14 * U : 13 * U), L = lockup(size, H * 0.47 + capOf(SERIF(800), size) / 2);
+    return { size, L, s: L.s, solo: [W / 2, H * 0.47 + (MARK.dotY - MARK.centreY) * L.s] };
+  }
+  function end(t) {
+    g.fillStyle = CREAM; g.fillRect(0, 0, W, H);
+    const t0 = T.end, { size, L, solo } = endGeom();
+    const m = spring(t - (t0 + 0.32), 190, 24);
+    const dx = lerp(solo[0], L.dot[0], m), dy = lerp(solo[1], L.dot[1], m);
+    // a thin ring widens around the mark as it draws
+    const rp = ramp(t, t0, t0 + 0.34); // widens out of the dot, gone before the mark slides
+    if (rp > 0 && rp < 1) { g.save(); g.globalAlpha = 1 - rp * rp; g.strokeStyle = SPROUT; g.lineWidth = Math.max(3, 0.32 * U); g.beginPath(); g.arc(solo[0], solo[1], lerp(MARK.dotR * L.s, 18 * U, out3(rp)), 0, Math.PI * 2); g.stroke(); g.restore(); }
+    const parts = { dot: 1, stem: out3(ramp(t, t0 + 0.06, t0 + 0.18)), leaves: [spring(t - (t0 + 0.12), 240, 15), spring(t - (t0 + 0.18), 240, 15)] };
+    const r = out3(ramp(t, t0 + 0.34, t0 + 0.6));
+    if (r > 0) {
+      const markRight = dx + (MARK.inkRight - 32) * L.s;
+      slot(g, () => { setText(g, SERIF(800), size, -0.015); g.fillStyle = DEEP; g.fillText(V.brand, dx + (L.nameX - L.dot[0]) - (1 - r) * L.nameW * 0.12, L.baseline); }, markRight + size * 0.08, 0, (L.nameW + size * 0.3) * r, H);
+    }
+    drawMark(g, dx, dy, L.s, MOSS, parts);
+    // the address rises in a letter at a time, and holds to the last frame
+    const ua = T.end + 0.5, us = fit(V.url, SANS(700), { maxW: W * 0.8, max: (tall() ? 4.8 : 4.4) * U, min: 2.4 * U }), uy = L.baseline + 10 * U;
+    if (t >= ua) {
+      const done = t >= ua + V.url.length * 0.008 + 0.18;
+      if (done) block(g, us, SANS(700), W / 2, uy, { align: 'center', colour: MUTED });
+      else slot(g, () => {
+        const w = us.lines[0] ? us.lines[0].w : 0, x0 = W / 2 - w / 2;
+        for (let j = 0; j < V.url.length; j++) {
+          const e = out3(ramp(t, ua + j * 0.008, ua + j * 0.008 + 0.18)); if (e <= 0) continue;
+          setText(g, SANS(700), us.size); g.globalAlpha = e; g.fillStyle = MUTED;
+          g.fillText(V.url[j], x0 + (j ? widthOf(g, SANS(700), us.size, V.url.slice(0, j)) : 0), uy + (1 - e) * us.size * 0.7);
+        }
+      }, 0, uy - us.size * 1.05, W, us.size * 1.4);
+    }
+  }
+
+  // Approved rev5e choreography. Rev7 adapts geometry only for square/wide;
+  // the portrait's paint path, timings and cue list stay pixel-identical.
+  const P = { items: 2, step: 1.25, pull: 2 + N * 1.25,
+    get shelf() { return this.pull + .65; }, get counts() { return this.shelf + 1; },
+    get orbit() { return this.counts + 1.7; }, get converge() { return this.orbit + 1.9; },
+    get proof() { return this.converge + .4; }, get close() { return this.proof + 2.45; },
+    get end() { return this.close + .3; } };
+  const SAFE = { side: .07, top: .10, bottom: .10 };
+  const portraitDuration = P.end + 2.1;
+  const BOX_CLICKS = [P.proof + .43, P.proof + .85, P.proof + 1.27];
+  function motionLockup(t, ending=false) {
+    const line=ending?V.url:V.tagline, font=SERIF(800), lf=SANS(ending?700:600);
+    const L=fit(line,lf,{maxW:W*.84,max:(ending?4.8:4)*U,min:2.1*U});
+    g.letterSpacing='0px';
+    // Wordmark-only identity: markReveal(shape:'none') still paints a fading
+    // tile. Keep this path local to the film, using the supplied SVG unchanged.
+    // Its letters start below y=51; the separate seed ends above y=41.
+    const wordAt=ending?P.close+.12:.02, wipeDur=ending?.38:.28;
+    const seedAt=wordAt+wipeDur, seedDur=ending?.32:.20;
+    const lineAt=seedAt+seedDur, lineDur=ending?.38:.30;
+    const finished=lineAt+lineDur, holdEnd=ending?DURATION:1.8;
+    const push=1+.018*m.out(ramp(t,finished,holdEnd));
+    const cy=H*(ending?.47:.5),w=tall()?W*.82*.96:Math.min(W*.82*.96,H*1.05),h=w*120.8/314.3;
+    const wipe=m.out((t-wordAt)/wipeDur),seed=m.settle(t-seedAt,seedDur);
+    g.save();g.translate(W/2,cy);g.scale(push,push);
+    if(wipe>0) {
+      g.save();g.beginPath();g.rect(-w/2,-h/2,w*wipe,h+1);g.clip();
+      if(V.brand===DEFAULTS.brand) {
+        g.beginPath();g.rect(-w/2,-h/2+51*h/120.8,w,h);g.clip();
+        g.drawImage(ending?A.wordmark:A.wordmarkPaper,-w/2,-h/2,w,h);
+      } else {
+        const B=fit(V.brand,font,{maxW:w,max:14*U,min:2.4*U});
+        block(g,B,font,0,capOf(font,B.size)/2,{align:'center',colour:ending?DEEP:CREAM});
+      }
+      g.restore();
+    }
+    if(seed>0 && V.brand===DEFAULTS.brand) {
+      g.save();g.globalAlpha*=seed;g.translate(0,-(1-seed)*6*U);
+      g.beginPath();g.rect(-w/2,-h/2,w,51*h/120.8);g.clip();
+      g.drawImage(ending?A.wordmark:A.wordmarkPaper,-w/2,-h/2,w,h);g.restore();
+    }
+    const a=m.settle(t-lineAt,lineDur);
+    g.save();g.globalAlpha*=a;
+    block(g,L,lf,0,(tall()?W*.22:h/2+5*U)+(1-a)*2*U,{align:'center',colour:ending?MUTED:PALE});
+    g.restore();g.restore();
+    return {finished,holdEnd,push};
+  }
+  function motionOpen(t) { g.fillStyle=DEEP;g.fillRect(0,0,W,H);motionLockup(t); }
+  function motionEnd(t) { g.fillStyle=CREAM;g.fillRect(0,0,W,H);motionLockup(t,true); }
+  function portraitHeader(t) {
+    const a=m.out(ramp(t,P.items,P.items+.2)),L=itemLayout();
+    g.save();g.globalAlpha*=a;g.translate(0,-(1-a)*2*U);
+    const w=W*(tall()?.27:wide()?.17:.24),h=w*120.8/314.3;g.drawImage(A.wordmark,W*SAFE.side,L.head.y-h/2,w,h);
+    g.restore();
+  }
+  function portraitItem(t) {
+    const L=itemLayout(),i=clamp(Math.floor((t-P.items)/P.step),0,N-1),local=t-P.items-i*P.step;
+    const enter=m.out(local/.2),textOut=m.out(local/.05),textIn=m.out((local-.05)/.15),it=item(i);
+    g.fillStyle=i?mix(FIELD(i-1),FIELD(i),enter):FIELD(0);g.fillRect(0,0,W,H);
+    const photo=(k,dy,a)=>{const b=1+.03*m.inOut(clamp((t-P.items-k*P.step)/P.step)),s=L.plant.s*item(k).scale*b;
+      drawPlant(g,item(k).photo,L.plant.cx,L.plant.cy+L.plant.s/2-s/2+dy,s,a);};
+    if(i&&textOut<1)drawGhost(L,item(i-1).kind,-textOut*H*.035,1-textOut);
+    drawGhost(L,it.kind,(1-textIn)*H*.035,textIn);
+    if(i && enter<1) {
+      // One spatial edge owns the swap: never two translucent can silhouettes.
+      const top=tall()?H*.15:wide()?H*.225:L.plant.cy-L.plant.s*.54,bottom=tall()?H*.64:wide()?H*.83:L.plant.cy+L.plant.s*.54,travel=bottom-top,edge=bottom-enter*travel;
+      g.save();g.beginPath();g.rect(0,top,W,edge-top);g.clip();photo(i-1,-enter*travel,1);g.restore();
+      g.save();g.beginPath();g.rect(0,edge,W,bottom-edge);g.clip();photo(i,(1-enter)*travel,1);g.restore();
+    } else photo(i,(1-enter)*L.push,i?1:enter);
+    const q=d=>.45+.55*m.out((local-.05-d*.35)/.15);
+    if(i&&local<.05)drawWords(L,item(i-1),null,()=>.42*textOut,-1,0);
+    drawWords(L,it,null,q,1,0);
+    portraitHeader(t);
+    portraitPill(L,t,i,local);
+    const B=L.bar,gap=U,w=(B.x1-B.x0-gap*(N-1))/N;
+    g.save();g.globalAlpha*=m.out(ramp(t,P.items,P.items+.2));g.translate(0,(1-m.out(ramp(t,P.items,P.items+.2)))*2*U);
+    for(let k=0;k<N;k++){g.fillStyle=TRACK;g.fillRect(B.x0+k*(w+gap),B.y,w,.34*U);
+      const p=m.out((t-P.items-k*P.step)/P.step);g.fillStyle=DEEP;g.fillRect(B.x0+k*(w+gap),B.y,w*p,.34*U);}
+    const count=k=>`${String(k%3+1).padStart(2,'0')} / 03 · ${k<3?'INGREDIENTS':'TASTING'}`;
+    const counter=(k,a,dy)=>{if(a<=0)return;g.save();g.globalAlpha*=a;setText(g,SANS(600),B.size);g.fillStyle=MUTED;
+      g.fillText(count(k),B.x0,B.y-B.size*.75+dy);g.restore();};
+    if(i&&textOut<1)counter(i-1,1-textOut,-textOut*B.size);
+    counter(i,textIn,(1-textIn)*B.size);g.restore();
+  }
+  function portraitPill(L,t,i,local) {
+    const size=L.head.pill,font=SANS(700),h=size*2,cy=L.head.y;
+    const label=k=>fit(item(k).status,font,{maxW:W*.4,max:size,min:2.2*U});
+    const width=k=>(label(k).lines[0]?.w||0)+size*2.2+h*.45;
+    const p=m.out(local/.2),w=i?lerp(width(i-1),width(i),p):width(0),x=L.head.x1-w;
+    const a=m.out((t-P.items)/.2);
+    g.save();g.globalAlpha*=a;g.translate((1-a)*3*U,0);
+    roundRect(g,x,cy-h/2,w,h,h/2);g.fillStyle=PAPER;g.fill();g.strokeStyle=SAND;g.lineWidth=Math.max(1,.12*U);g.stroke();g.clip();
+    const incoming=m.out((local-.05)/.15),outgoing=m.out(local/.05);
+    const same=i&&item(i).status===item(i-1).status;
+    const k=i&&local<.05?i-1:i,alpha=same?1:i&&local<.05?1-outgoing:incoming,dy=same?0:i&&local<.05?-outgoing*h:(1-incoming)*h;
+    g.globalAlpha*=alpha;g.translate(0,dy);const B=label(k),r=size*.28;
+    g.beginPath();g.arc(x+h*.45+r,cy,r,0,Math.PI*2);g.fillStyle=TONES[ITEMS[k][1]];g.fill();
+    block(g,B,font,x+h*.45+2*r+size*.55,cy+capOf(font,B.size)/2,{colour:INK});g.restore();
+  }
+  function portraitShelf(t) {
+    const old=T.pull+clamp((t-P.pull)/.65)*(T.shelf-T.pull),f=pullFrame(old);
+    f.top-=.6*U*m.inOut((t-P.shelf)/(P.counts-P.shelf));
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    // A shared edge hands the photo to its real catalogue pixels. A capture
+    // and a transparent cut-out must never double-expose the same can.
+    const edge=W*(1-m.inOut((t-P.pull)/.4));
+    g.save();g.beginPath();g.rect(edge,0,W-edge,H);g.clip();drawScreen(g,'range',f);g.restore();
+    if(edge>0) {
+      const [x,y,w]=f.img;
+      g.save();g.beginPath();g.rect(0,0,edge,H);g.clip();
+      drawPlant(g,item(N-1).photo,f.left+(x+w/2)*f.k,f.top+(y+w/2)*f.k,w*f.k,1,1);
+      g.restore();
+    }
+    const chrome=1-m.out((t-P.pull)/.07);
+    if(chrome>0) {
+      drawGhost(itemLayout(),item(N-1).kind,0,chrome);
+      itemsChromeOnly(old,chrome);
+    }
+  }
+  function portraitCounts(t) {
+    if(!tall()) { shapedCounts(t); return; }
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    // One source is filtered under a cream wash, rather than dissolved into
+    // a second copy. Continue the catalogue's gentle whole-container drift.
+    g.save();g.translate(0,-.6*U*m.inOut((t-P.counts)/1.5));
+    const wash=m.out((t-P.counts)/.25),f=shelfFrame(T.shelf);f.top-=.6*U;
+    drawScreen(g,'range',f,1,1.3*U*wash);
+    g.save();g.globalAlpha*=wash*.94;g.fillStyle=CREAM;g.fillRect(0,0,W,H);g.restore();
+    [[V.n1,V.n1label],[V.n2,V.n2label],[V.n3,V.n3label]].forEach(([n,label],i)=>{
+      const elapsed=t-P.counts-i*.12,e=m.out(elapsed/.2),v=m.out(elapsed/.25),y=H*(.32+i*.19);
+      if(e<=0)return;
+      const target=/^\d[\d,]*$/.test(n.trim())?+n.replace(/,/g,''):null;
+      const B=fit(target===null?n:fmt(target),SERIF(800),{maxW:W*.86,max:17*U,min:4*U,tracking:-.02});
+      g.save();g.globalAlpha*=e;g.translate(0,(1-e)*3*U);setText(g,SERIF(800),B.size,-.02,'center');
+      g.fillStyle=DEEP;g.fillText(target===null?n:fmt(target*v),W/2,y);g.restore();
+      const a=m.out((elapsed-.04)/.21),L=fit(label,SANS(600),{maxW:W*.86,max:4.2*U,min:2.4*U});
+      g.save();g.globalAlpha*=a;block(g,L,SANS(600),W/2,y+8*U+(1-a)*U,{align:'center',colour:MUTED});g.restore();
+    });
+    g.restore();
+  }
+  function shapedCounts(t) {
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    g.save();g.translate(0,-.6*U*m.inOut((t-P.counts)/1.5));
+    const wash=m.out((t-P.counts)/.25),f=shelfFrame();f.top-=.6*U;
+    drawScreen(g,'range',f,1,1.3*U*wash);
+    g.save();g.globalAlpha*=wash*.94;g.fillStyle=CREAM;g.fillRect(0,0,W,H);g.restore();
+    const gap=W*.04,col=(W*.86-2*gap)/3;
+    [[V.n1,V.n1label],[V.n2,V.n2label],[V.n3,V.n3label]].forEach(([n,label],i)=>{
+      const elapsed=t-P.counts-i*.12,e=m.out(elapsed/.2),v=m.out(elapsed/.25);
+      if(e<=0)return;
+      const x=wide()?W*.07+col/2+i*(col+gap):W/2,y=wide()?H*.49:H*(.30+i*.22),maxW=wide()?col:W*.86;
+      const target=/^\d[\d,]*$/.test(n.trim())?+n.replace(/,/g,''):null;
+      const B=fit(target===null?n:fmt(target),SERIF(800),{maxW,max:17*U,min:4*U,tracking:-.02});
+      g.save();g.globalAlpha*=e;g.translate(0,(1-e)*3*U);setText(g,SERIF(800),B.size,-.02,'center');
+      g.fillStyle=DEEP;g.fillText(target===null?n:fmt(target*v),x,y);g.restore();
+      const a=m.out((elapsed-.04)/.21),L=fit(label,SANS(600),{maxW,max:4.2*U,min:2.4*U,lines:wide()?2:1});
+      g.save();g.globalAlpha*=a;block(g,L,SANS(600),x,y+8*U+(1-a)*U,{align:'center',colour:MUTED});g.restore();
+    });g.restore();
+  }
+  function motionOrbitItems(t) {
+    const G=ringGeom(),fly=m.out((t-P.orbit)/.4),n=ORBIT.length;
+    const phase=-.35*(t-P.converge)-1.4*(1-fly),tilt=G.tilt*Math.PI/180;
+    return ORBIT.map((id,k)=>{const th=2*Math.PI*k/n+phase,z=-G.R*fly*Math.cos(th)*Math.cos(tilt),persp=G.f/(G.f+z),depth=(z/(G.R*Math.cos(tilt))+1)/2,size=G.T*lerp(.7,1,fly)*persp*(1-.1*depth);
+      return {id,x:G.cx+G.R*fly*Math.sin(th)*persp,y:G.cy+G.Ry*fly*Math.cos(th)*persp,
+        w:size,h:size,radius:size*.2,angle:Math.sin(th)*.2,depth,z,alpha:fly};
+    }).sort((a,b)=>b.z-a.z);
+  }
+  function motionConverge(t) {
+    // Keep every original photo, aspect ratio and .2-radius corners. The shared
+    // converge helper rounds its tail to a circle, so rev4 uses out for travel.
+    // A stacked set of recognisable tiles slides away with the proof card.
+    return motionOrbitItems(P.converge).map(p=>{const elapsed=t-P.converge,q=m.out(elapsed/.4),drift=m.inOut(elapsed/.7),s=lerp(1,.68,q)*(1+.10*drift);
+      return {...p,x:lerp(p.x,W/2,q)-5*U*drift,y:lerp(p.y,H/2,q)-2*U*drift,w:p.w*s,h:p.h*s,radius:p.radius*s,angle:p.angle*(1-q)};});
+  }
+  function motionTiles(t,front) {
+    const list=t<P.converge?motionOrbitItems(t):motionConverge(t);
+    for(const p of list){if((p.z<=0)!==front||p.alpha<=0)continue;
+      g.save();g.globalAlpha*=p.alpha;g.translate(p.x,p.y);g.rotate(p.angle);
+      roundRect(g,-p.w/2,-p.h/2,p.w,p.h,p.radius);g.fillStyle=PAPER;g.fill();g.clip();
+      drawPlant(g,p.id,0,-p.h*.02,p.w*.86,1,0);
+      g.fillStyle=`rgba(14,20,14,${clamp(p.depth)*.48})`;g.fillRect(-p.w/2,-p.h/2,p.w,p.h);g.restore();}
+  }
+  function portraitOrbit(t) {
+    g.fillStyle=DEEP;g.fillRect(0,0,W,H);motionTiles(t,false);
+    const X=ringGeom().text,font=SERIF(800),B=fit(V.headline,font,{maxW:X.maxW,max:X.max,min:4*U,lines:3,tracking:-.015});
+    const a=m.out((t-P.orbit-.15)/.3),out=m.out((t-P.converge+.15)/.15);
+    g.save();g.globalAlpha*=a*(1-out);g.translate(0,(1-a)*3*U-out*2*U);
+    const baseline=X.cy*1-(B.lines.length-1)*B.size*1.06/2+capOf(font,B.size)/2;
+    block(g,B,font,W/2,baseline,{align:'center',colour:CREAM,lead:1.06,tracking:-.015});g.restore();motionTiles(t,true);
+  }
+  const boxPoint=(f,n)=>{const b=R('box').plus[n];return {x:f.left+(b[0]+b[2]/2)*f.k,y:f.top+(b[1]+b[3]/2)*f.k};};
+  // CSS page coordinates measured from the real 390 px capture. The base
+  // image is immutable; lossy WebP differences elsewhere are never composited.
+  function boxRegions(i) {
+    const b=R('box').plus[i];
+    if(!tall())return {
+      total:[1280,501.5,98,27],minus:[b[0]-90,b[1]-2,44,44],
+      quantity:[b[0]-46,b[1]+2,44,36],reset:[1018.5,784.8,83,27],
+      press:[b[0]-2,b[1]-2,b[2]+4,b[3]+4],
+    };
+    return {
+      total:[23,506.3,109,24], subtotal:[276,605.3,91,19],
+      progress:[23+i*(344/12),541.3,30,11],
+      minus:[b[0]-82,b[1]-2,42,42], quantity:[b[0]-42,b[1]-2,40,42],
+      reset:[190,862.3,84,23], press:[b[0]-2,b[1]-2,b[2]+4,b[3]+4],
+    };
+  }
+  function boxBounds(f,b) {
+    const x=Math.floor(f.left+b[0]*f.k),y=Math.floor(f.top+b[1]*f.k);
+    return [x,y,Math.ceil(f.left+(b[0]+b[2])*f.k)-x,Math.ceil(f.top+(b[1]+b[3])*f.k)-y];
+  }
+  function boxPatch(name,f,box,{dy=0,reveal=1}={}) {
+    if(reveal<=0)return;
+    const {img,rect:[x,y,w,h]}=cap(name),[bx,by,bw,bh]=boxBounds(f,box);
+    g.save();g.beginPath();g.rect(bx,by,bw,bh);g.clip();
+    g.beginPath();g.rect(bx,by+dy,bw*reveal,bh);g.clip();
+    g.drawImage(img,f.left+x*f.k,f.top+y*f.k+dy,w*f.k,h*f.k);g.restore();
+  }
+  function boxRoll(before,after,f,box,p) {
+    const h=boxBounds(f,box)[3],dy=Math.round(p*h);
+    boxPatch(before,f,box,{dy:-dy});boxPatch(after,f,box,{dy:h-dy});
+  }
+  function motionBox(t,f) {
+    drawScreen(g,'box-00',f);
+    for(const [i,hit] of BOX_CLICKS.entries()) {
+      if(t<hit)continue;
+      const before=`box-${String(i).padStart(2,'0')}`,after=`box-${String(i+1).padStart(2,'0')}`;
+      const boxes=boxRegions(i),p=m.out((t-hit)/.20);
+      boxRoll(before,after,f,boxes.total,p);
+      if(boxes.subtotal)boxRoll(before,after,f,boxes.subtotal,p);
+      if(boxes.progress)boxPatch(after,f,boxes.progress,{reveal:m.out((t-hit)/.28)});
+      boxPatch(after,f,boxes.minus,{reveal:p});
+      boxRoll(before,after,f,boxes.quantity,p);
+      if(i===0)boxPatch(after,f,boxes.reset,{reveal:p});
+      // Press only the captured + button, from the exact cursor hit frame.
+      const press=Math.max(.15,m.inOut((t-hit)/.04))*(1-m.settle(t-hit-.06,.14));
+      if(press>0) {
+        const b=R('box').plus[i],point=boxPoint(f,i),{img,rect:[x,y,w,h]}=cap('box-00');
+        const [bx,by,bw,bh]=boxBounds(f,boxes.press);
+        g.save();g.beginPath();g.rect(bx,by,bw,bh);g.clip();
+        g.fillStyle=(tall()?A.buttonBackground:A.desktopButtonBackground)[i];g.fillRect(bx,by,bw,bh);
+        g.translate(point.x,point.y);g.scale(1-.08*press,1-.08*press);g.translate(-point.x,-point.y);
+        g.beginPath();g.rect(f.left+b[0]*f.k,f.top+b[1]*f.k,b[2]*f.k,b[3]*f.k);g.clip();
+        g.drawImage(img,f.left+x*f.k,f.top+y*f.k,w*f.k,h*f.k);g.restore();
+      }
+    }
+  }
+  function motionProof(t) {
+    g.fillStyle=CREAM;g.fillRect(0,0,W,H);
+    const f=searchFrame(T.search);
+    motionBox(t,f);
+    m.drawCursor(g,{t,path:[
+      {at:P.proof+.05,from:{x:W+8*U,y:H*.38},to:boxPoint(f,0),dur:.30,curve:.18},
+      {at:BOX_CLICKS[0]+.08,to:boxPoint(f,1),dur:.24,curve:-.18},
+      {at:BOX_CLICKS[1]+.08,to:boxPoint(f,2),dur:.24,curve:.18},
+      {at:BOX_CLICKS[2]+.35,to:{x:W+6*U,y:H*.72},dur:.25,exit:true},
+    ],press:BOX_CLICKS,theme:{fill:INK,stroke:PAPER,accent:SPROUT,seed:17}});
+  }
+  function slide(t,start,dur,drawOld,drawNew,axis='x') {
+    const p=m.inOut((t-start)/dur),distance=axis==='x'?W:H;
+    g.save();g.translate(axis==='x'?-p*distance:0,axis==='y'?-p*distance:0);drawOld();g.restore();
+    g.save();g.translate(axis==='x'?(1-p)*distance:0,axis==='y'?(1-p)*distance:0);drawNew();g.restore();
+  }
+  function portraitFrame(t) {
+    if(t<1.8){motionOpen(t);return;}
+    if(t<P.items+.1){slide(t,1.8,.3,()=>motionOpen(1.8),()=>portraitItem(Math.max(P.items,t)));return;}
+    if(t<P.pull){portraitItem(t);return;}
+    if(t<P.counts){portraitShelf(t);return;}
+    if(t<P.orbit-.2){portraitCounts(t);return;}
+    if(t<P.orbit+.1){slide(t,P.orbit-.2,.3,()=>portraitCounts(P.orbit-.2),()=>portraitOrbit(Math.max(P.orbit,t)),'y');return;}
+    if(t<P.proof){portraitOrbit(t);return;}
+    if(t<P.proof+.3){slide(t,P.proof,.3,()=>portraitOrbit(t),()=>motionProof(t));return;}
+    if(t<P.close){motionProof(t);return;}
+    if(t<P.end){slide(t,P.close,.3,()=>motionProof(t),()=>motionEnd(t),'y');return;}
+    motionEnd(t);
+  }
+
+  // ---------- KEEP: the sections in order ----------
+  function frame(t) {
+    portraitFrame(t);
+  }
+  function seek(t, values) {
+    V = { ...DEFAULTS, ...values };
+    shape = SHAPES[V.size] ? V.size : '9:16'; [W, H] = SHAPES[shape]; U = Math.min(W, H) / 100;
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    g.reset(); metrics.reset();
+    g.imageSmoothingQuality = 'high';
+    frame(clamp(t, 0, DURATION - 1e-6));
+    return canvas;
+  }
+  async function prepare() {
+    await Promise.all([
+      loadFont('Bricolage','assets/fonts/bricolage-grotesque-variable.ttf',{weight:'200 800'}),
+      loadFont('DMSans','assets/fonts/dm-sans-variable.ttf',{weight:'100 1000'}),
+
+    ]);
+    for(const form of ['mobile','desktop','portrait','portrait-range','rev7-range']) {
+      A.sets[form]=await(await fetch(`assets/screens/${form}/screens.json`)).json();
+      await Promise.all(Object.values(A.sets[form].captures).map(async c=>{A.img[form+'/'+c.file]=await loadImage(`assets/screens/${form}/${c.file}`);}));
+    }
+    await Promise.all(ORBIT.map(async id=>{A.plants[id]=await loadImage(`assets/photos/${id}.webp`);}));
+    [A.wordmark,A.wordmarkPaper]=await Promise.all([loadImage('assets/wordmark.svg'),loadImage('assets/wordmark-paper.svg')]);
+    const sample=document.createElement('canvas');sample.width=sample.height=1;
+    const sampleContext=sample.getContext('2d',{willReadFrequently:true});
+    const original=A.sets.portrait.captures['box-00'];
+    A.buttonBackground=A.sets.portrait.rects.box.plus.map(b=>{
+      sampleContext.reset();sampleContext.drawImage(A.img['portrait/'+original.file],(b[0]-original.rect[0]-2)*original.scale,(b[1]-original.rect[1]+b[3]/2)*original.scale,1,1,0,0,1,1);
+      const [r,g,bg]=sampleContext.getImageData(0,0,1,1).data;return `rgb(${r},${g},${bg})`;
+    });
+    const desktop=A.sets.desktop.captures['box-00'];
+    A.desktopButtonBackground=A.sets.desktop.rects.box.plus.map(b=>{
+      sampleContext.reset();sampleContext.drawImage(A.img['desktop/'+desktop.file],(b[0]-desktop.rect[0]-2)*desktop.scale,(b[1]-desktop.rect[1]+b[3]/2)*desktop.scale,1,1,0,0,1,1);
+      const [r,g,bg]=sampleContext.getImageData(0,0,1,1).data;return `rgb(${r},${g},${bg})`;
+    });
+    await document.fonts.ready;
+  }
+
+  // ---------- ADAPT: the cues (sound on every move), the score ----------
+  function cues(values) {
+    if((values?.size||'9:16')==='9:16')return portraitCues(values);
+    // Match the approved cues, with the two inherited late sweeps moved to
+    // the first moving frame in these newly adapted shapes only.
+    return portraitCues(values).map(c=>({...c,t:
+      Math.abs(c.t-(P.pull+.22))<1e-6?P.pull:
+      Math.abs(c.t-(P.orbit-.15))<1e-6?P.orbit-.2:c.t}));
+  }
+
+  function portraitCues(values) {
+    const out=[],add=(t,type,gain=.5,motion)=>out.push({t,type,gain,...(motion?{motion}:{})});
+    add(.30,'sparkle',.35);add(.50,'tick',.3);add(P.items,'tap',.5);
+    for(let i=1;i<N;i++)add(P.items+i*P.step,'tap',.5);
+    // move sounds sit just under v1's level (the kit's sweeps are 9 dB quieter since 2026-10-15);
+    // the pull's whoosh crests at its fastest frame
+    add(P.pull+.22,'whoosh',.4,{kind:'camera',travel:.6});
+    for(let i=0;i<3;i++)for(let k=0;k<3;k++)add(P.counts+i*.12+k*.07,'tick',.35);
+    add(P.orbit-.15,'whoosh',.35,{kind:'container',travel:1});
+    add(P.orbit+.15,'tick',.4);add(P.converge,'swish',.3,{kind:'container',travel:.35});
+    add(P.proof,'whoosh',.35,{kind:'container',travel:1});
+    BOX_CLICKS.forEach(t=>add(t,'click',.6));
+    add(P.close,'whoosh',.3,{kind:'container',travel:1});add(P.close+.50,'sparkle',.35);
+    return out;
+  }
+  const music = {
+    bpm: BPM, duration: DURATION, root: 50, // D: warm, unhurried
+    chords: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]],
+    sections: [
+      { from: 0, to: 1, pad: 0.75, hats: 0.25 },
+      { from: 1, to: 3, kick: 0.8, hats: 0.55, bass: 0.7, pad: 0.5 },
+      { from: 3, to: 4, kick: 0.75, hats: 0.5, clap: 0.35, bass: 0.7, pad: 0.55 },
+      { from: 4, to: 8, kick: 0.65, hats: 0.4, clap: 0.3, bass: 0.65, pad: 0.55 },
+      { from: 8, to: 9, kick: 0.5, hats: 0.3, bass: 0.6, pad: 0.6 },
+      { from: 9, to: 11, pad: 0.7, hats: 0.15 },
+    ],
+    breaks: [[1.75, P.items], [P.pull - .25, P.pull], [P.orbit - .25, P.orbit], [P.close, P.end]],
+  };
+  const STATES = [[0,'Open'],[P.items,'Items'],[P.pull,'Catalogue'],[P.counts,'Numbers'],[P.orbit,'Orbit'],[P.proof,'Build a box'],[P.end,'End']];
+  window.template = {
+    fps: FPS, duration: DURATION, sizes: SHAPES, width: W, height: H, defaults: () => ({ size: '9:16', ...DEFAULTS }), fields: FIELDS, states: STATES,
+    prepare, seek: (t, values) => seek(t, values), cues, music,
+    // No circular masks in the portrait cut; all large moves use blur normally.
+    shutters: [],
+    keyTimes: [0,.02,.12,.30,.40,.50,.65,.80,1.75,1.85,2.1,2.3,
+      ...ITEMS.flatMap((_,i)=>[P.items+i*P.step+.25,P.items+(i+1)*P.step-.01]),
+      P.pull,P.pull+.3,P.shelf,P.counts,P.counts+.6,P.orbit-.21,P.orbit,P.orbit+.5,
+      P.converge-.16,P.converge,P.converge+.2,P.proof,P.proof+.2,P.proof+.7,P.proof+1.3,
+      P.close-.01,P.close+.1,P.close+.12,P.end,P.close+.5,P.close+.66,P.close+.82,P.close+1.2,DURATION-1/60],
+  };
+  const q = new URLSearchParams(location.search);
+  if(window.parent!==window || q.has('render')) document.getElementById('credit').hidden=true;
+  if (window.parent === window && !q.has('render')) prepare().then(() => { const t0 = performance.now(); const loop = () => { seek(((performance.now() - t0) / 1000) % DURATION, { size: q.get('size') || '9:16' }); requestAnimationFrame(loop); }; loop(); });
+})();
+</script>
