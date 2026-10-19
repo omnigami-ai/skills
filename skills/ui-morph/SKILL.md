@@ -135,8 +135,11 @@ already exists and the request is for a new clip. Keep `reference/` untouched.
    ```
    Output: `out/1x1.mp4` (1440 × 1440), `out/16x9.mp4` (1920 × 1080) and
    `out/9x16.mp4` (1080 × 1920), each at 60 fps with motion blur, music and effects,
-   mastered around −14 LUFS. For supplied licensed music use `--audio track.wav`
-   (120 BPM, starting on a downbeat) instead of `--music`.
+   mastered around −14 LUFS. For the user's own licensed song use `--audio song.wav`
+   instead of `--music`: `song.mjs` fits it to the film (it starts on a bar line and, near
+   the end, lands one hit and closes and fades; cleanest with the song's stems in a
+   `song-stems/` folder beside it). A song near 120 BPM fits the cuts; `--from <seconds>`
+   starts at another section of it.
 6. Start `node scripts/preview.mjs film` and provide its actual localhost URL.
    It plays and scrubs the live film in each shape, jumps to its scenes,
    edits and saves words, and links each shape's MP4 when rendered. The rendered video has sound;

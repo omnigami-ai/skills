@@ -269,7 +269,7 @@ verification; render again.
 - `style.md`: the store cut's rules and the social cut's measured grammar.
   `critique.md`: the review.
 - `scripts/`: `screens.mjs` (real screens in states), `render.mjs` (stills,
-  strips, checks, MP4s, the encode spec), `preview.mjs`, `music.mjs`,
+  strips, checks, MP4s, the encode spec), `preview.mjs`, `music.mjs`, `song.mjs` (fits a supplied song),
   `sfx.mjs` with the sound kit, `capture.mjs`, `chrome.mjs`, and
   `verify-store.mjs` (ffprobe verification for the store MP4).
 

@@ -96,7 +96,7 @@ Read `style.md` before you start and `critique.md` before you judge.
    ```bash
    node scripts/render.mjs film --size 9:16 --video --blur 4 --music --sound --poster 4.4
    ```
-   This writes `out/9x16.mp4` (1080 × 1920): 60 fps, motion blur, a synthesised 120 BPM bed and effects from omnigami's own sound kit, loudness about −14 LUFS, and a poster (`out/9x16-poster.png`; 4.4 s is the grid of the product's things; pick another moment from your film if it reads better). For the user's own music, use `--audio track.wav` instead of `--music` (120 BPM, starting on a downbeat; the zoom into the main screen lands at 6 s). Run it in the foreground and wait for the file; expect several minutes.
+   This writes `out/9x16.mp4` (1080 × 1920): 60 fps, motion blur, a synthesised 120 BPM bed and effects from omnigami's own sound kit, loudness about −14 LUFS, and a poster (`out/9x16-poster.png`; 4.4 s is the grid of the product's things; pick another moment from your film if it reads better). For the user's own song, use `--audio song.wav` instead of `--music`; it's fitted to the film by `song.mjs`: it starts on a bar line and, near the end, lands one hit and closes and fades (cleanest with the song's stems in a `song-stems/` folder beside it: the drums stop on that hit). A song near 120 BPM fits the film's cuts (the zoom into the main screen lands at 6 s); `--from <seconds>` starts at another section of it. Run it in the foreground and wait for the file; expect several minutes.
 10. **Write `unfold-film/README.md`:** what each file is, where to change a word, and the render command. Also write `out/CAPTION.md`: a post to share the film on X or LinkedIn, under 280 characters, in the product's own words, with its URL; no hashtags unless the user asks.
 11. **Report:** the MP4, the poster, the caption, the act list, the final scores, and the one change that would improve it most.
 
@@ -115,7 +115,7 @@ Read `style.md` before you start and `critique.md` before you judge.
 ## Files
 
 - `reference/`: the Fennick film, tall (`index.html`), its capture plans (`plans/`) and captures (`assets/screens`, `assets/screens-mobile`), Fennick's photographs and renders, the unbranded phone and the lock-screen wallpaper (`assets/art/`), `kit.js` (springs, text fitting, seeded noise), fonts (Bricolage Grotesque and DM Sans, SIL Open Font License). Fennick is a fictional company made for omnigami's examples.
-- `scripts/`: `capture.mjs` (brand from a URL), `screens.mjs` (the product's real screens, from a plan), `render.mjs` (stills, strips, the quick test, checks, MP4s), `compare.mjs` (reference against yours), `preview.mjs` (a local preview that plays every shape and edits the words), `music.mjs` (the bed) and `sfx.mjs` (effects from the kit in `sounds/`), `chrome.mjs`.
+- `scripts/`: `capture.mjs` (brand from a URL), `screens.mjs` (the product's real screens, from a plan), `render.mjs` (stills, strips, the quick test, checks, MP4s), `compare.mjs` (reference against yours), `preview.mjs` (a local preview that plays every shape and edits the words), `music.mjs` (the bed), `song.mjs` (fits a supplied song) and `sfx.mjs` (effects from the kit in `sounds/`), `chrome.mjs`.
 - `style.md`: the grammar, the shapes, the acts, the motion numbers, the type table, the banned list.
 - `critique.md`: how to score and what to hunt for.
 - `spec.md`: the measurements of the original the reference was built from.

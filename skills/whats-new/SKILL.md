@@ -225,7 +225,7 @@ only what changed.
 - `style.md`: the grammar, with the study's numbers. `critique.md`: the review.
 - `scripts/`: `screens.mjs` (real screens in states), `capture.mjs` (brand
   from a URL), `render.mjs` (stills, strips, checks, MP4s), `preview.mjs`,
-  `music.mjs`, `sfx.mjs` with the sound kit, and `chrome.mjs`.
+  `music.mjs`, `song.mjs` (fits a supplied song), `sfx.mjs` with the sound kit, and `chrome.mjs`.
 
 Lamplit and Fernwise are fictional companies made for omnigami's examples.
 

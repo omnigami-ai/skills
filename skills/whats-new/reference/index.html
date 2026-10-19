@@ -286,9 +286,11 @@
     const fieldEvents=[{at:F1.click,shot:'sched-00',rect:[11,9,424.55,50],kind:'focus',dur:.12}];
     for(let i=1;i<=20;i++)fieldEvents.push({at:i<=13?F1.typeA+(i-1)*.09:F1.typeB+(i-14)*.085,
       shot:`sched-${String(i).padStart(2,'0')}`,rect:[51,13,278,42],dur:1/FPS});
-    fieldEvents.push({at:understood,shot:'sched-13',rect:[337,18,98,28],dur:.30});
+    // the badge's patch takes in its tick (from x 330), not just the word
+    fieldEvents.push({at:understood,shot:'sched-13',rect:[326,18,109,28],dur:.30});
     const cronEvents=Array.from({length:5},(_,i)=>({at:understood+.04*i,shot:'sched-13',before:'sched-12',rect:[12.55+50*i,11,i===4?48.7:44,40],kind:'roll',dur:.35}));
-    cronEvents.push({at:understood+.2,shot:'sched-13',rect:[330,20,33,24],dur:.25},
+    // the copy button's patch takes in the whole icon (x 324-336, y 26-38)
+    cronEvents.push({at:understood+.2,shot:'sched-13',rect:[318,18,45,28],dur:.25},
       {at:final,shot:'sched-20',before:'sched-13',rect:[62.55,11,44,40],kind:'roll',dur:.40});
     const nextEvents=[];
     for(let i=0;i<5;i++) {

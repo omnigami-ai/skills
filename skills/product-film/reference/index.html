@@ -326,7 +326,10 @@
   }
   function proof(t) {
     const L = captionLayout();
-    inPart(L.view, () => proofScene(t));
+    // the product slides in over the amber the promise flooded, so the split arrives as one move, not a cut
+    const e = M.snap(clamp((t - ST.s1) / 0.5)), [vx, vy, vw, vh] = L.view;
+    if (e < 1) { g.fillStyle = AMBER; g.fillRect(0, 0, W, H); }
+    inPart(wide ? [vx + vw * (1 - e), vy, vw, vh] : [vx, vy + vh * (1 - e), vw, vh], () => proofScene(t));
     drawCaption(t, L.cap);
   }
   function proofScene(t) {
@@ -521,7 +524,7 @@
     for (let i = 0; i < 3; i++) add(at(1, 2) + i * F, 'tick', 0.45);
     add(at(2, 1), 'pop', 0.4);
     for (let i = 0; i < Math.ceil(V.prompt.length / 2); i++) add(at(2, 1.75) + (3 + i) * F, 'tick', 0.55);
-    add(at(3), 'click', 0.65); add(at(3, 0.25) + 3 * F + 0.3, 'pop', 0.4);
+    add(at(3), 'click', 0.65); // the lockup arrives on the music alone: a pop under a logo read as a UI blip (the founder, 2026-10-19)
     add(at(3, 3) + 2 * F, 'swish', 0.32, { kind: 'container', travel: 1 });
     add(P.rowClick, 'click', 0.65);
     add(P.logs + 0.05, 'swish', 0.32, travel); add(P.logs + 0.45, 'pop', 0.38);

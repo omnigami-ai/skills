@@ -14,7 +14,16 @@
 //                            a film's template.shutters can widen it in places)
 //     --sound                add effects from the sound kit on the film's cues (needs --video)
 //     --music                add the film's own score (window.template.music), synthesised (needs --video)
-//     --audio track.wav      add a music track (needs --video; mixed under --sound if both)
+//     --audio song.wav       a song instead of --music (needs --video), fitted by song.mjs: it starts on
+//                            a bar line, and on the last bar line at least 3.5 s before the end lands one
+//                            hit and closes down and fades (with its stems, in song-stems/ beside it or
+//                            --stems dir: the drums play that hit and stop, the rest closes and fades);
+//                            under --sound effects only its 250–1500 Hz dips. --from 92 starts at the bar
+//                            line nearest 92 s in the song (another section); --stems none ignores stems;
+//                            --ending 51.6 splices into the song's own ending there instead; a song
+//                            within 10% of the film's BPM is time-stretched to it (--keep-tempo: not);
+//                            once it lands, the film's result sounds (pop, ping, sparkle, chime) are left out;
+//                            --bpm 121.05 and --downbeat 0.02 override what it measures
 //     --poster 12.8          a PNG of one frame, for thumbnails
 //                            (a film can set a delivery spec per size, template.encode, e.g. for an App
 //                            Store preview: { '886:1920': { bitrate: '11M', minrate: '11M', maxrate: '11M',
@@ -38,6 +47,10 @@ import puppeteer from 'puppeteer-core';
 import { requireChrome, chromeArgs } from './chrome.mjs';
 import { effects } from './sfx.mjs';
 import { compose, wav as toWav } from './music.mjs';
+import { fitSong } from './song.mjs';
+
+// the sounds that say "it arrived": after a fitted song lands they're left out (see --audio)
+const RESULTS = new Set(['pop', 'ping', 'sparkle', 'chime']);
 
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ttf': 'font/ttf', '.otf': 'font/otf', '.woff': 'font/woff', '.woff2': 'font/woff2', '.wav': 'audio/wav' };
 
@@ -159,17 +172,41 @@ try {
       ff.stdin.end();
       await new Promise((r) => ff.on('close', r));
       const tracks = []; // [file, volume]
-      if (flag('music') && meta.music) {
+      const song = opt('audio');
+      if (song && flag('music')) console.log('--audio replaces --music: the film\'s own score is left out');
+      if (flag('music') && meta.music && !song) {
         const file = path.join(outDir, `${name}-music.wav`);
         await writeFile(file, toWav(compose({ ...meta.music, duration: meta.duration })));
         tracks.push([file, 1]);
       }
+      let sfx = null, cueList = null;
+      const sfxFile = path.join(outDir, `${name}-sfx.wav`);
       if (flag('sound') && meta.hasCues) {
-        const file = path.join(outDir, `${name}-sfx.wav`);
-        await writeFile(file, effects(await page.evaluate((v) => window.template.cues(v), values), meta.duration));
-        tracks.push([file, tracks.length ? 0.55 : 1]);
+        cueList = await page.evaluate((v) => window.template.cues(v), values);
+        sfx = effects(cueList, meta.duration);
+        await writeFile(sfxFile, sfx);
+        tracks.push([sfxFile, tracks.length ? 0.55 : 1]);
       }
-      if (opt('audio')) tracks.push([path.resolve(opt('audio')), 1]);
+      if (song) {
+        const num = (k) => (opt(k) === undefined ? undefined : Number(opt(k)));
+        const stems = opt('stems') === undefined ? undefined : opt('stems') === 'none' ? false : path.resolve(opt('stems'));
+        const fit = (fx) => fitSong(path.resolve(song), { duration: meta.duration, sfx: fx, bpm: num('bpm'), downbeat: num('downbeat'), from: num('from') ?? 0, stems, ending: num('ending'), tempo: flag('keep-tempo') ? undefined : meta.music?.bpm });
+        let { wav, report: r } = await fit(sfx);
+        // Once the song has landed and is closing, results stay quiet: a pop over the fading song sounds
+        // like more is coming, not like the end (the founder, 2026-10-19). Clicks, typing and moves keep theirs.
+        const late = cueList && r.ending !== 'song' ? cueList.filter((c) => RESULTS.has(c.type) && c.t > r.at + 0.05) : [];
+        if (late.length) {
+          sfx = effects(cueList.filter((c) => !late.includes(c)), meta.duration);
+          await writeFile(sfxFile, sfx);
+          ({ wav, report: r } = await fit(sfx));
+          console.log(`quiet after the song lands (${r.at} s): ${late.map((c) => `${c.type} ${c.t.toFixed(2)}`).join(', ')}`);
+        }
+        const file = path.join(outDir, `${name}-song.wav`);
+        await writeFile(file, wav);
+        tracks.unshift([file, 1]);
+        if (meta.music && !r.stretchedTo && Math.abs(r.bpm / meta.music.bpm - 1) > 0.02) console.log(`note: the song is ${r.bpm} BPM; the film's cuts are on a ${meta.music.bpm} BPM grid (more than 10% apart, so not stretched)`);
+        console.log(`song: ${r.bpm} BPM${r.stretchedTo ? ` stretched to ${r.stretchedTo}` : ''}, from ${r.start} s; ${r.ending === 'song' ? `its own ending from ${r.from} s comes in at ${r.at} s, ringing ${r.ring} s` : `lands at ${r.at} s and closes, ${r.ending}`}`);
+      }
       if (tracks.length) {
         const inputs = tracks.flatMap(([f]) => ['-i', f]);
         const chains = tracks.map(([, v], i) => `[${i + 1}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=${v}[a${i}]`).join(';');

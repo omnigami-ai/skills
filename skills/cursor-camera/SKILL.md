@@ -166,7 +166,7 @@ change that would most improve the shot.
   captured screens (a wide, a square and a tall window) and the licensed font (Instrument Sans, SIL Open Font License).
 - `style.md`: the grammar, with numbers. `critique.md`: the review.
 - `scripts/`: `screens.mjs` (real screens in states), `render.mjs` (stills,
-  strips, checks, MP4s), `preview.mjs`, `music.mjs`, `sfx.mjs` with the sound
+  strips, checks, MP4s), `preview.mjs`, `music.mjs`, `song.mjs` (fits a supplied song), `sfx.mjs` with the sound
   kit, `capture.mjs` (brand colours from a URL) and `chrome.mjs`.
 
 Style inspired by the grammar of three 2026 launch films: Figma's "Figma

@@ -7,7 +7,7 @@
 //
 // Types are the sounds in sounds/kit.json, which says what each is for: tap,
 // click, tick, toggle, pop, swish, whoosh, sparkle, chime, ping, riser, hit.
-// Each lands its moment on the cue: a whoosh peaks there, a riser ends there.
+// Each lands its moment on the cue: a whoosh or a riser crests there.
 // Sounds with variants (tick) take them in turn. 'thump' still means a softer hit.
 // Motion cues may set duration (total sound length, 0.5–2× the source) to match
 // a faster/slower move, or lead (seconds before the cue) for an explicit offset.

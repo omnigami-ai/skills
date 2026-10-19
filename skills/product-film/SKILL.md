@@ -176,7 +176,7 @@ again, and update `STORY.md` and `PRODUCT.md`.
 - `style.md`: the grammar, with numbers. `critique.md`: the review.
 - `scripts/`: `screens.mjs` (real screens in states), `capture.mjs` (brand
   from a URL), `render.mjs` (stills, strips, checks, MP4s), `preview.mjs`,
-  `music.mjs`, `sfx.mjs` with the sound kit, and `chrome.mjs`.
+  `music.mjs`, `song.mjs` (fits a supplied song), `sfx.mjs` with the sound kit, and `chrome.mjs`.
 
 Style inspired by the grammar of three 2026 launch films: Figma's "Figma
 Motion", ElevenLabs' "Reception" and @LexnLin's "Tessel". This is an

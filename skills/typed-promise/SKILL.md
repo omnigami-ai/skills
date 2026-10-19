@@ -125,7 +125,7 @@ browser; saved edits need a new render to reach the MP4s.
   the Instrument Sans and JetBrains Mono fonts with their licences, and Lamplit's mark.
 - `style.md`: the grammar, with numbers. `critique.md`: the review.
 - `scripts/`: `render.mjs` (stills, sheets, the quick test, checks, MP4s),
-  `preview.mjs`, `capture.mjs` (brand from a URL), `music.mjs`, `sfx.mjs`
+  `preview.mjs`, `capture.mjs` (brand from a URL), `music.mjs`, `song.mjs` (fits a supplied song), `sfx.mjs`
   with the sound kit, and `chrome.mjs`.
 
 Style inspired by the grammar of three 2026 launch films: Figma's "Figma

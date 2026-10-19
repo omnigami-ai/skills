@@ -66,7 +66,7 @@ Read `style.md` before you start and `critique.md` before you judge.
    ```bash
    node scripts/render.mjs film --size 9:16 --video --blur 4 --music --sound --poster 4.6
    ```
-   This writes `out/9x16.mp4` (1080 × 1920): 60 fps, motion blur, a synthesised 120 BPM bed and effects from omnigami's own sound kit, loudness about −14 LUFS, and a poster (`out/9x16-poster.png`). For the user's own music, use `--audio track.wav` instead of `--music` (120 BPM). Run it in the foreground and wait for the file.
+   This writes `out/9x16.mp4` (1080 × 1920): 60 fps, motion blur, a synthesised 120 BPM bed and effects from omnigami's own sound kit, loudness about −14 LUFS, and a poster (`out/9x16-poster.png`). For the user's own song, use `--audio song.wav` instead of `--music`; it's fitted to the film by `song.mjs`: it starts on a bar line and, near the end, lands one hit and closes and fades (cleanest with the song's stems in a `song-stems/` folder beside it: the drums stop on that hit). A song near 120 BPM fits the film's cuts; `--from <seconds>` starts at another section of it. Run it in the foreground and wait for the file.
 10. **Write `language-launch-film/README.md`:** what each file is, how to add a language, how to recapture the screens, and the render command. Also write `out/CAPTION.md`: a post under 280 characters in the product's own words, with its URL; if the product's audience reads several of the languages, a line in each is fine.
 11. **Report:** the MP4, the poster, the caption, the story sentence and state list, the final scores, and the one change that would improve it most.
 
@@ -82,7 +82,7 @@ Read `style.md` before you start and `critique.md` before you judge.
 ## Files
 
 - `reference/`: the Fernwise film (`index.html`), its capture plan (`plans/mobile.json`) and captures (`assets/screens/`, with `screens.js`), the unbranded phone (`assets/art/phone.png`), fonts (Fraunces, Nunito, and Noto Serif JP and Noto Sans JP cut to the characters used; all SIL Open Font License), `kit.js`. Fernwise is a fictional company made for omnigami's examples; its translations live in `cast/fernwise/app/i18n.js`.
-- `scripts/`: `capture.mjs`, `screens.mjs`, `render.mjs`, `compare.mjs`, `preview.mjs`, `music.mjs`, `sfx.mjs` (with `sounds/`), `chrome.mjs`.
+- `scripts/`: `capture.mjs`, `screens.mjs`, `render.mjs`, `compare.mjs`, `preview.mjs`, `music.mjs`, `song.mjs` (fits a supplied song), `sfx.mjs` (with `sounds/`), `chrome.mjs`.
 - `style.md`: the grammar, the beats, the motion numbers, the banned list.
 - `critique.md`: how to score and what to hunt for.
 
