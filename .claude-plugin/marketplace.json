@@ -27,6 +27,15 @@
       "homepage": "https://omnigami.ai/skills/cutout-film"
     },
     {
+      "name": "omnigami-device-film",
+      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), in the grammar of a premium hardware launch film - captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/device-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/device-film"
+    },
+    {
       "name": "omnigami-ui-morph",
       "description": "Create or revise a 14-second UI-morph product film from real screens and actions, with one continuous shape, spring motion, a cursor and sound. Plan the story around the product, deliver an editable local preview and square, wide and tall MP4s, and reuse brand assets for the next film. Use for product launch clips, feature announcements and UI teasers.",
       "source": {
