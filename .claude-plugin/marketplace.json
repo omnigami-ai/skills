@@ -19,7 +19,7 @@
     },
     {
       "name": "omnigami-cutout-film",
-      "description": "Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat colour fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat. Renders a wide (16:9) MP4 with music. Use when the user asks for a premium launch video, product film, illustrated or animated promo, motion graphics, or a cutout or stop-motion style film for their app, web product or tool.",
+      "description": "Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat colour fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, product film, illustrated or animated promo, motion graphics, or a cutout or stop-motion style film for their app, web product or tool.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/cutout-film.git"
@@ -28,7 +28,7 @@
     },
     {
       "name": "omnigami-device-film",
-      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), in the grammar of a premium hardware launch film - captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
+      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), in the grammar of a premium hardware launch film - captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/device-film.git"
