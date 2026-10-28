@@ -1,0 +1,237 @@
+{
+  "name": "omnigami",
+  "owner": {
+    "name": "omnigami",
+    "url": "https://omnigami.ai"
+  },
+  "metadata": {
+    "description": "Agent Skills for your own product or project, starting with video."
+  },
+  "plugins": [
+    {
+      "name": "omnigami-product-film",
+      "description": "Make a 34-second launch video for a product from its real screens, in five acts (the problem, the promise, four proof steps of the product in action, the result, the ask), with a big cursor, a moving camera, captions and sound, in square, wide and tall. Use when the user asks for a launch video, product video, promo, demo video, teaser or motion graphics for their product, app or website.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/product-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/product-film"
+    },
+    {
+      "name": "omnigami-cutout-film",
+      "description": "Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat colour fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, product film, illustrated or animated promo, motion graphics, or a cutout or stop-motion style film for their app, web product or tool.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/cutout-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/cutout-film"
+    },
+    {
+      "name": "omnigami-device-film",
+      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), with captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/device-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/device-film"
+    },
+    {
+      "name": "omnigami-ui-morph",
+      "description": "Make a 16-second square UI-morph film of one real job in the user's product. One shape that never cuts walks through it, each morph being what the click before it opens (the product's button becomes its card, the card its control, the control a loader, a check and the product's own result), with a cursor that presses every step, a caption per step in the product's headline face, springs, blur hand-offs and a song, looping pixel for pixel. Plans the story with the user, delivers an editable local preview and a 1:1 MP4. Use for feature announcements, launch clips, landing-page loops and UI teasers.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/ui-morph.git"
+      },
+      "homepage": "https://omnigami.ai/skills/ui-morph"
+    },
+    {
+      "name": "omnigami-chat-launch",
+      "description": "Make a 23-second chat-style launch video for a product in code, one continuous take at 130 BPM, on the product's real screens - a request typed into its own composer with a glow around it, the send flooding the screen and landing as the message, the product working one step a beat, a colour flood on the drop that bursts into its own result cards, the best one flying back into the chat, a click on its real action, and an outro where the button grows into the page and ends on the brand mark. Renders a tall (9:16) MP4 with sound. Use when the user asks for a launch video, product video, promo, teaser or motion graphics for a product you ask for something - an assistant, search, booking, ordering.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/chat-launch.git"
+      },
+      "homepage": "https://omnigami.ai/skills/chat-launch"
+    },
+    {
+      "name": "omnigami-unfold",
+      "description": "Make a 27-second keynote-style launch video for a product in code, as one continuous take. Every scene is made out of the one before it (a wordmark's letters drop away from its period, the dot becomes a pill, an iris opens onto the product, a grid of its screens, a zoom, a glass toolbar and slider, the product's own flow, a phone and its lock screen, a dot that floods onto the real result and back), driven by a cursor, with a screen-studio camera, cut to 120 BPM, with sound. Renders a looping tall (9:16) MP4. Use when the user asks for a launch video, keynote-style film, product video, promo or motion graphics for their product, app or website.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/unfold.git"
+      },
+      "homepage": "https://omnigami.ai/skills/unfold"
+    },
+    {
+      "name": "omnigami-language-launch",
+      "description": "Make a 15-second announcement video that a product now speaks more languages, on its real screens - the headline \"<name> now speaks\" over each language's own name, a carousel of the product's real screen, one phone per language, swiping one over as each name rolls in, each held long enough to read, then every phone flying into one row under the count, and the end card. Renders a tall (9:16) MP4 with sound. Use when the user asks for a localization, translation, \"now in N languages\", new languages or international launch video.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/language-launch.git"
+      },
+      "homepage": "https://omnigami.ai/skills/language-launch"
+    },
+    {
+      "name": "omnigami-milestone",
+      "description": "Make a 16-second milestone video for a product on its real screens - one tap on the action the product counts, that one result lifting out of the app and multiplying into thousands as a counter rolls to the number, a thank-you, and the field of results closing into the app's icon. Renders a tall (9:16) MP4 with sound. Use when the user asks for a milestone, \"we hit N users\", thank-you, anniversary or celebration video for their product.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/milestone.git"
+      },
+      "homepage": "https://omnigami.ai/skills/milestone"
+    },
+    {
+      "name": "omnigami-illustrated-ad",
+      "description": "Make a 16-second illustrated ad for a physical product - its botanicals or ingredients drawn in engraved ink that draws itself stroke by stroke on warm paper, the real product (a photorealistic render) rising in front of each, a page push to the next, then every product together with a drawn fizz, the line and the call to action. Renders a tall (9:16) MP4 with sound. Use when the user asks for an illustrated ad, product ad, packaging film, drawn or engraved animation for a drink, food, cosmetic or other physical product range.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/illustrated-ad.git"
+      },
+      "homepage": "https://omnigami.ai/skills/illustrated-ad"
+    },
+    {
+      "name": "omnigami-whats-new",
+      "description": "Make a repeatable 20–30 second release video from a product changelog and real screens, in wide, square and tall. Use for a what's-new clip, app update, release notes video or new version announcement.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/whats-new.git"
+      },
+      "homepage": "https://omnigami.ai/skills/whats-new"
+    },
+    {
+      "name": "omnigami-product-reel",
+      "description": "Make a readable product or catalogue reel with photographed items on the beat, real shop or app screens, count-ups, an orbiting collection and a held brand/address. Use for “show everything we make”, collection showcases and short social reels of a range. Includes tall, square and wide layouts.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/product-reel.git"
+      },
+      "homepage": "https://omnigami.ai/skills/product-reel"
+    },
+    {
+      "name": "omnigami-struck-hook",
+      "description": "Make a 5-second opening shot for a launch video in square, wide and tall, with sound. The old way in three huge lines that slam in on the beat, then every line struck through in the brand colour and held. Use when the user asks for a hook, an opener, a \"the old way\" or \"before\" moment, a problem statement, or kinetic type that crosses out the old way, for their product's launch video, teaser or ad.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/struck-hook.git"
+      },
+      "homepage": "https://omnigami.ai/skills/struck-hook"
+    },
+    {
+      "name": "omnigami-typed-promise",
+      "description": "Make a 6-second reveal shot for a launch video in square, wide and tall, with sound. A turn line lands, the brand's mark opens into a prompt bar that types one line and sends it, then the mark lands beside the product's name with a one-line promise and holds. Use when the user asks for a product reveal, a name or logo reveal, a \"type a prompt\" or \"one line is all it takes\" moment, or the turn after the problem, for a launch video of an AI tool, a search, a command-line tool or anything driven by one typed line.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/typed-promise.git"
+      },
+      "homepage": "https://omnigami.ai/skills/typed-promise"
+    },
+    {
+      "name": "omnigami-end-card",
+      "description": "Make a 4-second end card for a launch video in square, wide and tall, with sound. The product's mark is born and slides aside for its name, then the address, the one action (a line to type, or the product's own button) and a tagline land on the beat and hold to the last frame. Use when the user asks for an end card, an outro, a closing frame, a call to action, a logo lockup or \"the ask\" for their product's launch video, teaser, demo or ad.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/end-card.git"
+      },
+      "homepage": "https://omnigami.ai/skills/end-card"
+    },
+    {
+      "name": "omnigami-cursor-camera",
+      "description": "Make an 18-second cursor-led demo for a launch video in square, wide and tall, with sound. One real task on the product's real screens, the way a person does it: a big cursor glides between targets, hovers, clicks, scrolls and drags a selection, and the camera it carries pushes in and pulls back with it, ending on the real result. Use when the user asks for a cursor zoom, an auto-zoom demo, a screen-recording-style walkthrough or a feature clip of their product, app or website.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/cursor-camera.git"
+      },
+      "homepage": "https://omnigami.ai/skills/cursor-camera"
+    },
+    {
+      "name": "omnigami-terminal-film",
+      "description": "Make or revise a terminal film: a roughly 31-second launch film for a developer tool with a real CLI or terminal UI. Adapt the included finished film with the user's real terminal captures, big amber headlines before each run of screens, a moving outline wordmark wall and an extruded 3D brand ending. Produces a wide 16:9 and a tall 9:16 MP4 with the skill's own song, its synth score or the user's own music.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/terminal-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/terminal-film"
+    },
+    {
+      "name": "omnigami-headline-film",
+      "description": "Make a headline film: a wide launch film with large stepped uppercase headlines around real app cards, brief lookalike letter substitutions, close UI actions, fast montage bookends and a brand-mark wipe. Use for a music-led app launch or product promo built from real screens.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/headline-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/headline-film"
+    },
+    {
+      "name": "omnigami-walkthrough-film",
+      "description": "Make or revise a walkthrough film: an editorial product film following one real item through its history, with large type, alternating ink and paper pages, dated corner labels, captured product panels, halftone resolves, dither transitions and a meaningful dot field. Adapts a finished 31-second film and renders a wide (16:9) and a tall (9:16) MP4 with a score. Use for a brand or launch film built around one invoice, meeting, request or other product journey.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/walkthrough-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/walkthrough-film"
+    },
+    {
+      "name": "omnigami-assistant-film",
+      "description": "Make or revise an assistant film: a software launch film of an assistant completing one real workflow. Captured product screens sit on 3D planes, UI elements rise from their actual slots, and the camera follows the action with shallow focus. Delivers an editable, self-contained film and renders a wide (16:9) and a tall (9:16) MP4 with music. Use for an assistant launch, an agent feature announcement, or a cinematic product demo with real UI in depth.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/assistant-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/assistant-film"
+    },
+    {
+      "name": "omnigami-statement-film",
+      "description": "Make a statement film: a roughly 60-second type-led launch film of a software workflow, with large serif statements, the user's real request typed large and opened into the app, three brand-colour fields, real app windows opening from circle stand-ins, tilted close-ups, visible presses, a payoff line whose circle holds the real result and grows into a product-derived frame that closes into the mark. Use for a narrated-by-captions product or agent launch video. Renders a wide (16:9) and a tall (9:16) MP4 with music and effects, plus the editable HTML film.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/statement-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/statement-film"
+    },
+    {
+      "name": "omnigami-collage-film",
+      "description": "Make a roughly 33-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's colour with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid. Use for a textured collage product film or an editorial software launch video. Renders a wide (16:9) and a tall (9:16) MP4 and ships the editable canvas film.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/collage-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/collage-film"
+    },
+    {
+      "name": "omnigami-android-style-logo-reveal",
+      "description": "Make a 15.5-second logo reveal for a product, in code, in the grammar of Android's 2019 brand film (an independent style study) - the product's own mark constructed from its own geometry (grid lines on its edges, compass circles from its arcs, anchors) while four short benefit lines land beside it, the mark filling in the order its idea gives, a push into the mark until its colour is the frame, the first word of the product's line landing alone, a wipe in one of the mark's own shapes carrying it into the line, a disc stretching into the product's own input or button, the press blooming into the frame, and a pull back out onto the lockup. Renders a wide (16:9) MP4 with music. Use when the user asks for a logo reveal, logo animation, brand opener, intro, mark animation or an Android-style logo reveal for their product.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/android-style-logo-reveal.git"
+      },
+      "homepage": "https://omnigami.ai/skills/android-style-logo-reveal"
+    },
+    {
+      "name": "omnigami-question-film",
+      "description": "Make a 30-second tall (9:16) film of a product that answers requests, in code, in the grammar of Spotify's \"Now you can talk to Spotify\" ad (an independent style study) - the user's questions fill the screen in the product's own input-field style, each one folds up into a headline band as the product's real answer rises under it, the next question drops down over the answer, a real button in an answer opens into the next request, and the film closes into the product's own input with its line typed in and the mark and wordmark lockup. Renders a tall MP4 with music. Use when the user asks for a question film, a vertical or tall app ad, a Reel/TikTok/Shorts ad for an assistant, search, chat or booking product, or a Spotify-style \"talk to it\" film of their product.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/question-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/question-film"
+    },
+    {
+      "name": "omnigami-verb-sting",
+      "description": "Make a 13.5-second wide (16:9) sting of a product, in code, with the product's wordmark dressed in its own screens resolving to white, then short imperative phrases, one per shot (\"Bill it.\", \"Send it.\", \"Get paid.\"), each splitting so the product's real screen pops in between its words and does that action on the beat (a pointer glides in, hovers, presses, and the app's real next state holds to read), hard cuts on a 120 BPM grid, and the exact lockup landing on a bar line. Renders an MP4 with music. Use when the user asks for a verb sting, a sting, a short punchy product ad, an \"it does this, and this\" film, a keynote-style feature roll or a short launch teaser of their app's real actions.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/verb-sting.git"
+      },
+      "homepage": "https://omnigami.ai/skills/verb-sting"
+    },
+    {
+      "name": "omnigami-verb-film",
+      "description": "Make a 9.5-second film of a product, in code, wide (16:9) and tall (9:16) - the product's wordmark opening dressed in its own materials and resolving to white, then six short imperative phrases, one per shot (\"Bill it.\", \"Send it.\", \"Get paid.\"), each acting out its own verb in its type with a real piece of the product (the words typed while an amount ticks up, an outline filled solid and sent, a status pill stepping, a burst of the app's own notifications, its list spun onto the phrase, its chart bar lifting the last word), hard cuts on a 120 BPM grid, and the exact lockup on a bar line. Renders MP4s with music. Use when the user asks for a verb film, a kinetic type film or sting of their product's verbs, a short punchy product ad, an \"it does this, and this\" film or a short launch teaser in wide and tall.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/verb-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/verb-film"
+    }
+  ]
+}
