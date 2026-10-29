@@ -232,6 +232,15 @@
         "url": "https://github.com/omnigami-ai/verb-film.git"
       },
       "homepage": "https://omnigami.ai/skills/verb-film"
+    },
+    {
+      "name": "omnigami-journey-film",
+      "description": "Make a 20–35 second film of one journey through a product, one step per shot — the first thing a person does, each step after it, the moment it pays off — on photoreal 3D devices (a laptop and a phone) that land on bold flat grounds in front of one big still word, the product's real screens changing exactly as the app does, the journey's steps as the film's graphic, the product's own line typed at the payoff and contracting into its real card, and an end that closes into the product's own outline or its lockup. The film is a rounded card on a page; cuts land on a 120 BPM grid with the skill's own song. Renders tall (9:16) and wide (16:9) MP4s with music, each composed for its frame. Use when the user asks for a product journey or how-it-works film, a flow explained end to end (sending an invoice, ordering, booking, checking out, publishing), or a product video that shows how the product is used, tall for TikTok, Reels or Shorts and wide for YouTube or a site.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/journey-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/journey-film"
     }
   ]
 }
