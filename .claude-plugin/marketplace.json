@@ -241,6 +241,15 @@
         "url": "https://github.com/omnigami-ai/journey-film.git"
       },
       "homepage": "https://omnigami.ai/skills/journey-film"
+    },
+    {
+      "name": "omnigami-share-cards",
+      "description": "Give every page of a website its own link-preview card, made from the product's real screens in one family of layouts, wire the og:image and Twitter tags, and keep new pages covered. Use when someone wants OG images, social cards or link previews for their site, docs, changelog or blog, or says their links unfurl with a generic image or none.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/share-cards.git"
+      },
+      "homepage": "https://omnigami.ai/skills/share-cards"
     }
   ]
 }
