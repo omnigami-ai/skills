@@ -9,6 +9,24 @@
   },
   "plugins": [
     {
+      "name": "omnigami-device-mockups",
+      "description": "Make photoreal device stills from a product’s real desktop and phone screens on a pale studio ground: a frontal laptop and phone, an optional product headline, or a tall phone and input/result pair. Delivers editable self-contained HTML and PNGs at 1920 × 1080 and 1080 × 1920. Use for light product mockups, website hero artwork, device stills or social product images.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/device-mockups.git"
+      },
+      "homepage": "https://omnigami.ai/skills/device-mockups"
+    },
+    {
+      "name": "omnigami-screen-lit-mockups",
+      "description": "Make screen-lit device stills from a product’s real dark phone screen: an angled phone in the product accent light, an optional product headline, or a near-frontal tall phone with an optional photographic generated hand. Delivers editable self-contained HTML and PNGs at 1920 × 1080 and 1080 × 1920. Use for dark app mockups, screen-lit phone imagery, website hero artwork or social product images.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/screen-lit-mockups.git"
+      },
+      "homepage": "https://omnigami.ai/skills/screen-lit-mockups"
+    },
+    {
       "name": "omnigami-product-film",
       "description": "Make a 34-second launch video for a product from its real screens, in five acts (the problem, the promise, four proof steps of the product in action, the result, the ask), with a big cursor, a moving camera, captions and sound, in square, wide and tall. Use when the user asks for a launch video, product video, promo, demo video, teaser or motion graphics for their product, app or website.",
       "source": {
