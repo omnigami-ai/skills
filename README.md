@@ -42,6 +42,7 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[App Store screenshots](https://omnigami.ai/skills/app-store-screenshots)** ([omnigami-ai/app-store-screenshots](https://github.com/omnigami-ai/app-store-screenshots), paid: $4.99 once, private to buyers): Make an eight-image iPhone App Store screenshot set from an app's real screens and brand.
 - **[Product deck](https://omnigami.ai/skills/product-deck)** ([omnigami-ai/product-deck](https://github.com/omnigami-ai/product-deck), paid: $7.99 once, private to buyers): Make a product presentation from the product's real screens, with one benefit title and one large native piece per slide, restrained space, live photoreal hardware where supported, and speaker talking points.
 - **[App Store preview](https://omnigami.ai/skills/app-store-preview)** ([omnigami-ai/app-store-preview](https://github.com/omnigami-ai/app-store-preview), paid: $4.99 once, private to buyers): Make an iPhone App Store preview and a matching tall social film from the app's real screens.
+- **[Sales deck](https://omnigami.ai/skills/sales-deck)** ([omnigami-ai/sales-deck](https://github.com/omnigami-ai/sales-deck), paid: $7.99 once, private to buyers): Make a product deck to send, read and forward from real product screens, with explanatory copy, large native evidence and one next action.
 
 ## Install
 

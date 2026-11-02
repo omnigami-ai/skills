@@ -295,6 +295,15 @@
         "url": "https://github.com/omnigami-ai/app-store-preview.git"
       },
       "homepage": "https://omnigami.ai/skills/app-store-preview"
+    },
+    {
+      "name": "omnigami-sales-deck",
+      "description": "Make a product deck to send, read and forward from real product screens, with explanatory copy, large native evidence and one next action. Delivers offline HTML, PDF, silent MP4 and editable-text PPTX in the requested languages. Use for a sales leave-behind, product guide or pre-read that must make sense without a presenter.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/sales-deck.git"
+      },
+      "homepage": "https://omnigami.ai/skills/sales-deck"
     }
   ]
 }
