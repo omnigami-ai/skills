@@ -250,6 +250,15 @@
         "url": "https://github.com/omnigami-ai/share-cards.git"
       },
       "homepage": "https://omnigami.ai/skills/share-cards"
+    },
+    {
+      "name": "omnigami-app-store-screenshots",
+      "description": "Make an eight-image iPhone App Store screenshot set from an app's real screens and brand. Short lowercase benefit captions sit above large photoreal phones cropped by the frame; distinct physical turns alternate with straight phones, and a genuine device-free collection changes the scale. The first three images explain the category, promise and first result. Delivers editable self-contained HTML and ordered opaque PNGs at 1320 × 2868 and 1206 × 2622, each composed for its size. Use for an iOS app listing, App Store screenshots, a store screenshot redesign or a coordinated screenshot set. Use a video skill for an App Store preview movie.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/app-store-screenshots.git"
+      },
+      "homepage": "https://omnigami.ai/skills/app-store-screenshots"
     }
   ]
 }
