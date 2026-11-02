@@ -259,6 +259,15 @@
         "url": "https://github.com/omnigami-ai/app-store-screenshots.git"
       },
       "homepage": "https://omnigami.ai/skills/app-store-screenshots"
+    },
+    {
+      "name": "omnigami-product-deck",
+      "description": "Make a product presentation from the product's real screens, with one benefit title and one large native piece per slide, restrained space, live photoreal hardware where supported, and speaker talking points. Delivers an offline HTML deck, a matching PDF, a silent 1920 × 1080 MP4 and a PowerPoint file with editable titles and notes. Use for a product demo deck, launch presentation, feature presentation or sales walkthrough to present live. A document intended to be read alone needs a different layout.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/product-deck.git"
+      },
+      "homepage": "https://omnigami.ai/skills/product-deck"
     }
   ]
 }
