@@ -304,6 +304,15 @@
         "url": "https://github.com/omnigami-ai/sales-deck.git"
       },
       "homepage": "https://omnigami.ai/skills/sales-deck"
+    },
+    {
+      "name": "omnigami-pitch-deck",
+      "description": "Make a fundraising pitch deck from a product's real screens and the owner's supplied business facts. Plan the investor argument and design traceable market, traction, model, team and ask graphics. Delivers offline HTML with presenter notes, PDF, silent 1920 × 1080 MP4 and PPTX with editable titles and notes. Use for an investor presentation at pre-seed, seed or later; never invent missing business evidence.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/pitch-deck.git"
+      },
+      "homepage": "https://omnigami.ai/skills/pitch-deck"
     }
   ]
 }
