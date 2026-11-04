@@ -313,6 +313,15 @@
         "url": "https://github.com/omnigami-ai/pitch-deck.git"
       },
       "homepage": "https://omnigami.ai/skills/pitch-deck"
+    },
+    {
+      "name": "omnigami-launch-kit",
+      "description": "Make a coordinated launch campaign from a product's real screens and one recent change. A six-card argument becomes portrait and square carousels, a LinkedIn PDF, feed and story images, X and LinkedIn headers, link previews and matching post copy. Use for a product launch kit, feature announcement campaign or matching launch assets across social platforms.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/launch-kit.git"
+      },
+      "homepage": "https://omnigami.ai/skills/launch-kit"
     }
   ]
 }

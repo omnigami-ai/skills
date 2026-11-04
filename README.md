@@ -44,6 +44,7 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[App Store preview](https://omnigami.ai/skills/app-store-preview)** ([omnigami-ai/app-store-preview](https://github.com/omnigami-ai/app-store-preview), paid: $4.99 once, private to buyers): Make an iPhone App Store preview and a matching tall social film from the app's real screens.
 - **[Sales deck](https://omnigami.ai/skills/sales-deck)** ([omnigami-ai/sales-deck](https://github.com/omnigami-ai/sales-deck), paid: $4.99 once, private to buyers): Make a product deck to send, read and forward from real product screens, with explanatory copy, large native evidence and one next action.
 - **[Pitch deck](https://omnigami.ai/skills/pitch-deck)** ([omnigami-ai/pitch-deck](https://github.com/omnigami-ai/pitch-deck), paid: $4.99 once, private to buyers): Make a fundraising pitch deck from a product's real screens and the owner's supplied business facts.
+- **[Launch kit](https://omnigami.ai/skills/launch-kit)** ([omnigami-ai/launch-kit](https://github.com/omnigami-ai/launch-kit), paid: $4.99 once, private to buyers): Make a coordinated launch campaign from a product's real screens and one recent change.
 
 ## Install
 
