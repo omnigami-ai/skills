@@ -45,6 +45,7 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[Sales deck](https://omnigami.ai/skills/sales-deck)** ([omnigami-ai/sales-deck](https://github.com/omnigami-ai/sales-deck), paid: $4.99 once, private to buyers): Make a product deck to send, read and forward from real product screens, with explanatory copy, large native evidence and one next action.
 - **[Pitch deck](https://omnigami.ai/skills/pitch-deck)** ([omnigami-ai/pitch-deck](https://github.com/omnigami-ai/pitch-deck), paid: $4.99 once, private to buyers): Make a fundraising pitch deck from a product's real screens and the owner's supplied business facts.
 - **[Launch kit](https://omnigami.ai/skills/launch-kit)** ([omnigami-ai/launch-kit](https://github.com/omnigami-ai/launch-kit), paid: $4.99 once, private to buyers): Make a coordinated launch campaign from a product's real screens and one recent change.
+- **[Flow diagram](https://omnigami.ai/skills/flow-diagram)** ([omnigami-ai/flow-diagram](https://github.com/omnigami-ai/flow-diagram), paid: $4.99 once, private to buyers): Make a product flow diagram from a product's real screens — one stable graph of the product's own panels (where work arrives, where it runs, where it recovers, where the result lands) joined by thin permanent connectors, with small signals that travel along them at a constant speed and arrive exactly when the receiving panel changes, the app's real states captured from the app itself.
 
 ## Install
 

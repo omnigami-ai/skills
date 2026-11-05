@@ -322,6 +322,15 @@
         "url": "https://github.com/omnigami-ai/launch-kit.git"
       },
       "homepage": "https://omnigami.ai/skills/launch-kit"
+    },
+    {
+      "name": "omnigami-flow-diagram",
+      "description": "Make a product flow diagram from a product's real screens — one stable graph of the product's own panels (where work arrives, where it runs, where it recovers, where the result lands) joined by thin permanent connectors, with small signals that travel along them at a constant speed and arrive exactly when the receiving panel changes, the app's real states captured from the app itself. Delivers a seamless silent loop (MP4, WebM and a GIF for a README) and a still PNG that reads without motion, wide (1216 × 1000) and as a 800 × 1352 reflow for READMEs and docs. Use when the user asks for a how-it-works diagram, an architecture or workflow diagram of their product, a pipeline or job-flow animation, an animated diagram for a README or docs page, or a loop showing how their product handles a hand-off, a failure and a retry.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/flow-diagram.git"
+      },
+      "homepage": "https://omnigami.ai/skills/flow-diagram"
     }
   ]
 }
