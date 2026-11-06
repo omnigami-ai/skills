@@ -172,7 +172,7 @@
     },
     {
       "name": "omnigami-headline-film",
-      "description": "Make a headline film: a wide launch film with large stepped uppercase headlines around real app cards, brief lookalike letter substitutions, close UI actions, fast montage bookends and a brand-mark wipe. Use for a music-led app launch or product promo built from real screens.",
+      "description": "Make a headline film: a wide launch film with large stepped uppercase headlines around real app cards, brief lookalike letter substitutions, close UI actions, fast montage bookends and a slash wipe. Use for a music-led app launch or product promo built from real screens.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/headline-film.git"
