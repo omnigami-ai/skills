@@ -10,6 +10,7 @@ at omnigami.ai and shared with the buyer's GitHub account. This repository is
 the catalogue; each skill is in its own. Watch every skill play live, and edit
 it, at [omnigami.ai](https://omnigami.ai).
 
+- **[Skill finder](https://omnigami.ai/skills/skill-finder)** ([omnigami-ai/skill-finder](https://github.com/omnigami-ai/skill-finder), free, instructions only): Recommend which omnigami skill fits a job for the user's own product, or say honestly that none does.
 - **[Device mockups](https://omnigami.ai/skills/device-mockups)** ([omnigami-ai/device-mockups](https://github.com/omnigami-ai/device-mockups)): Device mockups from your product's real screens: photoreal laptop and phone stills on a pale studio ground, with an optional headline.
 - **[Screen-lit mockups](https://omnigami.ai/skills/screen-lit-mockups)** ([omnigami-ai/screen-lit-mockups](https://github.com/omnigami-ai/screen-lit-mockups), paid: $4.99 once, private to buyers): Make screen-lit device stills from a product’s real dark phone screen: an angled phone in the product accent light, an optional product headline, or a near-frontal tall phone with an optional photographic generated hand.
 - **[Product film](https://omnigami.ai/skills/product-film)** ([omnigami-ai/product-film](https://github.com/omnigami-ai/product-film)): Launch video from your product's real screens: 34 seconds in five acts (problem, promise, the product at work, result, ask) with a big cursor, a moving camera, captions and sound, in wide, square and tall, with an optional narrated version.
