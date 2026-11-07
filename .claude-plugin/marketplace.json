@@ -331,6 +331,15 @@
         "url": "https://github.com/omnigami-ai/flow-diagram.git"
       },
       "homepage": "https://omnigami.ai/skills/flow-diagram"
+    },
+    {
+      "name": "omnigami-changelog-clips",
+      "description": "Make one short UI demo per shipped change from a web app's real screens. Delivers separate silent web, square and portrait MP4/WebM clips, result posters and editable source. Use for changelog media, release-note loops and individual feature-update clips; use a whole release-film skill for a montage.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/changelog-clips.git"
+      },
+      "homepage": "https://omnigami.ai/skills/changelog-clips"
     }
   ]
 }
