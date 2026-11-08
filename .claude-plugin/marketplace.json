@@ -349,6 +349,15 @@
         "url": "https://github.com/omnigami-ai/changelog-clips.git"
       },
       "homepage": "https://omnigami.ai/skills/changelog-clips"
+    },
+    {
+      "name": "omnigami-recording-film",
+      "description": "Make a product film from the user's own phone screen recording. Play one complete real task at normal speed on a photoreal live 3D phone, with five macro camera views joined by four hard cuts, shallow focus that reaches each press early, a black studio and a static brand close. Deliver 9:16 and 16:9 MP4s with music and editable source. If no recording is supplied, capture real usage of the user's web app in its phone layout, including native loading, presses and scrolling. Use for a screen-recording video, phone demo film or cinematic recording treatment.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/recording-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/recording-film"
     }
   ]
 }

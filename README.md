@@ -48,6 +48,7 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[Launch kit](https://omnigami.ai/skills/launch-kit)** ([omnigami-ai/launch-kit](https://github.com/omnigami-ai/launch-kit), paid: $4.99 once, private to buyers): Make a coordinated launch campaign from a product's real screens and one recent change.
 - **[Flow diagram](https://omnigami.ai/skills/flow-diagram)** ([omnigami-ai/flow-diagram](https://github.com/omnigami-ai/flow-diagram), paid: $4.99 once, private to buyers): Make a product flow diagram from a product's real screens — one stable graph of the product's own panels (where work arrives, where it runs, where it recovers, where the result lands) joined by thin permanent connectors, with small signals that travel along them at a constant speed and arrive exactly when the receiving panel changes, the app's real states captured from the app itself.
 - **[Changelog clips](https://omnigami.ai/skills/changelog-clips)** ([omnigami-ai/changelog-clips](https://github.com/omnigami-ai/changelog-clips)): Make one short UI demo per shipped change from a web app's real screens.
+- **[Recording film](https://omnigami.ai/skills/recording-film)** ([omnigami-ai/recording-film](https://github.com/omnigami-ai/recording-film), Pro: $4.99 once, private to buyers): Make a product film from the user's own phone screen recording.
 
 ## Install
 
