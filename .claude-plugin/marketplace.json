@@ -358,6 +358,15 @@
         "url": "https://github.com/omnigami-ai/recording-film.git"
       },
       "homepage": "https://omnigami.ai/skills/recording-film"
+    },
+    {
+      "name": "omnigami-live-demo",
+      "description": "Make a silent guided product demo from one real task, its native confirmation and its lasting result. Deliver a self-contained HTML embed with Pause, Replay, reduced-motion and text equivalents, plus a matching 16:9 MP4. Use for an in-page product walkthrough, homepage demo or short task demonstration from the user's actual app and sample data.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/live-demo.git"
+      },
+      "homepage": "https://omnigami.ai/skills/live-demo"
     }
   ]
 }

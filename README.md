@@ -49,6 +49,7 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[Flow diagram](https://omnigami.ai/skills/flow-diagram)** ([omnigami-ai/flow-diagram](https://github.com/omnigami-ai/flow-diagram), Pro: $4.99 once, private to buyers): Make a product flow diagram from a product's real screens — one stable graph of the product's own panels (where work arrives, where it runs, where it recovers, where the result lands) joined by thin permanent connectors, with small signals that travel along them at a constant speed and arrive exactly when the receiving panel changes, the app's real states captured from the app itself.
 - **[Changelog clips](https://omnigami.ai/skills/changelog-clips)** ([omnigami-ai/changelog-clips](https://github.com/omnigami-ai/changelog-clips)): Make one short UI demo per shipped change from a web app's real screens.
 - **[Recording film](https://omnigami.ai/skills/recording-film)** ([omnigami-ai/recording-film](https://github.com/omnigami-ai/recording-film), Pro: $4.99 once, private to buyers): Make a product film from the user's own phone screen recording.
+- **[Live demo](https://omnigami.ai/skills/live-demo)** ([omnigami-ai/live-demo](https://github.com/omnigami-ai/live-demo), Pro: $7.99 once, private to buyers): Make a silent guided product demo from one real task, its native confirmation and its lasting result.
 
 ## Install
 
