@@ -1,14 +1,45 @@
 # omnigami skills
 
-Agent Skills for Claude Code and other agents, starting with video. Each skill
-teaches your agent one kind of work for your own product or project. The first
-ones make videos from your real screens, words and colours: whole films and
-single scenes, built in code and rendered to MP4, wide and tall (most also
-square). Each brings a finished example, a style guide, a critique rubric and
-the scripts to check its own work. Most are free; a few are paid, bought once
-at omnigami.ai and shared with the buyer's GitHub account. This repository is
-the catalogue; each skill is in its own. Watch every skill play live, and edit
-it, at [omnigami.ai](https://omnigami.ai).
+Agent Skills that turn your product's real screens into launch films, decks and App Store
+assets. Your agent builds them in code and renders the finished files on your machine, from
+your own screens, words and colours.
+
+[![Watch every omnigami skill play at omnigami.ai](https://omnigami.ai/og/skills.jpg)](https://omnigami.ai/skills)
+
+Each skill brings a finished example, a style guide, a critique rubric and the scripts to
+check its own work. Some are free. The others are Pro, bought once at
+[omnigami.ai](https://omnigami.ai/skills) and shared with the buyer's GitHub account.
+
+If one of these saves you an afternoon, a star on this repository helps other people find them.
+
+## Install
+
+Each skill lives in its own repository, so you download only the ones you use.
+
+In Claude Code, add this catalogue once, then install skills by name:
+
+```
+/plugin marketplace add omnigami-ai/skills
+/plugin install omnigami-product-film@omnigami
+```
+
+With the skills CLI, for Claude Code and other agents, install a skill from its repository:
+
+```bash
+npx skills add omnigami-ai/product-film
+```
+
+Or copy a skill's `skills/<name>/` folder from its repository into your agent's skills folder
+(for Claude Code, `~/.claude/skills/`). Then ask for what you want, for example:
+
+```
+Make a launch video for https://your-product.com
+```
+
+## The skills
+
+This repository is the catalogue; each skill is in its own. Watch any of them play, and edit it, at
+[omnigami.ai](https://omnigami.ai/skills).
 
 - **[Skill finder](https://omnigami.ai/skills/skill-finder)** ([omnigami-ai/skill-finder](https://github.com/omnigami-ai/skill-finder), free, instructions only): Recommend which omnigami skill fits a job for the user's own product, or say honestly that none does.
 - **[Device mockups](https://omnigami.ai/skills/device-mockups)** ([omnigami-ai/device-mockups](https://github.com/omnigami-ai/device-mockups)): Device mockups from your product's real screens: photoreal laptop and phone stills on a pale studio ground, with an optional headline.
@@ -51,30 +82,6 @@ it, at [omnigami.ai](https://omnigami.ai).
 - **[Recording film](https://omnigami.ai/skills/recording-film)** ([omnigami-ai/recording-film](https://github.com/omnigami-ai/recording-film), Pro: $4.99 once, private to buyers): Make a product film from the user's own phone screen recording.
 - **[Live demo](https://omnigami.ai/skills/live-demo)** ([omnigami-ai/live-demo](https://github.com/omnigami-ai/live-demo), Pro: $7.99 once, private to buyers): Make a silent guided product demo from one real task, its native confirmation and its lasting result.
 
-## Install
-
-Each skill lives in its own repository, so you download only the ones you use.
-
-In Claude Code, add this catalogue once, then install skills by name:
-
-```
-/plugin marketplace add omnigami-ai/skills
-/plugin install omnigami-product-film@omnigami
-```
-
-With the skills CLI, for Claude Code and other agents, install a skill from its repository:
-
-```bash
-npx skills add omnigami-ai/product-film
-```
-
-Or copy a skill's `skills/<name>/` folder from its repository into your agent's skills folder
-(for Claude Code, `~/.claude/skills/`). Then ask for what you want, for example:
-
-```
-Make a launch video for https://your-product.com
-```
-
 ## You need
 
 - Node 20 or later, ffmpeg, and Chrome, Chromium, Edge or Brave. Each skill
@@ -82,11 +89,11 @@ Make a launch video for https://your-product.com
 - An agent that can run commands. Claude Code with Opus 5.5 is the only one
   we test on.
 
-A run uses your own Claude plan; beyond a paid skill's one-time price, nothing else is charged.
+A run uses your own Claude plan; beyond a Pro skill's one-time price, nothing else is charged.
 
 ## Licence
 
-The free skills are free to use, and a paid skill is for its buyer. Use the
+The free skills are free to use, and a Pro skill is for its buyer. Use the
 films and anything else the skills make for anything, commercial work included.
 Don't redistribute the skills. See
 [LICENSE.md](LICENSE.md). The bundled fonts keep their own licence (SIL Open
