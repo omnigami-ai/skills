@@ -4,7 +4,7 @@ Agent Skills that turn your product's real screens into launch films, decks and 
 assets. Your agent builds them in code and renders the finished files on your machine, from
 your own screens, words and colours.
 
-[![Watch every omnigami skill play at omnigami.ai](https://omnigami.ai/og/skills.jpg)](https://omnigami.ai/skills)
+[![Watch every omnigami skill play at omnigami.ai](https://omnigami.ai/og/home.jpg)](https://omnigami.ai/skills)
 
 Each skill brings a finished example, a style guide, a critique rubric and the scripts to
 check its own work. Some are free. The others are Pro, bought once at
