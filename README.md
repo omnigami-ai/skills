@@ -81,6 +81,7 @@ This repository is the catalogue; each skill is in its own. Watch any of them pl
 - **[Changelog clips](https://omnigami.ai/skills/changelog-clips)** ([omnigami-ai/changelog-clips](https://github.com/omnigami-ai/changelog-clips)): Make one short UI demo per shipped change from a web app's real screens.
 - **[Recording film](https://omnigami.ai/skills/recording-film)** ([omnigami-ai/recording-film](https://github.com/omnigami-ai/recording-film), Pro: $4.99 once, private to buyers): Make a product film from the user's own phone screen recording.
 - **[Live demo](https://omnigami.ai/skills/live-demo)** ([omnigami-ai/live-demo](https://github.com/omnigami-ai/live-demo), Pro: $7.99 once, private to buyers): Make a silent guided product demo from one real task, its native confirmation and its lasting result.
+- **[Exploded view film](https://omnigami.ai/skills/exploded-view-film)** ([omnigami-ai/exploded-view-film](https://github.com/omnigami-ai/exploded-view-film), Pro: $7.99 once, private to buyers): Make an exploded view launch film of a physical product from its accurate 3D model and internal parts.
 
 ## You need
 

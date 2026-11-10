@@ -367,6 +367,15 @@
         "url": "https://github.com/omnigami-ai/live-demo.git"
       },
       "homepage": "https://omnigami.ai/skills/live-demo"
+    },
+    {
+      "name": "omnigami-exploded-view-film",
+      "description": "Make an exploded view launch film of a physical product from its accurate 3D model and internal parts. One opening and one reassembly follow the real assembly, with a part per story beat, benefit captions, a flow line, photoreal materials and music. Makes separate wide (16:9) and tall (9:16) MP4s using Blender plates and a Python compositor. Use for a hardware launch, a product cutaway, an exploded assembly film or an explanation of how a physical product works.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/exploded-view-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/exploded-view-film"
     }
   ]
 }
