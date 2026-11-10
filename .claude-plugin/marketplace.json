@@ -82,7 +82,7 @@
     },
     {
       "name": "omnigami-unfold",
-      "description": "Make a 27-second keynote-style launch video for a product in code, as one continuous take. Every scene is made out of the one before it (a wordmark's letters drop away from its period, the dot becomes a pill, an iris opens onto the product, a grid of its screens, a zoom, a glass toolbar and slider, the product's own flow, a phone and its lock screen, a dot that floods onto the real result and back), driven by a cursor, with a screen-studio camera, cut to 120 BPM, with sound. Renders a looping tall (9:16) MP4. Use when the user asks for a launch video, keynote-style film, product video, promo or motion graphics for their product, app or website.",
+      "description": "Make a 30-second keynote-style launch video for a product in code, as one continuous take. Every scene is made out of the one before it (a wordmark's letters drop away from its period, the dot becomes a pill, an iris opens onto the product, a grid of its screens, a zoom, a glass toolbar and slider, the product's own flow, a phone and its lock screen, a dot that floods onto the real result and back), driven by a cursor, with a screen-studio camera, cut to 120 BPM, with sound. Renders looping tall (9:16) and wide (16:9) MP4s. Use when the user asks for a launch video, keynote-style film, product video, promo or motion graphics for their product, app or website.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/unfold.git"
