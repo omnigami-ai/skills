@@ -376,6 +376,15 @@
         "url": "https://github.com/omnigami-ai/exploded-view-film.git"
       },
       "homepage": "https://omnigami.ai/skills/exploded-view-film"
+    },
+    {
+      "name": "omnigami-prompt-reel",
+      "description": "Make a reel of a product's real prompts and the outputs they made: converging statements, a typed prompt with name tokens, one output opening from the bar, a burst that gets faster, a registered change of subject and your brand at the close. Wide and tall MP4s with music. Use for AI tools, generators, builders, agents and products where a request becomes a result.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/prompt-reel.git"
+      },
+      "homepage": "https://omnigami.ai/skills/prompt-reel"
     }
   ]
 }
