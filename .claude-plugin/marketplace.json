@@ -289,7 +289,7 @@
     },
     {
       "name": "omnigami-product-deck",
-      "description": "Make a product presentation from the product's real screens, with one benefit title and one large native piece per slide, restrained space, live photoreal hardware where supported, and speaker talking points. Delivers an offline HTML deck, a matching PDF, a silent 1920 × 1080 MP4 and a PowerPoint file with editable titles and notes. Use for a product demo deck, launch presentation, feature presentation or sales walkthrough to present live. A document intended to be read alone needs a different layout.",
+      "description": "Make a product presentation with brand-tinted photography, large light sans headlines, real screens in photoreal devices or edge crops, and speaker notes. Exports an offline HTML deck, PDF, silent MP4 and PowerPoint with editable headlines. Use for a live product walkthrough, demo or launch presentation; a document meant to be read alone needs another layout.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/product-deck.git"
@@ -307,7 +307,7 @@
     },
     {
       "name": "omnigami-sales-deck",
-      "description": "Make a product deck to send, read and forward from real product screens, with explanatory copy, large native evidence and one next action. Delivers offline HTML, PDF, silent MP4 and editable-text PPTX in the requested languages. Use for a sales leave-behind, product guide or pre-read that must make sense without a presenter.",
+      "description": "Make a sales deck from real product screens, buyer questions, large device evidence and imagery from the product’s working world. Delivers offline HTML, PDF, silent MP4 and editable-text PPTX in the requested languages. Use for a sales leave-behind or buyer pre-read that makes sense without a presenter.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/sales-deck.git"
@@ -316,7 +316,7 @@
     },
     {
       "name": "omnigami-pitch-deck",
-      "description": "Make a fundraising pitch deck from a product's real screens and the owner's supplied business facts. Plan the investor argument and design traceable market, traction, model, team and ask graphics. Delivers offline HTML with presenter notes, PDF, silent 1920 × 1080 MP4 and PPTX with editable titles and notes. Use for an investor presentation at pre-seed, seed or later; never invent missing business evidence.",
+      "description": "Make an investor pitch deck from a product's real screens, identity and owner-supplied business facts. Bold brand motifs, chapter dividers, edge-bound photography, rendered devices and honest business graphics. Delivers offline HTML with presenter notes, PDF, silent 1920 × 1080 MP4 and PPTX with editable headlines and notes. Never invent missing evidence.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/pitch-deck.git"
@@ -385,6 +385,24 @@
         "url": "https://github.com/omnigami-ai/prompt-reel.git"
       },
       "homepage": "https://omnigami.ai/skills/prompt-reel"
+    },
+    {
+      "name": "omnigami-case-study-deck",
+      "description": "Make a customer case study deck from a product’s real screens, brand and one evidenced customer decision, for sales, a website or a pitch. Export an editable offline HTML presentation, PDF, silent MP4 and PowerPoint with talking points.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/case-study-deck.git"
+      },
+      "homepage": "https://omnigami.ai/skills/case-study-deck"
+    },
+    {
+      "name": "omnigami-how-to-carousel",
+      "description": "Make an eight-page how-to carousel from one problem your product solves, using real screens, large phones, brand colour fields and photographs. Exports 1080 × 1350 PNGs and a LinkedIn document PDF.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/how-to-carousel.git"
+      },
+      "homepage": "https://omnigami.ai/skills/how-to-carousel"
     }
   ]
 }
