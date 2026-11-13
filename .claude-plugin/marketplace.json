@@ -135,24 +135,6 @@
       "homepage": "https://omnigami.ai/skills/product-reel"
     },
     {
-      "name": "omnigami-struck-hook",
-      "description": "Opening hook for a launch video: the old way in three huge lines that slam in on the beat, then each struck through in your brand colour. 5 seconds, square, wide and tall, with sound. Use when the user asks for a hook, an opener, a \"the old way\" or \"before\" moment, a problem statement or kinetic type for a launch video, teaser or ad.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/omnigami-ai/struck-hook.git"
-      },
-      "homepage": "https://omnigami.ai/skills/struck-hook"
-    },
-    {
-      "name": "omnigami-typed-promise",
-      "description": "Name reveal for a launch video: your mark opens into a prompt bar that types one line and sends it, then lands beside your product's name and its one-line promise. 6 seconds, square, wide and tall, with sound. Use when the user asks for a product, name or logo reveal or a \"type a prompt\" moment, especially for an AI tool, search or command-line tool.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/omnigami-ai/typed-promise.git"
-      },
-      "homepage": "https://omnigami.ai/skills/typed-promise"
-    },
-    {
       "name": "omnigami-end-card",
       "description": "End card for a launch video: your mark, name, address, the one action (a line to type or your own button) and a tagline, landing on the beat and held to the last frame. 4 seconds, square, wide and tall, with sound. Use when the user asks for an end card, outro, closing frame, call to action or logo lockup for a launch video, teaser, demo or ad.",
       "source": {
