@@ -280,7 +280,7 @@
     },
     {
       "name": "omnigami-app-store-preview",
-      "description": "Make an iPhone App Store preview and matching tall social film from real app-usage recordings. Capture the user's phone app with native feedback and a travelling touch pointer, or use their own device recording. Deliver checked 886 × 1920 and 1080 × 1920 MP4s, full-frame store footage, a live 3D social phone with optical focus, the included song, editable local source and posters.",
+      "description": "Make an App Store preview and matching portrait social film from the user's real mobile app. Short benefit chapters introduce a complete app card, grow it to full frame, show one real tap and its native response, then push into the next chapter. Deliver checked 886 × 1920 and 1080 × 1920 MP4s, the included song, editable local source, posters and review evidence.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/app-store-preview.git"
