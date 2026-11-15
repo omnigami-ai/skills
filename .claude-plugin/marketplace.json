@@ -199,7 +199,7 @@
     },
     {
       "name": "omnigami-collage-film",
-      "description": "Make a roughly 33-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's colour with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid. Use for a textured collage product film or an editorial software launch video. Renders a wide (16:9) and a tall (9:16) MP4 and ships the editable canvas film.",
+      "description": "Make a roughly 36-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's colour with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid. Use for a textured collage product film or an editorial software launch video. Renders a wide (16:9) and a tall (9:16) MP4 and ships the editable canvas film.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/collage-film.git"
