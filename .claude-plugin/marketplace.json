@@ -360,6 +360,15 @@
       "homepage": "https://omnigami.ai/skills/exploded-view-film"
     },
     {
+      "name": "omnigami-lifestyle-film",
+      "description": "Make a tall lifestyle film from two photographs of the same physical subject and the product’s real phone screens. Move from the place to one thing in it, raise a live 3D phone already showing that thing, demonstrate one real task and its result, and close on the product’s identity. Use for launch or landing-page films for materials, plants, food, goods, rooms, stays and workshop tools.",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/omnigami-ai/lifestyle-film.git"
+      },
+      "homepage": "https://omnigami.ai/skills/lifestyle-film"
+    },
+    {
       "name": "omnigami-prompt-reel",
       "description": "Make a reel of a product's real prompts and the outputs they made: converging statements, a typed prompt with name tokens, one output opening from the bar, a burst that gets faster, a registered change of subject and your brand at the close. Wide and tall MP4s with music. Use for AI tools, generators, builders, agents and products where a request becomes a result.",
       "source": {
