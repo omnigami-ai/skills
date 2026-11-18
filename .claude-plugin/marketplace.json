@@ -136,7 +136,7 @@
     },
     {
       "name": "omnigami-end-card",
-      "description": "End card for a launch video: your mark, name, address, the one action (a line to type or your own button) and a tagline, landing on the beat and held to the last frame. 4 seconds, square, wide and tall, with sound. Use when the user asks for an end card, outro, closing frame, call to action or logo lockup for a launch video, teaser, demo or ad.",
+      "description": "Make a branded end card: quiet logo and address, or a short tagline pulling back into the mark. Optionally attach it to an existing video with matched sound. Use for an end card, outro or closing logo lockup.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/end-card.git"
