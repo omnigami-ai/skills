@@ -2,7 +2,7 @@
 
 Agent Skills that turn your product's real screens into launch films, decks and App Store
 assets. Your agent builds them in code and renders the finished files on your machine, from
-your own screens, words and colours.
+your own screens, words and colors.
 
 [![Watch every omnigami skill play at omnigami.ai](https://omnigami.ai/og/home.jpg)](https://omnigami.ai/skills)
 
@@ -16,7 +16,7 @@ If one of these saves you an afternoon, a star on this repository helps other pe
 
 Each skill lives in its own repository, so you download only the ones you use.
 
-In Claude Code, add this catalogue once, then install skills by name:
+In Claude Code, add this catalog once, then install skills by name:
 
 ```
 /plugin marketplace add omnigami-ai/skills
@@ -38,15 +38,15 @@ Make a launch video for https://your-product.com
 
 ## The skills
 
-This repository is the catalogue; each skill is in its own. Watch any of them play, and edit it, at
+This repository is the catalog; each skill is in its own. Watch any of them play, and edit it, at
 [omnigami.ai](https://omnigami.ai/skills).
 
 - **[Skill finder](https://omnigami.ai/skills/skill-finder)** ([omnigami-ai/skill-finder](https://github.com/omnigami-ai/skill-finder), free, instructions only): Recommend which omnigami skill fits a job for the user's own product, or say honestly that none does.
 - **[Device mockups](https://omnigami.ai/skills/device-mockups)** ([omnigami-ai/device-mockups](https://github.com/omnigami-ai/device-mockups)): Device mockups from your product's real screens: photoreal laptop and phone stills on a pale studio ground, with an optional headline.
 - **[Screen-lit mockups](https://omnigami.ai/skills/screen-lit-mockups)** ([omnigami-ai/screen-lit-mockups](https://github.com/omnigami-ai/screen-lit-mockups), Pro: $4.99 once, private to buyers): Make dark phone mockups from a product's real screenshots with three photographic lighting presets, Q, R and T, plus an optional classic phone-in-hand shot.
 - **[Product film](https://omnigami.ai/skills/product-film)** ([omnigami-ai/product-film](https://github.com/omnigami-ai/product-film)): Launch video from your product's real screens: 34 seconds in five acts (problem, promise, the product at work, result, ask) with a big cursor, a moving camera, captions and sound, in wide, square and tall, with an optional narrated version.
-- **[Cutout film](https://omnigami.ai/skills/cutout-film)** ([omnigami-ai/cutout-film](https://github.com/omnigami-ai/cutout-film), Pro: $4.99 once, private to buyers): Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat colour fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat.
-- **[Device film](https://omnigami.ai/skills/device-film)** ([omnigami-ai/device-film](https://github.com/omnigami-ai/device-film), Pro: $7.99 once, private to buyers): Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), with captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines.
+- **[Cutout film](https://omnigami.ai/skills/cutout-film)** ([omnigami-ai/cutout-film](https://github.com/omnigami-ai/cutout-film), Pro: $4.99 once, private to buyers): Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat color fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat.
+- **[Device film](https://omnigami.ai/skills/device-film)** ([omnigami-ai/device-film](https://github.com/omnigami-ai/device-film), Pro: $7.99 once, private to buyers): Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), with captions as their own shots centered on a light field with one word in the brand's color, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines.
 - **[UI morph](https://omnigami.ai/skills/ui-morph)** ([omnigami-ai/ui-morph](https://github.com/omnigami-ai/ui-morph)): UI animation of one real task in your product: one shape that never cuts morphs from button to card to control to result, with a cursor, captions and a song, as a 16-second looping square MP4.
 - **[Chat launch](https://omnigami.ai/skills/chat-launch)** ([omnigami-ai/chat-launch](https://github.com/omnigami-ai/chat-launch)): Chat-style launch video for a product you ask for things (an assistant, search, booking, ordering): a request typed into its real composer, the product working one step a beat, its results bursting out, ending on the brand.
 - **[Unfold](https://omnigami.ai/skills/unfold)** ([omnigami-ai/unfold](https://github.com/omnigami-ai/unfold)): Make a 30-second keynote-style launch video for a product in code, as one continuous take.
@@ -61,9 +61,9 @@ This repository is the catalogue; each skill is in its own. Watch any of them pl
 - **[Headline film](https://omnigami.ai/skills/headline-film)** ([omnigami-ai/headline-film](https://github.com/omnigami-ai/headline-film), Pro: $4.99 once, private to buyers): Make a headline film: a wide launch film with large stepped uppercase headlines around real app cards, brief lookalike letter substitutions, close UI actions, fast montage bookends and a slash wipe.
 - **[Walkthrough film](https://omnigami.ai/skills/walkthrough-film)** ([omnigami-ai/walkthrough-film](https://github.com/omnigami-ai/walkthrough-film), Pro: $7.99 once, private to buyers): Make or revise a walkthrough film: an editorial product film following one real item through its history, with large type, alternating ink and paper pages, dated corner labels, captured product panels, halftone resolves, dither transitions and a meaningful dot field.
 - **[Assistant film](https://omnigami.ai/skills/assistant-film)** ([omnigami-ai/assistant-film](https://github.com/omnigami-ai/assistant-film), Pro: $7.99 once, private to buyers): Make or revise an assistant film: a software launch film of an assistant completing one real workflow.
-- **[Statement film](https://omnigami.ai/skills/statement-film)** ([omnigami-ai/statement-film](https://github.com/omnigami-ai/statement-film), Pro: $7.99 once, private to buyers): Make a statement film: a roughly 60-second type-led launch film of a software workflow, with large serif statements, the user's real request typed large and opened into the app, three brand-colour fields, real app windows opening from circle stand-ins, tilted close-ups, visible presses, a payoff line whose circle holds the real result and grows into a product-derived frame that closes into the mark.
-- **[Collage film](https://omnigami.ai/skills/collage-film)** ([omnigami-ai/collage-film](https://github.com/omnigami-ai/collage-film), Pro: $4.99 once, private to buyers): Make a roughly 36-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's colour with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid.
-- **[Android Style Logo Reveal](https://omnigami.ai/skills/android-style-logo-reveal)** ([omnigami-ai/android-style-logo-reveal](https://github.com/omnigami-ai/android-style-logo-reveal)): Logo reveal built from your mark's own geometry: grid lines and compass circles construct it while short benefit lines land beside it, then a push into its colour, your line, and a pull back to the lockup.
+- **[Statement film](https://omnigami.ai/skills/statement-film)** ([omnigami-ai/statement-film](https://github.com/omnigami-ai/statement-film), Pro: $7.99 once, private to buyers): Make a statement film: a roughly 60-second type-led launch film of a software workflow, with large serif statements, the user's real request typed large and opened into the app, three brand-color fields, real app windows opening from circle stand-ins, tilted close-ups, visible presses, a payoff line whose circle holds the real result and grows into a product-derived frame that closes into the mark.
+- **[Collage film](https://omnigami.ai/skills/collage-film)** ([omnigami-ai/collage-film](https://github.com/omnigami-ai/collage-film), Pro: $4.99 once, private to buyers): Make a roughly 36-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's color with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid.
+- **[Android Style Logo Reveal](https://omnigami.ai/skills/android-style-logo-reveal)** ([omnigami-ai/android-style-logo-reveal](https://github.com/omnigami-ai/android-style-logo-reveal)): Logo reveal built from your mark's own geometry: grid lines and compass circles construct it while short benefit lines land beside it, then a push into its color, your line, and a pull back to the lockup.
 - **[Question film](https://omnigami.ai/skills/question-film)** ([omnigami-ai/question-film](https://github.com/omnigami-ai/question-film)): Tall app ad for a product that answers requests: your users' questions fill the screen in your own input style, each folding up as your product's real answer rises under it, closing on your input and lockup.
 - **[Verb sting](https://omnigami.ai/skills/verb-sting)** ([omnigami-ai/verb-sting](https://github.com/omnigami-ai/verb-sting), Pro: $4.99 once, private to buyers): Make a 13.5-second sting of a product, wide (16:9) and tall (9:16, for TikTok, Reels and Shorts), in code, with the product's wordmark dressed in its own screens resolving to white, then short imperative phrases, one per shot ("Bill it.", "Send it.", "Get paid."), each splitting so the product's real screen pops in between its words and does that action on the beat (a pointer glides in, hovers, presses, and the app's real next state holds to read), hard cuts on a 120 BPM grid, and the exact lockup landing on a bar line.
 - **[Verb film](https://omnigami.ai/skills/verb-film)** ([omnigami-ai/verb-film](https://github.com/omnigami-ai/verb-film), Pro: $4.99 once, private to buyers): Make a short kinetic product film in wide and tall.
@@ -83,7 +83,7 @@ This repository is the catalogue; each skill is in its own. Watch any of them pl
 - **[Lifestyle film](https://omnigami.ai/skills/lifestyle-film)** ([omnigami-ai/lifestyle-film](https://github.com/omnigami-ai/lifestyle-film)): Make a tall lifestyle film from two photographs of the same physical subject and the product’s real phone screens.
 - **[Prompt reel](https://omnigami.ai/skills/prompt-reel)** ([omnigami-ai/prompt-reel](https://github.com/omnigami-ai/prompt-reel)): Make a reel of a product's real prompts and the outputs they made: converging statements, a typed prompt with name tokens, one output opening from the bar, a burst that gets faster, a registered change of subject and your brand at the close.
 - **[Case study deck](https://omnigami.ai/skills/case-study-deck)** ([omnigami-ai/case-study-deck](https://github.com/omnigami-ai/case-study-deck), Pro: $4.99 once, private to buyers): Make a customer case study deck from a product’s real screens, brand and one evidenced customer decision, for sales, a website or a pitch.
-- **[How-to carousel](https://omnigami.ai/skills/how-to-carousel)** ([omnigami-ai/how-to-carousel](https://github.com/omnigami-ai/how-to-carousel), Pro: $4.99 once, private to buyers): Make an eight-page how-to carousel from one problem your product solves, using real screens, large phones, brand colour fields and photographs.
+- **[How-to carousel](https://omnigami.ai/skills/how-to-carousel)** ([omnigami-ai/how-to-carousel](https://github.com/omnigami-ai/how-to-carousel), Pro: $4.99 once, private to buyers): Make an eight-page how-to carousel from one problem your product solves, using real screens, large phones, brand color fields and photographs.
 
 ## You need
 
@@ -94,12 +94,12 @@ This repository is the catalogue; each skill is in its own. Watch any of them pl
 
 A run uses your own Claude plan; beyond a Pro skill's one-time price, nothing else is charged.
 
-## Licence
+## License
 
 The free skills are free to use, and a Pro skill is for its buyer. Use the
 films and anything else the skills make for anything, commercial work included.
 Don't redistribute the skills. See
-[LICENSE.md](LICENSE.md). The bundled fonts keep their own licence (SIL Open
+[LICENSE.md](LICENSE.md). The bundled fonts keep their own license (SIL Open
 Font License; see each skill's `reference/assets/fonts/`).
 
 ## Examples

@@ -1,4 +1,4 @@
-# omnigami skills licence
+# omnigami skills license
 
 Copyright © 2026 Auberon LLC (omnigami.ai). All rights reserved, except as
 granted below.
@@ -30,12 +30,12 @@ stems.
   so others may use the same or similar music. If a platform flags or claims a
   film because of its song, tell us at hello@omnigami.ai and we'll replace it;
   meanwhile you can render with another section of the song, the skill's
-  synthesised score, or a song of your own.
+  synthesized score, or a song of your own.
 
 ## Other parts
 
 The fonts in each skill's `reference/assets/fonts/` folder are under the SIL
-Open Font License; their licence files sit beside them.
+Open Font License; their license files sit beside them.
 
 ## No warranty
 

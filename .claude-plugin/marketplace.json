@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "omnigami-skill-finder",
-      "description": "Recommend which omnigami skill fits a job for the user's own product, or say honestly that none does. Reads the product and the request, chooses from omnigami's published catalogue (a free skill whenever one meets the brief), and returns the install line, the first request filled in for the product, and one alternative with its trade-off. Use when the user asks which omnigami skill to use for a film, scene, image set or deck, or names this skill. It recommends only: it installs, buys and makes nothing.",
+      "description": "Recommend which omnigami skill fits a job for the user's own product, or say honestly that none does. Reads the product and the request, chooses from omnigami's published catalog (a free skill whenever one meets the brief), and returns the install line, the first request filled in for the product, and one alternative with its trade-off. Use when the user asks which omnigami skill to use for a film, scene, image set or deck, or names this skill. It recommends only: it installs, buys and makes nothing.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/skill-finder.git"
@@ -28,7 +28,7 @@
     },
     {
       "name": "omnigami-screen-lit-mockups",
-      "description": "Make dark phone mockups from a product's real screenshots with three photographic lighting presets, Q, R and T, plus an optional classic phone-in-hand shot. Delivers wide phone shots, headline-and-phone shots and separately composed tall shots as PNGs. Uses shipped Cycles layers and a Python compositor; the optional hand uses local WebGL. Blender is optional for new angles or hardware colours. Use for dark mobile app artwork, landing-page heroes and launch posts.",
+      "description": "Make dark phone mockups from a product's real screenshots with three photographic lighting presets, Q, R and T, plus an optional classic phone-in-hand shot. Delivers wide phone shots, headline-and-phone shots and separately composed tall shots as PNGs. Uses shipped Cycles layers and a Python compositor; the optional hand uses local WebGL. Blender is optional for new angles or hardware colors. Use for dark mobile app artwork, landing-page heroes and launch posts.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/screen-lit-mockups.git"
@@ -46,7 +46,7 @@
     },
     {
       "name": "omnigami-cutout-film",
-      "description": "Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat colour fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, product film, illustrated or animated promo, motion graphics, or a cutout or stop-motion style film for their app, web product or tool.",
+      "description": "Make a 30–40 second launch film of a software product's real UI in a stepped, illustrated cutout style - 12 fps with every frame a new drawing and no motion blur, flat color fields changed by hard cuts, the product's own screens redrawn large as vectors, an oversized leaning cursor, mock-3D cutout objects with thickness, an ink outline and a hard shadow, devices taken only from the product's own world, and room to read every beat. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, product film, illustrated or animated promo, motion graphics, or a cutout or stop-motion style film for their app, web product or tool.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/cutout-film.git"
@@ -55,7 +55,7 @@
     },
     {
       "name": "omnigami-device-film",
-      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), with captions as their own shots centred on a light field with one word in the brand's colour, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
+      "description": "Make a 40–48 second launch film of a software product's real screens on photoreal 3D devices (a laptop and a phone), with captions as their own shots centered on a light field with one word in the brand's color, dark hardware large at strong angles that eases hard into place, a laptop that glides in and opens with its lid sweeping across the words, the real UI full frame, phones that spin into a lineup, cuts on the music's bar lines. Renders a wide (16:9) and a tall (9:16) MP4 with music. Use when the user asks for a premium launch video, a product film with devices, a keynote-style film, or a device mockup video of their app.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/device-film.git"
@@ -127,7 +127,7 @@
     },
     {
       "name": "omnigami-product-reel",
-      "description": "Product reel of everything you make: photographed items on the beat, real shop or app screens, count-ups, an orbiting collection and your brand and address held at the end, in tall, square and wide. Use for \"show everything we make\", collection showcases, catalogue reels and short social reels of a range.",
+      "description": "Product reel of everything you make: photographed items on the beat, real shop or app screens, count-ups, an orbiting collection and your brand and address held at the end, in tall, square and wide. Use for \"show everything we make\", collection showcases, catalog reels and short social reels of a range.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/product-reel.git"
@@ -190,7 +190,7 @@
     },
     {
       "name": "omnigami-statement-film",
-      "description": "Make a statement film: a roughly 60-second type-led launch film of a software workflow, with large serif statements, the user's real request typed large and opened into the app, three brand-colour fields, real app windows opening from circle stand-ins, tilted close-ups, visible presses, a payoff line whose circle holds the real result and grows into a product-derived frame that closes into the mark. Use for a narrated-by-captions product or agent launch video. Renders a wide (16:9) and a tall (9:16) MP4 with music and effects, plus the editable HTML film.",
+      "description": "Make a statement film: a roughly 60-second type-led launch film of a software workflow, with large serif statements, the user's real request typed large and opened into the app, three brand-color fields, real app windows opening from circle stand-ins, tilted close-ups, visible presses, a payoff line whose circle holds the real result and grows into a product-derived frame that closes into the mark. Use for a narrated-by-captions product or agent launch video. Renders a wide (16:9) and a tall (9:16) MP4 with music and effects, plus the editable HTML film.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/statement-film.git"
@@ -199,7 +199,7 @@
     },
     {
       "name": "omnigami-collage-film",
-      "description": "Make a roughly 36-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's colour with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid. Use for a textured collage product film or an editorial software launch video. Renders a wide (16:9) and a tall (9:16) MP4 and ships the editable canvas film.",
+      "description": "Make a roughly 36-second editorial launch film from a product's real screens, printed like an annual report, with numbered spreads on the brand's color with one paper and one ink spread, two-ink halftone photo plates, hairline rules, small-capital captions and directed spread changes on a musical grid. Use for a textured collage product film or an editorial software launch video. Renders a wide (16:9) and a tall (9:16) MP4 and ships the editable canvas film.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/collage-film.git"
@@ -208,7 +208,7 @@
     },
     {
       "name": "omnigami-android-style-logo-reveal",
-      "description": "Logo reveal built from your mark's own geometry: grid lines and compass circles construct it while short benefit lines land beside it, then a push into its colour, your line, and a pull back to the lockup. 15.5 seconds, wide, with music; an independent style study of Android's 2019 brand film. Use when the user asks for a logo reveal, logo animation, brand opener, intro or mark animation.",
+      "description": "Logo reveal built from your mark's own geometry: grid lines and compass circles construct it while short benefit lines land beside it, then a push into its color, your line, and a pull back to the lockup. 15.5 seconds, wide, with music; an independent style study of Android's 2019 brand film. Use when the user asks for a logo reveal, logo animation, brand opener, intro or mark animation.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/android-style-logo-reveal.git"
@@ -388,7 +388,7 @@
     },
     {
       "name": "omnigami-how-to-carousel",
-      "description": "Make an eight-page how-to carousel from one problem your product solves, using real screens, large phones, brand colour fields and photographs. Exports 1080 × 1350 PNGs and a LinkedIn document PDF.",
+      "description": "Make an eight-page how-to carousel from one problem your product solves, using real screens, large phones, brand color fields and photographs. Exports 1080 × 1350 PNGs and a LinkedIn document PDF.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/how-to-carousel.git"
