@@ -1,0 +1,15 @@
+{
+  "slug": "chat-launch",
+  "repository": "omnigami-ai/chat-launch",
+  "version": "1.0.16",
+  "commit": "c9bc83549092f2a1e1a89b10067c234292e56887",
+  "digest": "sha256:4c954915c99d8877145c4783a090df1c8960404719abc4603f20d742ce01c776",
+  "archiveBytes": 14939408,
+  "unpackedBytes": 16142757,
+  "files": 142,
+  "filename": "chat-launch-4c954915c99d8877.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/chat-launch-4c954915c99d8877.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/chat-launch/releases/download/v1.0.16/chat-launch-4c954915c99d8877.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}

@@ -1,0 +1,15 @@
+{
+  "slug": "ui-morph",
+  "repository": "omnigami-ai/ui-morph",
+  "version": "1.0.16",
+  "commit": "e6ad12090d0e2e979bb4ce5f7c34a39a60ec0408",
+  "digest": "sha256:da91538944ea37fd956885451e9aa9cd38e119ca4301b456b922fafa70ecfda9",
+  "archiveBytes": 11714412,
+  "unpackedBytes": 12754547,
+  "files": 81,
+  "filename": "ui-morph-da91538944ea37fd.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/ui-morph-da91538944ea37fd.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/ui-morph/releases/download/v1.0.16/ui-morph-da91538944ea37fd.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}

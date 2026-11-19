@@ -1,0 +1,15 @@
+{
+  "slug": "whats-new",
+  "repository": "omnigami-ai/whats-new",
+  "version": "1.0.16",
+  "commit": "85cd89b90e62682d7ccb9889446c25c97bdb4cab",
+  "digest": "sha256:ac15e31f6e220c3154d895f1196dcacf827b499f71b8caec034caa086d646f93",
+  "archiveBytes": 38233374,
+  "unpackedBytes": 39992137,
+  "files": 221,
+  "filename": "whats-new-ac15e31f6e220c31.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/whats-new-ac15e31f6e220c31.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/whats-new/releases/download/v1.0.16/whats-new-ac15e31f6e220c31.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}

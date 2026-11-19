@@ -1,0 +1,15 @@
+{
+  "slug": "product-film",
+  "repository": "omnigami-ai/product-film",
+  "version": "1.0.17",
+  "commit": "5e4b15c87c7062b3670f737ace01748d57dd9605",
+  "digest": "sha256:aa870f22e602f0a7ed7d08dc29fde299dc607f18f6094632197be45c9b9a9cf7",
+  "archiveBytes": 15308047,
+  "unpackedBytes": 16592257,
+  "files": 103,
+  "filename": "product-film-aa870f22e602f0a7.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/product-film-aa870f22e602f0a7.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/product-film/releases/download/v1.0.17/product-film-aa870f22e602f0a7.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}

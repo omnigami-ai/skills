@@ -6,8 +6,8 @@
   },
   "skills": {
     "skill-finder": {
-      "version": "1.0.33",
-      "commit": "62de255cef005fdbbab74935762656ba7d1ca829",
+      "version": "1.0.34",
+      "commit": "7583725fc48681ffe4d4c9b518a3c1430ab9ccfd",
       "media": "skills/skill-finder-5722a380039bb08a.tar.gz",
       "digest": "sha256:5722a380039bb08af789b6571a3dd10a20f4c8c73b32b33b185cdc8de98404f4",
       "archiveBytes": 27010,
@@ -15,8 +15,8 @@
       "files": 3
     },
     "device-mockups": {
-      "version": "1.0.9",
-      "commit": "444747b35f6c2af22bc29fb0a0829a08743c8f68",
+      "version": "1.0.10",
+      "commit": "864741537218f45c52fd80c0eaa920174f5619f9",
       "media": "skills/device-mockups-c863fe0612782288.tar.gz",
       "digest": "sha256:c863fe06127822884d4e7c36a130fefeb4e0f6b51b3a2d7c9fd9ebf1ba59ef97",
       "archiveBytes": 11432338,
@@ -24,8 +24,8 @@
       "files": 137
     },
     "product-film": {
-      "version": "1.0.16",
-      "commit": "b34f55e4811c08a4273c427201ea0aa6cdb3d5fb",
+      "version": "1.0.17",
+      "commit": "5e4b15c87c7062b3670f737ace01748d57dd9605",
       "media": "skills/product-film-aa870f22e602f0a7.tar.gz",
       "digest": "sha256:aa870f22e602f0a7ed7d08dc29fde299dc607f18f6094632197be45c9b9a9cf7",
       "archiveBytes": 15308047,
@@ -33,8 +33,8 @@
       "files": 103
     },
     "ui-morph": {
-      "version": "1.0.15",
-      "commit": "9344fff38591280cd5e4896f56831967e6130a88",
+      "version": "1.0.16",
+      "commit": "e6ad12090d0e2e979bb4ce5f7c34a39a60ec0408",
       "media": "skills/ui-morph-da91538944ea37fd.tar.gz",
       "digest": "sha256:da91538944ea37fd956885451e9aa9cd38e119ca4301b456b922fafa70ecfda9",
       "archiveBytes": 11714412,
@@ -42,8 +42,8 @@
       "files": 81
     },
     "chat-launch": {
-      "version": "1.0.15",
-      "commit": "ccedf167604f666c5dd6cd0184c5a08543980299",
+      "version": "1.0.16",
+      "commit": "c9bc83549092f2a1e1a89b10067c234292e56887",
       "media": "skills/chat-launch-4c954915c99d8877.tar.gz",
       "digest": "sha256:4c954915c99d8877145c4783a090df1c8960404719abc4603f20d742ce01c776",
       "archiveBytes": 14939408,
@@ -51,8 +51,8 @@
       "files": 142
     },
     "language-launch": {
-      "version": "1.0.13",
-      "commit": "6f51d18c18f138506405e067b685c496712ff7da",
+      "version": "1.0.14",
+      "commit": "30ab3c1869d4d7a1786da3c6da9ed9a3e43a2771",
       "media": "skills/language-launch-4dcf72708c2574f4.tar.gz",
       "digest": "sha256:4dcf72708c2574f4a4df7a9efbf8750b22df0be0032c45281252a23b37566ec3",
       "archiveBytes": 8922116,
@@ -60,8 +60,8 @@
       "files": 85
     },
     "milestone": {
-      "version": "1.0.14",
-      "commit": "d2b4c2a7a5ff80723d50ee9b084d6e124096019c",
+      "version": "1.0.15",
+      "commit": "d2003c72becc2a56779edcb6ae4257886c6c0438",
       "media": "skills/milestone-88ff058b6aa577fa.tar.gz",
       "digest": "sha256:88ff058b6aa577fa65e3c1cf9fac52007d7ff2b93fdb0f074623adaa81084e9d",
       "archiveBytes": 10517955,
@@ -69,8 +69,8 @@
       "files": 106
     },
     "illustrated-ad": {
-      "version": "1.0.12",
-      "commit": "5f354a3de89354362ab0b2d56007c35078544c74",
+      "version": "1.0.13",
+      "commit": "4360645ede41500690d684fa905bb5b0f46ba458",
       "media": "skills/illustrated-ad-d4382422f3b63343.tar.gz",
       "digest": "sha256:d4382422f3b63343a139378406fcef711f7403946b9128f869ba3796b3b4ee13",
       "archiveBytes": 11541489,
@@ -78,8 +78,8 @@
       "files": 83
     },
     "whats-new": {
-      "version": "1.0.15",
-      "commit": "006298f2b9fe2f0a20fcfc04d6423f14528a40f7",
+      "version": "1.0.16",
+      "commit": "85cd89b90e62682d7ccb9889446c25c97bdb4cab",
       "media": "skills/whats-new-ac15e31f6e220c31.tar.gz",
       "digest": "sha256:ac15e31f6e220c3154d895f1196dcacf827b499f71b8caec034caa086d646f93",
       "archiveBytes": 38233374,
@@ -87,8 +87,8 @@
       "files": 221
     },
     "product-reel": {
-      "version": "1.0.13",
-      "commit": "70359430fd676123106494a7c091d6a61803c605",
+      "version": "1.0.14",
+      "commit": "de8cb0e69405d6c3134e321cc0479cd3d3ec18b6",
       "media": "skills/product-reel-dacfe01359549b48.tar.gz",
       "digest": "sha256:dacfe01359549b4864cb1e3475330820d0018c366e0c1e4db316d6bd97a8db80",
       "archiveBytes": 17487538,
@@ -96,8 +96,8 @@
       "files": 139
     },
     "end-card": {
-      "version": "1.0.15",
-      "commit": "6626017cd3a48c182199d34e89007df8dba3e8d4",
+      "version": "1.0.16",
+      "commit": "4484c066bfa5026654e14b897669909b7984c138",
       "media": "skills/end-card-545a79db9809ae4b.tar.gz",
       "digest": "sha256:545a79db9809ae4b8a5e4b08b32620fb1dbfc0c10bee2a0ce5cbb715afdb02b9",
       "archiveBytes": 11303957,
@@ -105,8 +105,8 @@
       "files": 89
     },
     "cursor-camera": {
-      "version": "1.0.13",
-      "commit": "81a5390153a5c4d200fcb84a78fe08f95fb497f5",
+      "version": "1.0.14",
+      "commit": "353448e1d8fde5e021292ff838b4233805ee163b",
       "media": "skills/cursor-camera-1bd752e31af42612.tar.gz",
       "digest": "sha256:1bd752e31af42612078641e0c867adc477eebb18124a9a8bbea669a9d928dec9",
       "archiveBytes": 12745374,
@@ -114,8 +114,8 @@
       "files": 101
     },
     "android-style-logo-reveal": {
-      "version": "1.0.10",
-      "commit": "e1b75367eaf1af044c0c07a2f5520e014bd8df13",
+      "version": "1.0.11",
+      "commit": "5f1952f6029e73f3522619cfa894f450a4e9a731",
       "media": "skills/android-style-logo-reveal-b588bf18dee91ead.tar.gz",
       "digest": "sha256:b588bf18dee91eadc2db0602c991e372fbad86edd4e6e159dc00a8068ac81212",
       "archiveBytes": 4174294,
@@ -123,8 +123,8 @@
       "files": 72
     },
     "question-film": {
-      "version": "1.0.9",
-      "commit": "64a13f5615b09ff9daa3b0c55b6b1458f9f44ff2",
+      "version": "1.0.10",
+      "commit": "f1329893c91164a38d0cd50aec2dbb7a75d1bf7f",
       "media": "skills/question-film-b25140fbd41343d5.tar.gz",
       "digest": "sha256:b25140fbd41343d55765806f896e0e4422257df7e563a0feac24baf5da72f6e8",
       "archiveBytes": 13909220,
@@ -132,8 +132,8 @@
       "files": 134
     },
     "changelog-clips": {
-      "version": "1.0.5",
-      "commit": "c850d0c01864daa3bcdc5c359814d6dbfc73133e",
+      "version": "1.0.6",
+      "commit": "d286dd71619c6ef39a9529b3519e3e55ed079ffb",
       "media": "skills/changelog-clips-82ca7127ec9d2661.tar.gz",
       "digest": "sha256:82ca7127ec9d26619c105193f018109f219f3bae5324674359d8f07d1994d6df",
       "archiveBytes": 12393220,
@@ -141,8 +141,8 @@
       "files": 120
     },
     "lifestyle-film": {
-      "version": "1.0.3",
-      "commit": "7e010a8bde75eb68ae100629ab1032405907ec9f",
+      "version": "1.0.4",
+      "commit": "c9a430ca53acebe4c69f1b6a0067cc8113d6dab1",
       "media": "skills/lifestyle-film-fec4a0e1db489603.tar.gz",
       "digest": "sha256:fec4a0e1db489603c144fca27ec7efa7a5493ba46a212c49f4211dc77acd28a9",
       "archiveBytes": 36494738,
@@ -152,13 +152,13 @@
   },
   "skipped": {
     "unfold": {
-      "version": "1.0.12",
+      "version": "1.0.13",
       "unpackedBytes": 76718178,
       "files": 286,
       "reason": "over the skills CLI archive limits"
     },
     "prompt-reel": {
-      "version": "1.0.3",
+      "version": "1.0.4",
       "unpackedBytes": 83417648,
       "files": 152,
       "reason": "over the skills CLI archive limits"

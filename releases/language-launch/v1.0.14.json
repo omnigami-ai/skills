@@ -1,0 +1,15 @@
+{
+  "slug": "language-launch",
+  "repository": "omnigami-ai/language-launch",
+  "version": "1.0.14",
+  "commit": "30ab3c1869d4d7a1786da3c6da9ed9a3e43a2771",
+  "digest": "sha256:4dcf72708c2574f4a4df7a9efbf8750b22df0be0032c45281252a23b37566ec3",
+  "archiveBytes": 8922116,
+  "unpackedBytes": 10135666,
+  "files": 85,
+  "filename": "language-launch-4dcf72708c2574f4.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/language-launch-4dcf72708c2574f4.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/language-launch/releases/download/v1.0.14/language-launch-4dcf72708c2574f4.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}

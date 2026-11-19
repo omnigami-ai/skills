@@ -1,0 +1,15 @@
+{
+  "slug": "cursor-camera",
+  "repository": "omnigami-ai/cursor-camera",
+  "version": "1.0.14",
+  "commit": "353448e1d8fde5e021292ff838b4233805ee163b",
+  "digest": "sha256:1bd752e31af42612078641e0c867adc477eebb18124a9a8bbea669a9d928dec9",
+  "archiveBytes": 12745374,
+  "unpackedBytes": 13758434,
+  "files": 101,
+  "filename": "cursor-camera-1bd752e31af42612.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/cursor-camera-1bd752e31af42612.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/cursor-camera/releases/download/v1.0.14/cursor-camera-1bd752e31af42612.tar.gz.sigstore.json",
+  "recipeRevision": "29705a558baf3a52c31d18ab36aa224d14a31d91"
+}
