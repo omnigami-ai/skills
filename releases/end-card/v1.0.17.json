@@ -1,0 +1,15 @@
+{
+  "slug": "end-card",
+  "repository": "omnigami-ai/end-card",
+  "version": "1.0.17",
+  "commit": "1c7ad3288133a1a97e25529b79e1f50071087a81",
+  "digest": "sha256:545a79db9809ae4b8a5e4b08b32620fb1dbfc0c10bee2a0ce5cbb715afdb02b9",
+  "archiveBytes": 11303957,
+  "unpackedBytes": 12269790,
+  "files": 89,
+  "filename": "end-card-545a79db9809ae4b.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/end-card-545a79db9809ae4b.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/end-card/releases/download/v1.0.17/end-card-545a79db9809ae4b.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}

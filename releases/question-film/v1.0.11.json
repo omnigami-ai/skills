@@ -1,0 +1,15 @@
+{
+  "slug": "question-film",
+  "repository": "omnigami-ai/question-film",
+  "version": "1.0.11",
+  "commit": "53260de846dcf5bce258262492221bad6b02eed1",
+  "digest": "sha256:b25140fbd41343d55765806f896e0e4422257df7e563a0feac24baf5da72f6e8",
+  "archiveBytes": 13909220,
+  "unpackedBytes": 15126157,
+  "files": 134,
+  "filename": "question-film-b25140fbd41343d5.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/question-film-b25140fbd41343d5.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/question-film/releases/download/v1.0.11/question-film-b25140fbd41343d5.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}

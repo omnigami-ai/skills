@@ -1,0 +1,15 @@
+{
+  "slug": "lifestyle-film",
+  "repository": "omnigami-ai/lifestyle-film",
+  "version": "1.0.5",
+  "commit": "32b40a06f461ea5e6bbec02920d989171ec6ff7e",
+  "digest": "sha256:fec4a0e1db489603c144fca27ec7efa7a5493ba46a212c49f4211dc77acd28a9",
+  "archiveBytes": 36494738,
+  "unpackedBytes": 43330071,
+  "files": 301,
+  "filename": "lifestyle-film-fec4a0e1db489603.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/lifestyle-film-fec4a0e1db489603.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/lifestyle-film/releases/download/v1.0.5/lifestyle-film-fec4a0e1db489603.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}

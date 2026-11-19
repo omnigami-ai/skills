@@ -1,0 +1,15 @@
+{
+  "slug": "android-style-logo-reveal",
+  "repository": "omnigami-ai/android-style-logo-reveal",
+  "version": "1.0.12",
+  "commit": "936e0e12a31317fbdf72e98b163cf9b757ba35c9",
+  "digest": "sha256:b588bf18dee91eadc2db0602c991e372fbad86edd4e6e159dc00a8068ac81212",
+  "archiveBytes": 4174294,
+  "unpackedBytes": 5107485,
+  "files": 72,
+  "filename": "android-style-logo-reveal-b588bf18dee91ead.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/android-style-logo-reveal-b588bf18dee91ead.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/android-style-logo-reveal/releases/download/v1.0.12/android-style-logo-reveal-b588bf18dee91ead.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}
