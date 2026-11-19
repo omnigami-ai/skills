@@ -136,7 +136,7 @@
     },
     {
       "name": "omnigami-end-card",
-      "description": "Make a branded end card: quiet logo and address, or a short tagline pulling back into the mark. Optionally attach it to an existing video with matched sound. Use for an end card, outro or closing logo lockup.",
+      "description": "Make a branded end card or opener: quiet lockup, launch line, brand ground, QR for slides, or a lockup over the last product frame; also a short tagline pulling back into the mark. Optionally attach it to an existing video with matched sound. Use for an end card, outro or closing logo lockup.",
       "source": {
         "source": "url",
         "url": "https://github.com/omnigami-ai/end-card.git"
