@@ -44,12 +44,12 @@ jobs:
           base = 'https://raw.githubusercontent.com/omnigami-ai/skills/'
           Path('candidate.json').write_bytes(fetch(base + revision + '/releases/' + slug + '/' + version + '.json'))
           Path('skill-index.json').write_bytes(fetch(base + revision + '/releases/skill-index.json'))
-          for name in ('archive.py', 'rebuild.py'):
+          for name in ('archive.py', 'rebuild.py', 'test_archive.py'):
               Path(name).write_bytes(fetch(base + os.environ['PACKAGER_REVISION'] + '/provenance/' + name))
           Path('candidate-revision.txt').write_text(revision + '\n')
           PY
       - name: Rebuild and require approved index and published archive equality
-        run: python3 rebuild.py
+        run: python3 test_archive.py && python3 rebuild.py
       - name: Attest rebuilt bytes
         id: attest
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
