@@ -1,0 +1,15 @@
+{
+  "slug": "prompt-reel",
+  "repository": "omnigami-ai/prompt-reel",
+  "version": "1.0.3",
+  "commit": "10166f05f14b032cf51b2a12143cc56a11c902dc",
+  "digest": "sha256:161d16246c4c01de958c08fbe71295cd90c4a2139d8f5c266205ee15a10586be",
+  "archiveBytes": 82187527,
+  "unpackedBytes": 83417648,
+  "files": 152,
+  "filename": "prompt-reel-161d16246c4c01de.tar.gz",
+  "indexed": false,
+  "url": "https://github.com/omnigami-ai/prompt-reel/releases/download/v1.0.3/prompt-reel-161d16246c4c01de.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/prompt-reel/releases/download/v1.0.3/prompt-reel-161d16246c4c01de.tar.gz.sigstore.json",
+  "recipeRevision": "dc2e2f00c28ae24076dd11c0ae803cba22a593c6"
+}

@@ -1,0 +1,15 @@
+{
+  "slug": "milestone",
+  "repository": "omnigami-ai/milestone",
+  "version": "1.0.14",
+  "commit": "d2b4c2a7a5ff80723d50ee9b084d6e124096019c",
+  "digest": "sha256:88ff058b6aa577fa65e3c1cf9fac52007d7ff2b93fdb0f074623adaa81084e9d",
+  "archiveBytes": 10517955,
+  "unpackedBytes": 11790622,
+  "files": 106,
+  "filename": "milestone-88ff058b6aa577fa.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/milestone-88ff058b6aa577fa.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/milestone/releases/download/v1.0.14/milestone-88ff058b6aa577fa.tar.gz.sigstore.json",
+  "recipeRevision": "dc2e2f00c28ae24076dd11c0ae803cba22a593c6"
+}

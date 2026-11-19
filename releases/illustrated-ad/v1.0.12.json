@@ -1,0 +1,15 @@
+{
+  "slug": "illustrated-ad",
+  "repository": "omnigami-ai/illustrated-ad",
+  "version": "1.0.12",
+  "commit": "5f354a3de89354362ab0b2d56007c35078544c74",
+  "digest": "sha256:d4382422f3b63343a139378406fcef711f7403946b9128f869ba3796b3b4ee13",
+  "archiveBytes": 11541489,
+  "unpackedBytes": 12550943,
+  "files": 83,
+  "filename": "illustrated-ad-d4382422f3b63343.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/illustrated-ad-d4382422f3b63343.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/illustrated-ad/releases/download/v1.0.12/illustrated-ad-d4382422f3b63343.tar.gz.sigstore.json",
+  "recipeRevision": "dc2e2f00c28ae24076dd11c0ae803cba22a593c6"
+}

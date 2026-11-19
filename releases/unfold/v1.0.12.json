@@ -1,0 +1,15 @@
+{
+  "slug": "unfold",
+  "repository": "omnigami-ai/unfold",
+  "version": "1.0.12",
+  "commit": "5e411dc70c4e4fcc56696b3742f81250a5db9aa9",
+  "digest": "sha256:dcd4359efd7d5acc0a603b45e2a8ad0b25978cfbd920a520715292a00347a421",
+  "archiveBytes": 74564761,
+  "unpackedBytes": 76718178,
+  "files": 286,
+  "filename": "unfold-dcd4359efd7d5acc.tar.gz",
+  "indexed": false,
+  "url": "https://github.com/omnigami-ai/unfold/releases/download/v1.0.12/unfold-dcd4359efd7d5acc.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/unfold/releases/download/v1.0.12/unfold-dcd4359efd7d5acc.tar.gz.sigstore.json",
+  "recipeRevision": "dc2e2f00c28ae24076dd11c0ae803cba22a593c6"
+}

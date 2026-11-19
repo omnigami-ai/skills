@@ -1,0 +1,15 @@
+{
+  "slug": "device-mockups",
+  "repository": "omnigami-ai/device-mockups",
+  "version": "1.0.9",
+  "commit": "444747b35f6c2af22bc29fb0a0829a08743c8f68",
+  "digest": "sha256:c863fe06127822884d4e7c36a130fefeb4e0f6b51b3a2d7c9fd9ebf1ba59ef97",
+  "archiveBytes": 11432338,
+  "unpackedBytes": 13188916,
+  "files": 137,
+  "filename": "device-mockups-c863fe0612782288.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/device-mockups-c863fe0612782288.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/device-mockups/releases/download/v1.0.9/device-mockups-c863fe0612782288.tar.gz.sigstore.json",
+  "recipeRevision": "dc2e2f00c28ae24076dd11c0ae803cba22a593c6"
+}
