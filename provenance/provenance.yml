@@ -39,7 +39,7 @@ jobs:
               raise SystemExit('Expected a release tag')
           tag = 'provenance/' + slug + '/' + version
           # Git transport avoids the anonymous REST quota shared by hosted runners.
-          ref = subprocess.check_output(['git', 'ls-remote', 'https://github.com/omnigami-ai/skills.git', 'refs/tags/' + tag], text=True).strip()
+          ref = subprocess.check_output(['git', 'ls-remote', 'https://github.com/omnigami-ai/skills.git', 'refs/tags/' + tag, 'refs/tags/' + tag + '^{}'], text=True).strip()
           if not re.fullmatch(r'[0-9a-f]{40}\s+refs/tags/' + re.escape(tag), ref):
               raise SystemExit('Expected one lightweight approved-candidate tag')
           revision = ref.split()[0]
