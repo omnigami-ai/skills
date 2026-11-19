@@ -132,13 +132,13 @@
       "files": 134
     },
     "changelog-clips": {
-      "version": "1.0.8",
-      "commit": "fa24f41550f0c7837776d89f0f8f0db7a0297319",
-      "media": "skills/changelog-clips-70c1ab81576b15c5.tar.gz",
-      "digest": "sha256:70c1ab81576b15c53bec4dd1c34833b0ea43780331670d9afc30fad6cd79589e",
-      "archiveBytes": 12558236,
-      "unpackedBytes": 16370202,
-      "files": 140
+      "version": "1.0.9",
+      "commit": "d8b8caa51d5c7d33912dfeff0563bae5d0deb1d0",
+      "media": "skills/changelog-clips-9b46f02fee50dbd9.tar.gz",
+      "digest": "sha256:9b46f02fee50dbd974376e799b83c66b7fffe975cb96c07da8bca38bfedf446b",
+      "archiveBytes": 13411563,
+      "unpackedBytes": 16721097,
+      "files": 150
     },
     "lifestyle-film": {
       "version": "1.0.5",

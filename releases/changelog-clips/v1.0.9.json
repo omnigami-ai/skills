@@ -1,0 +1,15 @@
+{
+  "slug": "changelog-clips",
+  "repository": "omnigami-ai/changelog-clips",
+  "version": "1.0.9",
+  "commit": "d8b8caa51d5c7d33912dfeff0563bae5d0deb1d0",
+  "digest": "sha256:9b46f02fee50dbd974376e799b83c66b7fffe975cb96c07da8bca38bfedf446b",
+  "archiveBytes": 13411563,
+  "unpackedBytes": 16721097,
+  "files": 150,
+  "filename": "changelog-clips-9b46f02fee50dbd9.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/changelog-clips-9b46f02fee50dbd9.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/changelog-clips/releases/download/v1.0.9/changelog-clips-9b46f02fee50dbd9.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}
