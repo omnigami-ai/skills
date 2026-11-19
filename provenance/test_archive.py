@@ -5,10 +5,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from archive import package
-from rebuild import validate
+from rebuild import validate, fetch
 
 
 class ProvenanceTest(unittest.TestCase):
@@ -31,6 +32,14 @@ class ProvenanceTest(unittest.TestCase):
             self.assertEqual(files['a.sh'][1], 0o775)  # git archive applies its default umask
             (skill / 'a.sh').unlink()
             self.assertEqual(package(root, 'sample', 'HEAD')[0], data)
+
+    def test_download_sets_publisher_user_agent(self):
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'archive'
+        with patch('urllib.request.urlopen', return_value=response) as download:
+            self.assertEqual(fetch('https://media.omnigami.ai/m/skills/fixture.tar.gz'), b'archive')
+        request = download.call_args.args[0]
+        self.assertEqual(request.get_header('User-agent'), 'omnigami-release-verifier/1.0')
 
     def test_candidate_ref_commit_index_and_repository_fail_closed(self):
         commit = 'a' * 40

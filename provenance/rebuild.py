@@ -35,6 +35,12 @@ def validate(record, index, repository, commit, ref):
     return slug
 
 
+def fetch(url):
+    request = urllib.request.Request(url, headers={'User-Agent': 'omnigami-release-verifier/1.0'})
+    with urllib.request.urlopen(request, timeout=120) as response:
+        return response.read()
+
+
 def main():
     record = json.loads(Path('candidate.json').read_text())
     index = json.loads(Path('skill-index.json').read_text())
@@ -50,8 +56,7 @@ def main():
     # Existing indexed objects must still be those exact bytes. Oversized archives
     # are first published as GitHub Release assets after this job has succeeded.
     if record['indexed']:
-        with urllib.request.urlopen(record['url'], timeout=120) as response:
-            require(response.read() == data, 'published R2 archive mismatch')
+        require(fetch(record['url']) == data, 'published R2 archive mismatch')
     out = Path('out/provenance')
     out.mkdir(parents=True, exist_ok=True)
     (out / record['filename']).write_bytes(data)
