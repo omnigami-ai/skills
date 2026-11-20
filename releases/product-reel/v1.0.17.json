@@ -1,0 +1,15 @@
+{
+  "slug": "product-reel",
+  "repository": "omnigami-ai/product-reel",
+  "version": "1.0.17",
+  "commit": "c298da97f69af0fd4291ded5e58cda0fef3406ed",
+  "digest": "sha256:f345c1ceb10001a83ac8ec1b315d53d19cceaac683853853c690afedc47a8738",
+  "archiveBytes": 19066711,
+  "unpackedBytes": 20537108,
+  "files": 150,
+  "filename": "product-reel-f345c1ceb10001a8.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/product-reel-f345c1ceb10001a8.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/product-reel/releases/download/v1.0.17/product-reel-f345c1ceb10001a8.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}

@@ -87,13 +87,13 @@
       "files": 221
     },
     "product-reel": {
-      "version": "1.0.16",
-      "commit": "bddeead56f5cfa42139425de51e60a1742394fcc",
-      "media": "skills/product-reel-78628038a6994b75.tar.gz",
-      "digest": "sha256:78628038a6994b753cb76e74fa44925a250c6d9ff2c1db9fa99f7aca271f02ce",
-      "archiveBytes": 18509402,
-      "unpackedBytes": 19975315,
-      "files": 146
+      "version": "1.0.17",
+      "commit": "c298da97f69af0fd4291ded5e58cda0fef3406ed",
+      "media": "skills/product-reel-f345c1ceb10001a8.tar.gz",
+      "digest": "sha256:f345c1ceb10001a83ac8ec1b315d53d19cceaac683853853c690afedc47a8738",
+      "archiveBytes": 19066711,
+      "unpackedBytes": 20537108,
+      "files": 150
     },
     "end-card": {
       "version": "1.0.17",
