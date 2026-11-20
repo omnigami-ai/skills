@@ -6,12 +6,12 @@
   },
   "skills": {
     "skill-finder": {
-      "version": "1.0.35",
-      "commit": "e6f132b092ad2189750befa2531ff1a3fc3d676f",
-      "media": "skills/skill-finder-5722a380039bb08a.tar.gz",
-      "digest": "sha256:5722a380039bb08af789b6571a3dd10a20f4c8c73b32b33b185cdc8de98404f4",
-      "archiveBytes": 27010,
-      "unpackedBytes": 116698,
+      "version": "1.0.36",
+      "commit": "7cf64a656d489bb8606ef961eedd2bb79b71d6b5",
+      "media": "skills/skill-finder-b5a8d0eb4e49f387.tar.gz",
+      "digest": "sha256:b5a8d0eb4e49f387bfab2859e4311a87afea21bdc8b6c6b93bd62f993ccb819a",
+      "archiveBytes": 27007,
+      "unpackedBytes": 116702,
       "files": 3
     },
     "device-mockups": {
@@ -87,13 +87,13 @@
       "files": 221
     },
     "product-reel": {
-      "version": "1.0.15",
-      "commit": "4c99bb65d9012db732f88f3aeebf2ccd9f647eec",
-      "media": "skills/product-reel-dacfe01359549b48.tar.gz",
-      "digest": "sha256:dacfe01359549b4864cb1e3475330820d0018c366e0c1e4db316d6bd97a8db80",
-      "archiveBytes": 17487538,
-      "unpackedBytes": 18936196,
-      "files": 139
+      "version": "1.0.16",
+      "commit": "bddeead56f5cfa42139425de51e60a1742394fcc",
+      "media": "skills/product-reel-78628038a6994b75.tar.gz",
+      "digest": "sha256:78628038a6994b753cb76e74fa44925a250c6d9ff2c1db9fa99f7aca271f02ce",
+      "archiveBytes": 18509402,
+      "unpackedBytes": 19975315,
+      "files": 146
     },
     "end-card": {
       "version": "1.0.17",

@@ -1,0 +1,15 @@
+{
+  "slug": "skill-finder",
+  "repository": "omnigami-ai/skill-finder",
+  "version": "1.0.36",
+  "commit": "7cf64a656d489bb8606ef961eedd2bb79b71d6b5",
+  "digest": "sha256:b5a8d0eb4e49f387bfab2859e4311a87afea21bdc8b6c6b93bd62f993ccb819a",
+  "archiveBytes": 27007,
+  "unpackedBytes": 116702,
+  "files": 3,
+  "filename": "skill-finder-b5a8d0eb4e49f387.tar.gz",
+  "indexed": true,
+  "url": "https://media.omnigami.ai/m/skills/skill-finder-b5a8d0eb4e49f387.tar.gz",
+  "bundleUrl": "https://github.com/omnigami-ai/skill-finder/releases/download/v1.0.36/skill-finder-b5a8d0eb4e49f387.tar.gz.sigstore.json",
+  "recipeRevision": "647e9b568495af3d6d12fa9c90193a636b47f338"
+}
