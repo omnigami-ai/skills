@@ -45,15 +45,6 @@
       "homepage": "https://omnigami.ai/skills/terminal-film"
     },
     {
-      "name": "omnigami-headline-film",
-      "description": "Make a headline film: a wide launch film with large stepped uppercase headlines around real app cards, brief lookalike letter substitutions, close UI actions, fast montage bookends and a slash wipe. Use for a music-led app launch or product promo built from real screens.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/omnigami-ai/headline-film.git"
-      },
-      "homepage": "https://omnigami.ai/skills/headline-film"
-    },
-    {
       "name": "omnigami-walkthrough-film",
       "description": "Make or revise a walkthrough film: an editorial product film following one real item through its history, with large type, alternating ink and paper pages, dated corner labels, captured product panels, halftone resolves, dither transitions and a meaningful dot field. Adapts a finished 31-second film and renders a wide (16:9) and a tall (9:16) MP4 with a score. Use for a brand or launch film built around one invoice, meeting, request or other product journey.",
       "source": {
@@ -115,15 +106,6 @@
         "url": "https://github.com/omnigami-ai/journey-film.git"
       },
       "homepage": "https://omnigami.ai/skills/journey-film"
-    },
-    {
-      "name": "omnigami-share-cards",
-      "description": "Give every page of a website its own link-preview card, made from the product's real screens in one family of layouts, wire the og:image and Twitter tags, and keep new pages covered. Use when someone wants OG images, social cards or link previews for their site, docs, changelog or blog, or says their links unfurl with a generic image or none.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/omnigami-ai/share-cards.git"
-      },
-      "homepage": "https://omnigami.ai/skills/share-cards"
     },
     {
       "name": "omnigami-app-store-screenshots",
